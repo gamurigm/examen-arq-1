@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <CelularBuildRoot Condition="'$(CelularBuildRoot)' == ''">D:\tools\CelularGR09</CelularBuildRoot>
+    <CelularPackagesRoot Condition="'$(CelularPackagesRoot)' == ''">D:\NuGet\packages</CelularPackagesRoot>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BaseIntermediateOutputPath>$(CelularBuildRoot)\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(CelularBuildRoot)\bin\$(MSBuildProjectName)\</BaseOutputPath>
+    <RestorePackagesPath>$(CelularPackagesRoot)</RestorePackagesPath>
+  </PropertyGroup>
+</Project>
+

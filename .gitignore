@@ -1,0 +1,44 @@
+# IDE y configuracion local
+.vscode/
+.idea/
+.vs/
+.metadata/
+.settings/
+*.iml
+*.user
+*.suo
+*.csproj.user
+local.properties
+
+# Secretos y variables locales
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Compilacion y dependencias descargadas
+**/bin/
+**/obj/
+**/target/
+**/build/
+**/.gradle/
+**/node_modules/
+**/__pycache__/
+.venv/
+
+# Paquetes compilados fuera de directorios de salida
+**/dist/*.jar
+**/dist/*.war
+
+# Temporales del sistema y del SDK
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.log
+*.bak
+*.class
+~$*
