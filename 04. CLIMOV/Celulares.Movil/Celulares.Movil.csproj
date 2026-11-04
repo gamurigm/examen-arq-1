@@ -6,6 +6,7 @@
     <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="CelularesApiUrl" Value="$(CelularesApiUrl)" Condition="'$(CelularesApiUrl)' != ''" />
     <MauiImage Include="Resources\Images\*.svg" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
     <ProjectReference Include="..\..\04. COMPARTIDO\Celulares.Cliente\Celulares.Cliente.csproj" />

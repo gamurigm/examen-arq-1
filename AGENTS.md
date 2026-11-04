@@ -9,3 +9,9 @@
 - Diagramas: PowerDesigner COM instalado en Windows, ejecutar `cscript //nologo "01. UML/GenerarDiagramasCelulares.vbs" <raiz> <raiz>` y el generador de casos específicos según sus argumentos. Revisar destinos antes de ejecutar; conservar modelos existentes completos. Fuente editable y PNG legible son obligatorios. Revisar casos bancarios, actividad, secuencia, clases y arquitectura.
 - MER: ejecutar `02. MER/GenerarModelosCelulares.ps1` indicando ambas raíces locales. Comparar columnas, claves y relaciones con scripts SQL; no sobrescribir modelos manuales sin respaldo.
 - Cierre: pruebas de ambas API, compilación de cuatro clientes y evidencia por interfaz de catálogo, efectivo, crédito nuevo y amortización. Usar QA para ventas; nunca reiniciar datos principales para pruebas. Distinguir probado, implementado y pendiente.
+
+## Generación documental reproducible
+
+Instalar `scripts/requirements-documentacion.txt` en un entorno virtual. Ejecutar, desde la raíz, `python scripts/ValidarDocumentacion.py`, `python scripts/GenerarDocumentacion.py` y `python scripts/RenderizarDocumentacion.py --soffice <ruta-soffice>`. `documentation-profile.json` define fuentes, plantillas y carpetas de borradores/renderizados; `manifest.json` registra hashes. Las fuentes `*_verificado.md` conservan requisitos y evidencias actuales; no borrar las importadas como parte de una regeneración.
+
+Revisar PDFs/PNG antes de sustituir entregables; los borradores actuales no sustituyen automáticamente los Word/PPT previos. PowerDesigner 16.1 está instalado, pero la licencia de evaluación está vencida: no afirmar que los VBS terminaron ni modificar la licencia. Conservar modelos y documentar este bloqueo en el informe de rúbrica.

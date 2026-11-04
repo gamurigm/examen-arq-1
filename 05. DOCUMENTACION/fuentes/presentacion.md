@@ -1,0 +1,1477 @@
+# PRESENTACION — fuente canonica en revision
+
+## Metadatos de la entrega
+
+- Autores: Gabriel Omar Murillo Medina; Julio Enrique Viche Castillo.
+- Grupo: 09.
+- NRC: 36884.
+- Tutor: Ing. Eduardo Mauricio Campaña Ortega.
+- Proyecto: Comercializadora de celulares y módulo de crédito BanQuito.
+- Arquitectura: .NET REST; aplicaciones y bases independientes.
+
+
+[REVISION PENDIENTE: importacion inicial; contrastar con codigo y evidencia actual antes de generar finales]
+
+
+## Diapositiva 1
+
+MANUAL
+
+CELULAR BDDLOCAL REST · SQL SERVER · .NET
+
+Grupo 09 · NRC 36884
+
+Arquitectura de software
+
+CELULAR BDDLOCAL · 2026
+
+FECHA: 27/10/2026
+
+VARIANTE: .NET · REST
+
+1
+
+
+## Diapositiva 2
+
+DESARROLLO
+
+OBJETIVO Y ALCANCE
+
+CASOS DE USO
+
+MODELO CONCEPTUAL
+
+MODELO LÓGICO
+
+MODELO FÍSICO · SQL SERVER
+
+CONFIGURAR BASE DE DATOS
+
+API REST Y PERSISTENCIA
+
+ADMINISTRAR FOTOS
+
+CLIENTE CONSOLA
+
+CLIENTE ESCRITORIO WPF
+
+CLIENTE WEB Y MÓVIL
+
+CONCLUSIONES Y RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+2
+
+
+## Diapositiva 3
+
+DESARROLLO
+
+2.1 OBJETIVO
+
+Desarrollar una tienda .NET 10 para administrar celulares, fotos y ventas mediante una API REST común.
+
+SQL Server 2025 Express conserva catálogo, imágenes y facturas; BanQuito gestiona el crédito aparte.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 4
+
+DESARROLLO
+
+2.2 MODELO CONCEPTUAL Y LÓGICO
+
+CELULAR se relaciona con FACTURA. Cada factura guarda un celular; la foto es opcional y se almacena en SQL Server.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 5
+
+DESARROLLO
+
+2.3 PREPARAR SQL SERVER
+
+Cree ComercializadoraCelulares en SQL Server 2025 Express; proteja la cadena y aplique migración de fotos.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 6
+
+DESARROLLO
+
+El modelo comercial usa CELULAR y FACTURA. Cada factura corresponde a un celular; no se maneja inventario.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 7
+
+DESARROLLO
+
+Revise claves y relaciones. IMAGEN e IMAGEN_TIPO quedan nulas cuando el producto no tiene foto.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 8
+
+DESARROLLO
+
+Use imágenes autorizadas. Acepte JPEG, PNG y WebP de hasta 5 MiB; la API valida firma, tipo y tamaño.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 9
+
+DESARROLLO
+
+2.4 SERVICIO REST
+
+.NET 10 · ASP.NET Core valida catálogo, imágenes y facturas. ADO.NET accede a SQL Server; HttpClient integra BanQuito.
+
+Rutas: /api/celulares · /api/facturas · /api/credito.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 10
+
+DESARROLLO
+
+API .NET 10 · SQL Server 2025 Express · ASP.NET Core REST · BanQuito HTTP independiente.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 11
+
+DESARROLLO
+
+Configure ConnectionStrings__BaseDatos y Servicios__BanQuitoUrl solo en servidor. No copie secretos a clientes ni capturas.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 12
+
+DESARROLLO
+
+Aplique 01_CrearBases.sql, 02_DatosPrueba.sql y 03_MigrarImagenes.sql; verifique esquema y servicios.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 13
+
+DESARROLLO
+
+5. Separar responsabilidades
+
+Web MVC; consola, WPF y MAUI separan vista, controlador y servicio.
+
+API separa controladores, servicios y dominio. Usa ADO.NET e inyección de dependencias; no Entity Framework Core.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 14
+
+DESARROLLO
+
+CELULAR conserva precio y foto. FACTURA registra un celular, descuento, pago y crédito sin controlar existencias.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 15
+
+DESARROLLO
+
+ADO.NET parametriza SQL y libera recursos. Solo API conecta SQL Server; clientes consumen HTTP.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 16
+
+DESARROLLO
+
+Contado descuenta 42%. Crédito requiere elegibilidad, plazo de 3 a 18 meses y tasa anual de 16,5%.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 17
+
+DESARROLLO
+
+10. Ejecute dotnet test y dotnet build; inicie SQL Server, BanQuito y API antes de abrir clientes.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 18
+
+DESARROLLO
+
+2.5 CLIENTE DE CONSOLA
+
+Menú .NET administra catálogo, fotos, ventas y facturas mediante la API REST.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 19
+
+DESARROLLO
+
+Elija una foto desde ruta, valide antes de PUT multipart y permita reemplazarla o quitarla. Límite: 5 MiB.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 20
+
+DESARROLLO
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 21
+
+DESARROLLO
+
+3. MVC web; consola, WPF y MAUI mantienen vista, controlador y servicio. SQL queda en API.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 22
+
+DESARROLLO
+
+Cliente compartido encapsula HttpClient y JSON, valida respuestas y limpia recursos de cada operación.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 23
+
+DESARROLLO
+
+Valide campos, formato y firma real. Rechace archivo vacío, tipo falso, formato no permitido y más de 5 MiB.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 24
+
+DESARROLLO
+
+El menú ofrece catálogo, fotos, venta de contado y crédito, factura y amortización.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 25
+
+DESARROLLO
+
+Contado aplica 42% de descuento. Crédito llama a BanQuito; la factura se confirma solo tras aprobación.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 26
+
+DESARROLLO
+
+2.6 CLIENTE DE ESCRITORIO · WPF administra catálogo y fotos sin abrir conexión directa a SQL Server.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 27
+
+DESARROLLO
+
+Seleccione una foto, revise la vista previa, reemplace o quite. Confirme la eliminación y espere respuesta del API.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 28
+
+DESARROLLO
+
+HttpClient comparte el contrato REST. El cliente libera streams y respuestas, y muestra errores de carga.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 29
+
+DESARROLLO
+
+Rechace extensión engañosa, MIME falso, firma inválida, archivo vacío y tamaño sobre 5 MiB.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 30
+
+DESARROLLO
+
+Reemplace foto con PUT; descárguela sin caché y use DELETE para quitarla sin borrar el celular.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 31
+
+DESARROLLO
+
+6. Catálogo WPF: administre altas, cambios y estado; cargue, reemplace o quite foto desde la ficha.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 32
+
+DESARROLLO
+
+7. Contado: presente precio de lista, descuento del 42%, total y celular seleccionado.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 33
+
+DESARROLLO
+
+8. Crédito: valide elegibilidad y plazo; emita factura solo después de aprobación bancaria.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 34
+
+DESARROLLO
+
+2.7 CLIENTE WEB · ASP.NET CORE MVC
+
+Tienda responsive con tema claro y oscuro; la API valida catálogo, fotos y facturas.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 35
+
+DESARROLLO
+
+Controlador MVC coordina vistas y servicio API. El formulario valida y previsualiza la imagen antes de cargarla.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 36
+
+DESARROLLO
+
+Tema claro y oscuro mantienen contraste, etiquetas y navegación por teclado. La vista no expone credenciales.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 37
+
+DESARROLLO
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+3. Foto opcional: vista previa antes de cargar; reemplazo conserva producto y valida el formato.
+
+
+## Diapositiva 38
+
+DESARROLLO
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+4. Estados de interfaz: sin foto, vista previa, cargando, error y confirmación al quitar.
+
+
+## Diapositiva 39
+
+DESARROLLO
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+1. CLIENTE MÓVIL · .NET MAUI: use FilePicker para cargar, reemplazar o quitar la foto.
+
+
+## Diapositiva 40
+
+DESARROLLO
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+2. Vista, controlador y servicio REST separan selección, validación, transferencia y estado de pantalla.
+
+
+## Diapositiva 41
+
+DESARROLLO
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+3. Android: use IP alcanzable desde emulador o teléfono. Instalación exige emulador activo o dispositivo conectado.
+
+
+## Diapositiva 42
+
+Conclusiones
+
+La API ASP.NET Core REST persiste celulares, fotos y facturas en SQL Server 2025 Express; cuatro clientes comparten servicio.
+
+JPEG, PNG y WebP hasta 5 MiB. BanQuito conserva el crédito en su servicio independiente.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 43
+
+Recomendaciones
+
+Aplique scripts SQL y 03_MigrarImagenes.sql antes de iniciar la API.
+
+Pruebe tamaño, firma falsa, reemplazo, eliminación y fallos de SQL Server o BanQuito.
+
+MAUI compila; instalación y uso real requieren emulador o dispositivo Android conectado.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA
+
+
+## Diapositiva 44
+
+Bibliografía
+
+[1] Grupo 09. Examen complexivo práctico: comercializadora de celulares, enunciado y reglas (2026).
+
+[2] Proyecto CELULAR BDDLOCAL RESTFUL .NET: ERS, ECUD, manual técnico y documentación Microsoft .NET / SQL Server.
+
+MARCO TEÓRICO
+
+DESARROLLO
+
+OBJETIVO
+
+MODELO DE DATOS
+
+SQL SERVER
+
+API REST
+
+CLIENTE CONSOLA
+
+CLIENTE WPF
+
+CLIENTE WEB MVC
+
+CLIENTE MAUI
+
+CONCLUSIONES
+
+RECOMENDACIONES
+
+BIBLIOGRAFÍA

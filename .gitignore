@@ -42,3 +42,6 @@ Desktop.ini
 *.bak
 *.class
 ~$*
+
+# Estado temporal de verificaciones QA
+scripts/*.local.json

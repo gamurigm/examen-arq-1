@@ -2,7 +2,13 @@ using Celulares.Cliente.Controladores;
 using Celulares.Cliente.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Los campos numéricos HTML y JavaScript envían decimales con punto.
+    var index = options.ValueProviderFactories.ToList().FindIndex(f =>
+        f is Microsoft.AspNetCore.Mvc.ModelBinding.FormValueProviderFactory);
+    if (index >= 0) options.ValueProviderFactories[index] = new Celulares.Web.Modelos.FormularioInvariante();
+});
 builder.Services.AddHttpClient<ClienteComercializadora>(cliente =>
 {
     cliente.BaseAddress = ClienteComercializadora.Direccion(builder.Configuration["CelularesApiUrl"]);

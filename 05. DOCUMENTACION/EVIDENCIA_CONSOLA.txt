@@ -1,0 +1,104 @@
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 1 · Celular Aurora 128 GB · USD 450,00 · sin foto
+2 · Celular Nova 256 GB · USD 750,00 · sin foto
+3 · Celular Prisma 64 GB · USD 250,00 · sin foto
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 1 · Celular Aurora 128 GB · USD 450,00 · sin foto
+2 · Celular Nova 256 GB · USD 750,00 · sin foto
+3 · Celular Prisma 64 GB · USD 250,00 · sin foto
+ID existente para editar; vacío para crear: Nombre: Precio de lista: Guardado: QA Consola · $100,00
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 1 · Celular Aurora 128 GB · USD 450,00 · sin foto
+2 · Celular Nova 256 GB · USD 750,00 · sin foto
+3 · Celular Prisma 64 GB · USD 250,00 · sin foto
+4 · QA Consola · USD 100,00 · sin foto
+ID existente para editar; vacío para crear: Nombre: Precio de lista: Guardado: QA Consola editado · $125,00
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 1 · Celular Aurora 128 GB · USD 450,00 · sin foto
+2 · Celular Nova 256 GB · USD 750,00 · sin foto
+3 · Celular Prisma 64 GB · USD 250,00 · sin foto
+4 · QA Consola editado · USD 125,00 · sin foto
+ID del celular: ¿Desactivar el celular? (s/n): Celular desactivado.
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 1 · Celular Aurora 128 GB · USD 450,00 · sin foto
+2 · Celular Nova 256 GB · USD 750,00 · sin foto
+3 · Celular Prisma 64 GB · USD 250,00 · sin foto
+Seleccione ID del celular: Cédula: Nombre del comprador: Pago: 1 efectivo, 2 crédito: 
+Celular Aurora 128 GB · lista $450,00
+Efectivo: total $261,00 · descuento $189,00.
+¿Confirmar la venta? (s/n): 
+Venta APROBADA: factura 1 · $261,00.
+
+FACTURA 1 · APROBADA
+Comprador Consola · QA-EFECTIVO · Celular Aurora 128 GB
+EFECTIVO · precio $450,00 · descuento $189,00 · total $261,00
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 1 · Celular Aurora 128 GB · USD 450,00 · sin foto
+2 · Celular Nova 256 GB · USD 750,00 · sin foto
+3 · Celular Prisma 64 GB · USD 250,00 · sin foto
+Seleccione ID del celular: Cédula: Nombre del comprador: Pago: 1 efectivo, 2 crédito: Cuotas (3 a 18): 
+Celular Aurora 128 GB · lista $450,00
+Crédito: 16,5% anual · plazo 3–18 meses.
+BanQuito: elegible · máximo $2142,00. Sujeto a aprobación al vender.
+¿Confirmar la venta? (s/n): 
+Venta APROBADA: factura 2 · $450,00.
+
+FACTURA 2 · APROBADA
+Ana Consola · 0304050607 · Celular Aurora 128 GB
+CREDITO_DIRECTO · precio $450,00 · descuento $0,00 · total $450,00
+Cuota 0 · 2026-11-04 · $0,00 · interés $0,00 · capital $0,00 · saldo $450,00
+Cuota 1 · 2026-12-04 · $154,14 · interés $6,19 · capital $147,95 · saldo $302,05
+Cuota 2 · 2027-01-04 · $154,14 · interés $4,15 · capital $149,99 · saldo $152,06
+Cuota 3 · 2027-02-04 · $154,15 · interés $2,09 · capital $152,06 · saldo $0,00
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: Cédula: 2 · 2026-11-04 · Celular Aurora 128 GB · $450,00 · APROBADA
+Seleccione número de factura: 
+FACTURA 2 · APROBADA
+Ana Consola · 0304050607 · Celular Aurora 128 GB
+CREDITO_DIRECTO · precio $450,00 · descuento $0,00 · total $450,00
+Cuota 0 · 2026-11-04 · $0,00 · interés $0,00 · capital $0,00 · saldo $450,00
+Cuota 1 · 2026-12-04 · $154,14 · interés $6,19 · capital $147,95 · saldo $302,05
+Cuota 2 · 2027-01-04 · $154,14 · interés $4,15 · capital $149,99 · saldo $152,06
+Cuota 3 · 2027-02-04 · $154,15 · interés $2,09 · capital $152,06 · saldo $0,00
+
+COMERCIALIZADORA GR09
+1 Catálogo  ·  2 Guardar celular  ·  3 Desactivar celular
+4 Nueva venta  ·  5 Elegibilidad de crédito  ·  6 Buscar facturas por cédula
+7 Consultar factura  ·  8 Reintentar venta  ·  9 Descartar pendiente
+10 Cargar o reemplazar foto  ·  11 Quitar foto  ·  12 Cambiar tema  ·  0 Salir
+Opción: 

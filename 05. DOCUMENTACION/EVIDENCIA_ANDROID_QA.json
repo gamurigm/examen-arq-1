@@ -1,0 +1,98 @@
+{
+  "fecha": "2026-11-04T16:20:54.950017",
+  "entorno": {
+    "basesQA": [
+      "BanQuitoCore_QA_20261104_160837_15e961",
+      "ComercializadoraCelulares_QA_20261104_160837_15e961"
+    ],
+    "api": "http://127.0.0.1:19202/",
+    "banco": "http://127.0.0.1:19201/"
+  },
+  "apkSha256": "fabbbafe54c0825550634fad70121928e888a062a2a4de34a2368135e23a9f1a",
+  "casos": [
+    "Catálogo visible",
+    "Alta celular por interfaz",
+    "Edición celular por interfaz",
+    "Desactivación celular por interfaz",
+    "Efectivo aprobado: 450 - 189 = 261",
+    "Crédito nuevo aprobado: 450 / 3 cuotas",
+    "Búsqueda por cédula",
+    "Reapertura factura",
+    "Amortización visible con saldo cero"
+  ],
+  "facturaEfectivo": {
+    "id": 3,
+    "idOperacion": "a31702ab-5166-42eb-8813-f7f0ebd4b775",
+    "fecha": "2026-11-04T21:17:21.3560766",
+    "cedula": "1111111111",
+    "nombreCliente": "Comprador Android",
+    "idCelular": 1,
+    "celular": "Celular Aurora 128 GB",
+    "formaPago": "EFECTIVO",
+    "precio": 450.0,
+    "descuento": 189.0,
+    "total": 261.0,
+    "creditoId": null,
+    "numeroCuotas": null,
+    "estado": "APROBADA"
+  },
+  "facturaCredito": {
+    "id": 4,
+    "idOperacion": "45bbb654-7f2d-42ad-9201-a4eebe69db73",
+    "fecha": "2026-11-04T21:19:07.897025",
+    "cedula": "0102030405",
+    "nombreCliente": "Juan Android",
+    "idCelular": 1,
+    "celular": "Celular Aurora 128 GB",
+    "formaPago": "CREDITO_DIRECTO",
+    "precio": 450.0,
+    "descuento": 0.0,
+    "total": 450.0,
+    "creditoId": 2,
+    "numeroCuotas": 3,
+    "estado": "APROBADA"
+  },
+  "amortizacion": [
+    {
+      "numeroCuota": 0,
+      "fechaPago": "2026-11-04",
+      "valorCuota": 0.0,
+      "interesPagado": 0.0,
+      "capitalPagado": 0.0,
+      "saldo": 450.0
+    },
+    {
+      "numeroCuota": 1,
+      "fechaPago": "2026-12-04",
+      "valorCuota": 154.14,
+      "interesPagado": 6.19,
+      "capitalPagado": 147.95,
+      "saldo": 302.05
+    },
+    {
+      "numeroCuota": 2,
+      "fechaPago": "2027-01-04",
+      "valorCuota": 154.14,
+      "interesPagado": 4.15,
+      "capitalPagado": 149.99,
+      "saldo": 152.06
+    },
+    {
+      "numeroCuota": 3,
+      "fechaPago": "2027-02-04",
+      "valorCuota": 154.15,
+      "interesPagado": 2.09,
+      "capitalPagado": 152.06,
+      "saldo": 0.0
+    }
+  ],
+  "capturas": {
+    "android_amortizacion.png": "da22c24e1b840a9d1856427f5860330e9059a32ebd6fe31e3a69498c00add8e0",
+    "android_busqueda.png": "5527388d741959a9ff2e263eb52f7fcc0f84c2624be7d5bbab229cf744d66950",
+    "android_catalogo.png": "1c0ece2e5818931e1af506a4284ed30c8a271c9d351a03416f7cf33d243408ad",
+    "android_catalogo_editado.png": "d21f6c59699bacc53ea80e26e033bb2b802cd7bee0ed2f10cb12d2ddda6fc445",
+    "android_consulta_amortizacion.png": "7e0d6aefc5eda1cd8daf37cf569d7f6949e012966179730f969e8fea1836cdc0",
+    "android_credito.png": "377d8bd27902d730498e3595847a4ad5d0d8c98c7b01ca38690d9cf3f11c6d75",
+    "android_efectivo.png": "8c6263cd6c7ba0bf5debcfc588715a3b5a1cc8bf6d47a4799d049af216e86dee"
+  }
+}

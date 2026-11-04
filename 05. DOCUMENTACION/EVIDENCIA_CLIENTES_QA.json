@@ -1,0 +1,66 @@
+{
+  "fecha": "2026-11-04T16:07:57.650637",
+  "basesQA": [
+    "BanQuitoCore_QA_20261104_160743_cb2de6",
+    "ComercializadoraCelulares_QA_20261104_160743_cb2de6"
+  ],
+  "casos": [
+    {
+      "caso": "Consola termina correctamente",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Consola catálogo alta y edición",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Consola efectivo y crédito aprobados",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Consola consulta amortización",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Consola sin errores de operación",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web catálogo renderizado",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web alta y edición catálogo",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web desactivación",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web factura EFECTIVO",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web total EFECTIVO",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web factura CREDITO_DIRECTO",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web total CREDITO_DIRECTO",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web amortización renderizada",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Web búsqueda por cédula",
+      "resultado": "APROBADO"
+    }
+  ],
+  "alcance": "Consola por entrada estándar; web por formularios MVC reales con cookies y antiforgery. No prueba JavaScript ni inspección visual."
+}

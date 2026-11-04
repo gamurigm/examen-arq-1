@@ -1,0 +1,32 @@
+{
+  "fecha": "2026-11-04T16:25:43.089726",
+  "casos": [
+    "CatÃ¡logo en navegador real",
+    "Cambio tema por JavaScript",
+    "Alta catÃ¡logo formulario navegador",
+    "EdiciÃ³n catÃ¡logo mediante JavaScript",
+    "DesactivaciÃ³n con confirmaciÃ³n",
+    "Descuento previo y cuotas deshabilitadas en efectivo",
+    "Factura aprobada EFECTIVO",
+    "Elegibilidad por fetch y cuotas habilitadas",
+    "Factura aprobada CREDITO_DIRECTO",
+    "AmortizaciÃ³n renderizada en navegador",
+    "BÃºsqueda y reapertura factura",
+    "Sin desbordamiento horizontal a 390 px",
+    "Sin excepciones JavaScript"
+  ],
+  "erroresJS": [],
+  "entornoQA": {
+    "basesQA": [
+      "BanQuitoCore_QA_20261104_162206_6fdf3a",
+      "ComercializadoraCelulares_QA_20261104_162206_6fdf3a"
+    ],
+    "api": "http://127.0.0.1:19202/",
+    "banco": "http://127.0.0.1:19201/"
+  },
+  "revisionVisual": [
+    "web_responsive.png",
+    "web_credito_directo.png"
+  ],
+  "correccion": "Proveedor de valores de formulario MVC con cultura invariante para decimales HTML."
+}

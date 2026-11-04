@@ -1,0 +1,60 @@
+{
+  "project": {
+    "id": "GR09-CELULARES",
+    "name": "Comercializadora de celulares y credito BanQuito",
+    "source_revision": "caef76f0fc3390b06323913957188b2192e7a67a",
+    "repository": ".",
+    "authors": [
+      "Gabriel Omar Murillo Medina",
+      "Julio Enrique Viche Castillo"
+    ],
+    "group": "Grupo 09",
+    "nrc": "36884",
+    "tutor": "Ing. Eduardo Mauricio Campaña Ortega"
+  },
+  "architecture": {
+    "style": "REST",
+    "language": "C#",
+    "target_framework": "net10.0",
+    "mobile_framework": "net10.0-android",
+    "hosting": "ASP.NET Core en host; SQL Server en Docker",
+    "persistence": "SQL Server con ADO.NET",
+    "authentication": "none",
+    "api_description": "controllers"
+  },
+  "documentation": {
+    "evidence_directory": "05. DOCUMENTACION/evidencias",
+    "draft_directory": "D:/tools/CelularGR09-documentacion/borradores",
+    "render_directory": "D:/tools/CelularGR09-documentacion/renderizados",
+    "artifacts": {
+      "ers": {
+        "source": "05. DOCUMENTACION/fuentes/ers_verificado.md",
+        "template": "examples/01. UML/01. ERS/ERS_SOAP_JAVA_SINBDD_GR69_PLANTILLA.docx",
+        "output": "01. UML/01. ERS/ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx"
+      },
+      "ecud": {
+        "source": "05. DOCUMENTACION/fuentes/ecud_verificado.md",
+        "template": "examples/01. UML/02. ECUD/ECUD_EUREKABANK_SOAP_DOTNET_CONBDD_GR09.docx",
+        "output": "01. UML/02. ECUD/ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx"
+      },
+      "manual": {
+        "source": "05. DOCUMENTACION/fuentes/manual_verificado.md",
+        "template": "examples/05.Documentacion/04.WS_EXAMEN_GRUPO_1.docx",
+        "output": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx"
+      },
+      "presentacion": {
+        "source": "05. DOCUMENTACION/fuentes/presentacion_verificado.md",
+        "template": "examples/05.Documentacion/REST_EXAMEN_GRUPO_1.pptx",
+        "output": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx"
+      }
+    }
+  },
+  "assets": {
+    "target_photos": 30,
+    "preserve_existing_products": true
+  },
+  "acceptance": {
+    "minimum_client_captures": 24,
+    "require_visual_review": true
+  }
+}

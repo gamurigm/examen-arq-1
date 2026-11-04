@@ -1,0 +1,223 @@
+{
+  "fecha": "2026-11-04T16:02:56.667393",
+  "basesQA": [
+    "BanQuitoCore_QA_20261104_160247_d6a71f",
+    "ComercializadoraCelulares_QA_20261104_160247_d6a71f"
+  ],
+  "casos": [
+    {
+      "caso": "Catálogo inicial: tres celulares",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Catálogo: alta y edición",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Catálogo: desactivación",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Elegibilidad 0000000000",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Elegibilidad 0203040506",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Elegibilidad 0405060708",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Elegibilidad 0304050607",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Máximo 35% de diferencia por seis",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Rechazo plazo 2",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Rechazo plazo 19",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Rechazo monto superior al máximo",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Otorgamiento rechaza menor masculino",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Factura rechaza plazo 2",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Factura rechaza plazo 19",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Efectivo: descuento 189 y total 261",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Reintento efectivo sin duplicado",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Crédito 450 aprobado sin descuento",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 3: filas y saldo final",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 3: capital completo",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 3: interés 16,5% anual",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 3/1: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 3/2: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 3/3: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 3: cuota fija salvo ajuste final",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Tabla bancaria coincide con pasarela",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Reintento crédito sin duplicado",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Reintento con datos diferentes rechazado",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cliente con crédito activo no elegible",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Segundo crédito activo rechazado",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Monto igual al máximo aprobado",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 18: filas y saldo final",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 18: capital completo",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 18: interés 16,5% anual",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/1: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/2: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/3: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/4: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/5: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/6: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/7: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/8: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/9: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/10: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/11: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/12: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/13: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/14: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/15: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/16: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/17: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Cuota 18/18: fecha mensual y balance",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Amortización 18: cuota fija salvo ajuste final",
+      "resultado": "APROBADO"
+    },
+    {
+      "caso": "Consulta factura y búsqueda por cédula",
+      "resultado": "APROBADO"
+    }
+  ],
+  "conteosSQL": "Changed database context to 'BanQuitoCore_QA_20261104_160247_d6a71f'.\nCREDITOS   \n-----------\n          2\n\n(1 rows affected)\nChanged database context to 'ComercializadoraCelulares_QA_20261104_160247_d6a71f'.\nFACTURAS   \n-----------\n          2\n\n(1 rows affected)\n",
+  "alcance": "API HTTP; no acredita interacción con cuatro interfaces."
+}
