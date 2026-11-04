@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "Nuevo perfil",
+    "Projects": [
+      {
+        "Path": "04. CLIESC\\Celulares.Escritorio\\Celulares.Escritorio.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "04. SERVIDOR\\BanQuito.Api\\BanQuito.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "04. SERVIDOR\\Comercializadora.Api\\Comercializadora.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

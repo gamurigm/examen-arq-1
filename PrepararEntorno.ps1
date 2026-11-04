@@ -1,4 +1,4 @@
-﻿param([switch]$IniciarApis)
+param([switch]$IniciarApis)
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
@@ -7,9 +7,9 @@ if (!$line) { throw 'Falta MSSQL_SA_PASSWORD en .env' }
 $password = $line.Substring('MSSQL_SA_PASSWORD='.Length)
 & docker compose up -d --wait
 if ($LASTEXITCODE) { throw 'SQL Server no pudo iniciar' }
-$scripts = @('03. BDD/01_CrearBases.sql','03. BDD/03_MigrarImagenes.sql','03. BDD/02_DatosPrueba.sql','03. BDD/BanQuito/BanQuito_01_CrearBase.sql','03. BDD/BanQuito/BanQuito_02_DatosPrueba.sql')
+$scripts = @('01_CrearBases.sql','03_MigrarImagenes.sql','02_DatosPrueba.sql','BanQuito/BanQuito_01_CrearBase.sql','BanQuito/BanQuito_02_DatosPrueba.sql')
 foreach ($script in $scripts) {
-    Get-Content -Raw -LiteralPath $script | & docker compose exec -T sqlserver bash -c '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -b'
+    & docker compose exec -T sqlserver bash -c "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P `"`$MSSQL_SA_PASSWORD`" -C -b -i '/init/$script'"
     if ($LASTEXITCODE) { throw "Fallo SQL: $script" }
 }
 if ($IniciarApis) {
@@ -19,3 +19,4 @@ if ($IniciarApis) {
     }
     Remove-Item Env:ConnectionStrings__BaseDatos
 }
+Write-Host "Entorno preparado exitosamente." -ForegroundColor Green

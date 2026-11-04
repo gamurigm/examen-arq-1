@@ -1,13 +1,16 @@
 <Project>
   <PropertyGroup>
-    <CelularBuildRoot Condition="'$(CelularBuildRoot)' == ''">D:\tools\CelularGR09</CelularBuildRoot>
-    <CelularPackagesRoot Condition="'$(CelularPackagesRoot)' == ''">D:\NuGet\packages</CelularPackagesRoot>
+    <HasDriveD Condition="Exists('D:\')">true</HasDriveD>
+    <CelularBuildRoot Condition="'$(CelularBuildRoot)' == '' and '$(HasDriveD)' == 'true'">D:\tools\CelularGR09</CelularBuildRoot>
+    <CelularPackagesRoot Condition="'$(CelularPackagesRoot)' == '' and '$(HasDriveD)' == 'true'">D:\NuGet\packages</CelularPackagesRoot>
+    <CelularBuildRoot Condition="'$(CelularBuildRoot)' == '' and '$(HasDriveD)' != 'true'">$(MSBuildThisFileDirectory).artifacts</CelularBuildRoot>
+
     <LangVersion>14.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <BaseIntermediateOutputPath>$(CelularBuildRoot)\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
-    <BaseOutputPath>$(CelularBuildRoot)\bin\$(MSBuildProjectName)\</BaseOutputPath>
-    <RestorePackagesPath>$(CelularPackagesRoot)</RestorePackagesPath>
+
+    <BaseIntermediateOutputPath Condition="'$(CelularBuildRoot)' != ''">$(CelularBuildRoot)\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <BaseOutputPath Condition="'$(CelularBuildRoot)' != ''">$(CelularBuildRoot)\bin\$(MSBuildProjectName)\</BaseOutputPath>
+    <RestorePackagesPath Condition="'$(CelularPackagesRoot)' != ''">$(CelularPackagesRoot)</RestorePackagesPath>
   </PropertyGroup>
 </Project>
-

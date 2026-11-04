@@ -45,3 +45,4 @@ Desktop.ini
 
 # Estado temporal de verificaciones QA
 scripts/*.local.json
+.artifacts/
