@@ -1,0 +1,29 @@
+[
+  {
+    "autor": "Keifer Costa",
+    "archivo": "aurora.jpg",
+    "fuente": "https://www.pexels.com/photo/mobile-phone-on-black-background-11216318/",
+    "descarga": "https://images.pexels.com/photos/11216318/pexels-photo-11216318.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    "celular": "Celular Aurora 128 GB",
+    "sha256": "d4dba9da9f414333e6531998bff128d34f336f31bace577cc855a8f8b66be04a",
+    "licencia": "https://www.pexels.com/legal-pages/license"
+  },
+  {
+    "autor": "Omar Gerardo",
+    "archivo": "nova.jpg",
+    "fuente": "https://www.pexels.com/photo/close-up-of-two-smartphones-on-white-background-30639092/",
+    "descarga": "https://images.pexels.com/photos/30639092/pexels-photo-30639092.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    "celular": "Celular Nova 256 GB",
+    "sha256": "49cac2253398d1eea3ded7bef79962b899104fe29705ef60cf7592defcf7fd19",
+    "licencia": "https://www.pexels.com/legal-pages/license"
+  },
+  {
+    "autor": "Rann Vijay",
+    "archivo": "prisma.jpg",
+    "fuente": "https://www.pexels.com/photo/close-up-of-smart-phones-7952560/",
+    "descarga": "https://images.pexels.com/photos/7952560/pexels-photo-7952560.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    "celular": "Celular Prisma 64 GB",
+    "sha256": "23e1da6eb3935e1e52960fd7fe3507fb432ea6b3e7a90a051811bcf40d83fad1",
+    "licencia": "https://www.pexels.com/legal-pages/license"
+  }
+]

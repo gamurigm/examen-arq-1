@@ -23,6 +23,7 @@ Sistema .NET 10 para catálogo y facturación de celulares. SQL Server 2025 Expr
 
 - Catálogo con alta, edición, desactivación y fotos opcionales.
 - Fotos JPEG, PNG o WebP de hasta 5 MiB; se pueden cargar, reemplazar y quitar desde los cuatro clientes.
+- Fotos de demostración incluidas en `assets/celulares`, con fuentes y licencia. Con la API iniciada, `./scripts/CargarImagenesCatalogo.ps1` las guarda en la base de datos y verifica su SHA-256; conserva las imágenes existentes.
 - Venta en efectivo con 42% de descuento.
 - Venta a crédito aprobada por BanQuito, consulta de facturas y amortización.
 - Tema claro y oscuro en las interfaces compatibles.
