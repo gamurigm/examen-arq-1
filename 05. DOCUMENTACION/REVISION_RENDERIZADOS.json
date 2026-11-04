@@ -1,0 +1,28 @@
+{
+  "fecha": "2026-11-04T16:46:17.974354",
+  "estado": "RECHAZADO_PARA_PROMOCION",
+  "renderizado": "Word y PowerPoint COM; PDF y PNG generados",
+  "archivos": [
+    {
+      "tipo": "ERS",
+      "paginas_pdf": 6,
+      "revision": "Contacto de todas las paginas inspeccionado; falta comprobar indices y estructura completa"
+    },
+    {
+      "tipo": "ECUD",
+      "paginas_pdf": 12,
+      "revision": "Contacto de todas las paginas inspeccionado; tablas y figuras visibles; indices pendientes"
+    },
+    {
+      "tipo": "manual",
+      "paginas_pdf": 7,
+      "revision": "Desbordamiento de tabla detectado; formula de ancho corregida, requiere regenerar"
+    },
+    {
+      "tipo": "presentacion",
+      "diapositivas": 83,
+      "revision": "Contacto global inspeccionado; requiere revision individual y asociacion explicita de imagenes a escenarios"
+    }
+  ],
+  "oficiales_sustituidos": false
+}

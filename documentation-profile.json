@@ -43,7 +43,7 @@
         "output": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx"
       },
       "presentacion": {
-        "source": "05. DOCUMENTACION/fuentes/presentacion_verificado.md",
+        "source": "05. DOCUMENTACION/fuentes/manual_verificado.md",
         "template": "examples/05.Documentacion/REST_EXAMEN_GRUPO_1.pptx",
         "output": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx"
       }

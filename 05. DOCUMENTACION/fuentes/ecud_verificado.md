@@ -73,4 +73,13 @@
 | Postcondición | Consulta sin cambios de datos. |
 
 ## Reglas comunes y evidencia
-Crédito: 3–18 cuotas, 16,5% anual, máximo al 35% documentado frente al 30% de la fórmula impresa. La última cuota absorbe redondeos. Contratos REST y datos reales se verifican en EVIDENCIA_API_QA.json; cuatro clientes en los registros individuales. El diagrama bancario editable requiere cerrar el bloqueo de licencia PowerDesigner.
+Crédito: 3–18 cuotas, 16,5% anual, máximo al 35% documentado frente al 30% de la fórmula impresa. La última cuota absorbe redondeos. Contratos REST y datos reales se verifican en EVIDENCIA_API_QA.json; cuatro clientes en los registros individuales. El diagrama bancario se entrega en SVG editable y PNG, generado por VBS sin COM; los modelos PowerDesigner anteriores se conservan.
+
+## Figura: Casos de uso bancarios
+![Casos de uso bancarios](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_BanQuito_CasosUso.png)
+
+## Figura: Arquitectura REST y Docker
+![Arquitectura REST y Docker](../../01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Docker.png)
+
+## Figura: Modelo físico comercializadora
+![Modelo físico comercializadora](../../02. MER/03. FISICO/GR09_Celulares_SQL_Actual.png)

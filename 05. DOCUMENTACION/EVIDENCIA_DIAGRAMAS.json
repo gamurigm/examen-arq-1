@@ -1,0 +1,50 @@
+{
+  "generador": "01. UML/GenerarFigurasEntrega.vbs",
+  "formatoEditable": "SVG; no se afirma regeneración PowerDesigner",
+  "columnasSQLVerificadas": [
+    "ID_CELULAR",
+    "NOMBRE",
+    "PRECIO",
+    "ACTIVO",
+    "IMAGEN",
+    "IMAGEN_TIPO",
+    "ID_FACTURA",
+    "ID_OPERACION",
+    "FECHA",
+    "CEDULA",
+    "NOMBRE_CLIENTE",
+    "ID_CELULAR",
+    "NOMBRE_CELULAR",
+    "FORMA_PAGO",
+    "PRECIO",
+    "DESCUENTO",
+    "TOTAL",
+    "COD_CLIENTE_BANCO",
+    "COD_CREDITO",
+    "NUMERO_CUOTAS",
+    "ESTADO"
+  ],
+  "foreignKeys": [
+    "FACTURA->CELULAR"
+  ],
+  "figuras": [
+    {
+      "svg": "01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_BanQuito_CasosUso.svg",
+      "svgSha256": "f678fc9fb5751d44fd0b5b58ffdd11374bea86cc9e97f4481663099a91b27b2b",
+      "png": "01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_BanQuito_CasosUso.png",
+      "pngSha256": "169c4e27101c1d0ecb06e5598d3543a50803408d0297587970b69fca4a82d2e6"
+    },
+    {
+      "svg": "01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Docker.svg",
+      "svgSha256": "d16cf8fc08325bea9e296a9dcfc186df49f0f60961c1b8bffe43c9ea894213c9",
+      "png": "01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Docker.png",
+      "pngSha256": "f098875fac8920e4ef59b6cb72a244368230accb4e8320b14e8b1df5da75dbe9"
+    },
+    {
+      "svg": "02. MER/03. FISICO/GR09_Celulares_SQL_Actual.svg",
+      "svgSha256": "fe9361b5330010b9c4f389649b1da91d13bdfee4af0a5d95811d5193bf9cf0bf",
+      "png": "02. MER/03. FISICO/GR09_Celulares_SQL_Actual.png",
+      "pngSha256": "03f5a336dcbaec3c2b0ec2492d1c3837a8ce91aac080fba6de543adeb4415b11"
+    }
+  ]
+}

@@ -34,3 +34,12 @@ Las semillas proporcionan 5 clientes, 5 cuentas y 50 movimientos. Las imágenes 
 Las evidencias están en 05. DOCUMENTACION/EVIDENCIA_*.json y evidencias/. La compilación y los resultados de QA no certifican un despliegue productivo ni sustituyen la defensa ante el tribunal.
 ## 9. Limitaciones y referencias
 PowerDesigner está instalado pero su licencia de evaluación está vencida. No se afirma haber regenerado modelos editables durante esta revisión. Conservar sus fuentes existentes y ejecutar los VBS cuando haya licencia válida. Referencias: enunciado local, código del repositorio, pruebas y registros QA.
+
+## Figura: Casos de uso bancarios
+![Casos de uso bancarios](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_BanQuito_CasosUso.png)
+
+## Figura: Arquitectura REST y Docker
+![Arquitectura REST y Docker](../../01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Docker.png)
+
+## Figura: Modelo físico comercializadora
+![Modelo físico comercializadora](../../02. MER/03. FISICO/GR09_Celulares_SQL_Actual.png)

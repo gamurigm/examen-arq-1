@@ -3,11 +3,15 @@ import argparse, json, pathlib, subprocess
 import fitz
 from PIL import Image, ImageDraw
 root=pathlib.Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser();parser.add_argument('--soffice',default='D:/tools/LibreOffice/program/soffice.exe');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--renderer',choices=['com','soffice'],default='com');parser.add_argument('--soffice',default='D:/tools/LibreOffice/program/soffice.exe');parser.add_argument('--skip-conversion',action='store_true');args=parser.parse_args()
 profile=json.loads((root/'documentation-profile.json').read_text(encoding='utf-8'))
 drafts=pathlib.Path(profile['documentation']['draft_directory']);dest=pathlib.Path(profile['documentation']['render_directory']);dest.mkdir(parents=True,exist_ok=True)
 files=[pathlib.Path(a['draft']) for a in json.loads((drafts/'manifest.json').read_text(encoding='utf-8'))['artifacts']]
-subprocess.run([args.soffice,'-env:UserInstallation=file:///D:/tools/LibreOfficeProfile-CelularGR09-QA','--headless','--convert-to','pdf','--outdir',str(dest),*[str(f) for f in files]],check=True)
+if not args.skip_conversion:
+    if args.renderer=='com':
+        subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(root/'scripts/RenderizarOffice.ps1'),'-DraftDirectory',str(drafts),'-RenderDirectory',str(dest),'-FilesJson',json.dumps([f.name for f in files])],check=True)
+    else:
+        subprocess.run([args.soffice,'-env:UserInstallation=file:///D:/tools/LibreOfficeProfile-CelularGR09-QA','--headless','--convert-to','pdf','--outdir',str(dest),*[str(f) for f in files]],check=True)
 records=[]
 for file in files:
     pdf=dest/(file.stem+'.pdf')
@@ -17,8 +21,12 @@ for file in files:
         pix=page.get_pixmap(matrix=fitz.Matrix(1,1));pix.save(str(dest/(file.stem+f'_p{i+1:02}.png')))
         img=Image.frombytes('RGB',[pix.width,pix.height],pix.samples);img.thumbnail((400,550))
         tile=Image.new('RGB',(420,585),'#ddd');tile.paste(img,(10,25));ImageDraw.Draw(tile).text((10,5),f'Página {i+1}',fill='black');thumbs.append(tile)
-    sheet=Image.new('RGB',(1260,585*((len(thumbs)+2)//3)),'white')
-    for i,img in enumerate(thumbs):sheet.paste(img,((i%3)*420,(i//3)*585))
-    sheet.save(dest/(file.stem+'_contacto.png'));records.append({'archivo':str(pdf),'paginas':len(doc)})
+    contact_sheets=[]
+    for start in range(0,len(thumbs),12):
+        chunk=thumbs[start:start+12]
+        sheet=Image.new('RGB',(1260,585*((len(chunk)+2)//3)),'white')
+        for i,img in enumerate(chunk):sheet.paste(img,((i%3)*420,(i//3)*585))
+        output=dest/(file.stem+f'_contacto_{start//12+1:02}.png');sheet.save(output);contact_sheets.append(str(output))
+    records.append({'archivo':str(pdf),'paginas':len(doc),'contact_sheets':contact_sheets})
 (dest/'render-manifest.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(records,ensure_ascii=False,indent=2))
