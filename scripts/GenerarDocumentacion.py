@@ -13,6 +13,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
+from docx.text.paragraph import Paragraph
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_AUTO_SIZE
@@ -284,6 +285,31 @@ def generate_manual_word(template, source, target, sections):
     doc = Document(template)
     cover, toc = clear_manual_body_preserving_front_matter(doc)
     update_manual_cover(doc, cover)
+    cover_blip = next(cover.iter(qn("a:blip")), None)
+    if cover_blip is not None:
+        rid = cover_blip.get(qn("r:embed"))
+        doc.part.related_parts[rid]._blob = (ROOT / "assets/celulares/prisma.jpg").read_bytes()
+        inline = cover_blip
+        while inline is not None and inline.tag not in (qn("wp:inline"), qn("wp:anchor")):
+            inline = inline.getparent()
+        if inline is None:
+            raise ValueError("La imagen de portada perdió su marco de dibujo.")
+        extent = inline.find(qn("wp:extent"))
+        old_width = int(extent.get("cx"))
+        extent.set("cx", str(round(int(extent.get("cy")) * 1.5)))
+        position = inline.find(qn("wp:positionH") + "/" + qn("wp:posOffset"))
+        if position is not None:
+            position.text = str(int(position.text) + round((old_width - int(extent.get("cx"))) / 2))
+        for node in inline.iter(qn("a:ext")):
+            node.set("cx", extent.get("cx"))
+        crop = next(inline.iter(qn("a:srcRect")), None)
+        if crop is not None:
+            for side in ("l", "t", "r", "b"):
+                crop.attrib.pop(side, None)
+        paragraph = inline
+        while paragraph is not None and paragraph.tag != qn("w:p"):
+            paragraph = paragraph.getparent()
+        Paragraph(paragraph, doc._body).alignment = WD_ALIGN_PARAGRAPH.CENTER
     update_manual_toc_label(toc)
 
     for title, instruction in (
@@ -417,14 +443,62 @@ def replace_slide_images(slide, image_blocks):
         ))
 
 
-def slide_body(section):
+def slide_body(sections):
     result = []
-    for block in section["blocks"]:
-        text = block_text(block)
-        if text:
-            result.append(text)
-    text = section["title"] + ("\n" + "\n".join(result) if result else "")
-    return text.replace("`", "").replace("**", "")
+    for section in sections:
+        parts = [section["title"]]
+        title = re.sub(r"^Figura:\s*", "", normalize(section["title"]), flags=re.IGNORECASE)
+        for block in section["blocks"]:
+            if block["kind"] == "image" and title.casefold() == normalize(block["caption"]).casefold():
+                continue
+            text = block_text(block)
+            if text:
+                parts.append(text)
+        result.append("\n".join(parts))
+    return "\n".join(result).replace("`", "").replace("**", "")
+
+
+def group_presentation_sections(sections):
+    groups = []
+    pending = []
+    expanded = []
+
+    for source_index, section in enumerate(sections):
+        images = [block for block in section["blocks"] if block["kind"] == "image"]
+        text = [block for block in section["blocks"] if block["kind"] != "image"]
+        if images and text:
+            expanded.append({**section, "blocks": text, "_source_index": source_index})
+            expanded.append({**section, "blocks": images, "_source_index": source_index})
+        else:
+            expanded.append({**section, "_source_index": source_index})
+
+    def flush():
+        if pending:
+            groups.append(pending.copy())
+            pending.clear()
+
+    for section in expanded:
+        title = section["title"].casefold()
+        groupable = title.startswith("comprobación qa:") or title.startswith(("consola ", "web ")) or title == "catálogo cargado"
+        has_images = any(block["kind"] == "image" for block in section["blocks"])
+        if not groupable or has_images:
+            flush()
+            groups.append([section])
+            continue
+        candidate = pending + [section]
+        candidate_text = slide_body(candidate)
+        lines = sum(max(1, (len(line) + 74) // 75) for line in candidate_text.splitlines())
+        if pending and (lines > 10 or len(candidate) > 3):
+            flush()
+        pending.append(section)
+    flush()
+    grouped_sections = [section for group in groups for section in group]
+    if sorted(id(block) for section in grouped_sections for block in section["blocks"]) != sorted(id(block) for section in sections for block in section["blocks"]):
+        raise ValueError("La distribución PPTX omitió o duplicó contenido canónico.")
+    source_order = list(dict.fromkeys(section["_source_index"] for section in grouped_sections))
+    if source_order != list(range(len(sections))):
+        raise ValueError("La distribución PPTX omitió o reordenó capítulos canónicos.")
+    return groups
 
 
 def slide_text_height(text, width, available_height, template_shape):
@@ -454,9 +528,9 @@ def slide_text_height(text, width, available_height, template_shape):
     return min(available_height, max(PInches(0.72), int(PInches(0.24) + lines * line_height * 914400)))
 
 
-def fit_slide_body(slide, content, section):
+def fit_slide_body(slide, content, sections):
     """Use the template content canvas and reserve space below for real figures."""
-    images = [block for block in section["blocks"] if block["kind"] == "image"]
+    images = [block for section in sections for block in section["blocks"] if block["kind"] == "image"]
     nav_left = min(
         (shape.left for shape in slide.shapes
          if shape.has_text_frame and "MARCO TE" in shape.text.upper()),
@@ -475,12 +549,12 @@ def fit_slide_body(slide, content, section):
         content.text_frame.auto_size = MSO_AUTO_SIZE.NONE
         return None
 
-    requested_height = slide_text_height(slide_body(section), width / 914400, bottom - top - PInches(1.25), content)
+    requested_height = slide_text_height(slide_body(sections), width / 914400, bottom - top - PInches(1.25), content)
     max_height = bottom - top - PInches(1.15)
     content.left = left
     content.width = width
     content.top = top
-    content.height = min(max_height, max(content.height, requested_height))
+    content.height = min(max_height, requested_height)
     content.text_frame.auto_size = MSO_AUTO_SIZE.NONE
     image_top = content.top + content.height + PInches(0.15)
     return (PInches(0.82), image_top, PInches(8.85), bottom - image_top)
@@ -505,7 +579,7 @@ def set_slide_number(slide, number):
             replace_frame_text(shape, str(number))
 
 
-def move_image_only_template_to_matching_chapter(prs, sections):
+def move_image_only_template_to_matching_chapter(prs, groups):
     """Keep the template's image-only page for a canonical figure chapter."""
     slide_ids = list(prs.slides._sldIdLst)
     special_positions = []
@@ -516,10 +590,10 @@ def move_image_only_template_to_matching_chapter(prs, sections):
         if 0 in placeholders and 1 not in placeholders:
             special_positions.append(position)
     candidates = []
-    for index, section in enumerate(sections):
-        images = [block for block in section["blocks"] if block["kind"] == "image"]
-        other = [block for block in section["blocks"] if block["kind"] != "image"]
-        if len(images) == 1 and not other:
+    for index, group in enumerate(groups):
+        images = [block for section in group for block in section["blocks"] if block["kind"] == "image"]
+        other = [block for section in group for block in section["blocks"] if block["kind"] != "image"]
+        if len(group) == 1 and len(images) == 1 and not other:
             candidates.append(index)
     if len(special_positions) > len(candidates):
         raise ValueError(
@@ -533,7 +607,7 @@ def move_image_only_template_to_matching_chapter(prs, sections):
         target_ratio = (picture.width / picture.height) if picture and picture.height else 1.8
         remaining = [index for index in candidates if index not in selected]
         def ratio(index):
-            image_path = next(block["path"] for block in sections[index]["blocks"] if block["kind"] == "image")
+            image_path = next(block["path"] for section in groups[index] for block in section["blocks"] if block["kind"] == "image")
             with Image.open(image_path) as bitmap:
                 return bitmap.width / bitmap.height
         candidate = min(remaining, key=lambda index: abs(ratio(index) - target_ratio))
@@ -570,12 +644,10 @@ def update_sidebar(slide, nav_text, active_item):
 
 def generate_presentation(template, source, target, sections):
     prs = Presentation(template)
-    if len(sections) + 2 != len(prs.slides):
-        raise ValueError(
-            "Esta versión de la plantilla requiere una estrategia de división explícita: "
-            f"{len(sections)} capítulos, {len(prs.slides)} diapositivas. No se truncará contenido."
-        )
-    move_image_only_template_to_matching_chapter(prs, sections)
+    groups = group_presentation_sections(sections)
+    if len(groups) + 2 > len(prs.slides):
+        raise ValueError("La plantilla no tiene suficientes diapositivas para la distribución canónica.")
+    move_image_only_template_to_matching_chapter(prs, groups)
     cover = prs.slides[0]
     title_shape = next((shape for shape in cover.placeholders if shape.placeholder_format.idx == 0), None)
     subtitle_shape = next((shape for shape in cover.placeholders if shape.placeholder_format.idx == 1), None)
@@ -595,6 +667,12 @@ def generate_presentation(template, source, target, sections):
             for paragraph in shape.text_frame.paragraphs:
                 for run in paragraph.runs:
                     run.font.size = PPt(12)
+    cover_pictures = [shape for shape in cover.shapes if shape.shape_type == 13]
+    if cover_pictures:
+        old = cover_pictures[0]
+        bounds = (old.left, old.top, old.width, old.height)
+        old._element.getparent().remove(old._element)
+        fit_picture(cover, ROOT / "assets/celulares/prisma.jpg", bounds)
 
     outline = [
         "DESARROLLO", "OBJETIVO Y ALCANCE", "ARQUITECTURA Y CONFIGURACIÓN",
@@ -621,33 +699,34 @@ def generate_presentation(template, source, target, sections):
         "PRUEBAS Y EVIDENCIAS", "CONCLUSIONES", "RECOMENDACIONES", "BIBLIOGRAFÍA",
     ]
     nav = "\n".join(nav_items)
-    for slide_index, section in enumerate(sections, start=2):
+    for slide_index, group in enumerate(groups, start=2):
         slide = prs.slides[slide_index]
         title = next((shape for shape in slide.placeholders if shape.placeholder_format.idx == 0), None)
         content = next((shape for shape in slide.placeholders if shape.placeholder_format.idx == 1), None)
         if title is None:
             raise ValueError(f"La diapositiva {slide_index + 1} no conserva el título del master.")
         if content is None:
-            image_blocks = [block for block in section["blocks"] if block["kind"] == "image"]
-            non_image_blocks = [block for block in section["blocks"] if block["kind"] != "image"]
-            if len(image_blocks) != 1 or non_image_blocks:
+            image_blocks = [block for section in group for block in section["blocks"] if block["kind"] == "image"]
+            non_image_blocks = [block for section in group for block in section["blocks"] if block["kind"] != "image"]
+            if len(group) != 1 or len(image_blocks) != 1 or non_image_blocks:
                 raise ValueError(f"La diapositiva {slide_index + 1} solo admite un capítulo formado por una figura.")
-            replace_frame_text(title, section["title"].upper())
+            replace_frame_text(title, group[0]["title"].upper())
             replace_slide_images(slide, image_blocks)
             update_sidebar(slide, nav, "ARQUITECTURA")
             set_slide_number(slide, slide_index + 1)
             continue
-        if section["title"].casefold() in ("conclusiones", "recomendaciones") or section["title"].casefold().startswith("bibliografía"):
-            replace_frame_text(title, section["title"].upper())
+        label = " ".join(section["title"] for section in group).casefold()
+        if len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith("bibliografía")):
+            replace_frame_text(title, group[0]["title"].upper())
         else:
             replace_frame_text(title, "DESARROLLO")
-        replace_frame_text(content, slide_body(section))
-        picture_bounds = fit_slide_body(slide, content, section)
+        replace_frame_text(content, slide_body(group))
+        old_pictures = [shape for shape in slide.shapes if shape.shape_type == 13]
+        for shape in old_pictures:
+            shape._element.getparent().remove(shape._element)
+        picture_bounds = fit_slide_body(slide, content, group)
         if picture_bounds:
-            old_pictures = [shape for shape in slide.shapes if shape.shape_type == 13]
-            for shape in old_pictures:
-                shape._element.getparent().remove(shape._element)
-            images = [block for block in section["blocks"] if block["kind"] == "image"]
+            images = [block for section in group for block in section["blocks"] if block["kind"] == "image"]
             left, top, width, height = picture_bounds
             gap = PInches(0.16)
             columns = min(2, len(images))
@@ -656,7 +735,6 @@ def generate_presentation(template, source, target, sections):
                 fit_picture(slide, block["path"], (
                     left + image_index * (column_width + gap), top, column_width, height
                 ))
-        label = section["title"].casefold()
         if label.startswith("conclus"):
             active = "CONCLUSIONES"
         elif label.startswith("recomend"):
@@ -682,6 +760,11 @@ def generate_presentation(template, source, target, sections):
         for shape in slide.shapes:
             if shape.has_text_frame and "EUREKA" in shape.text.upper():
                 replace_frame_text(shape, "")
+
+    slide_ids = prs.slides._sldIdLst
+    for slide_id in list(slide_ids)[len(groups) + 2:]:
+        prs.part.drop_rel(slide_id.get(qn("r:id")))
+        slide_ids.remove(slide_id)
 
     prs.core_properties.author = AUTHOR_LINE
     prs.core_properties.title = PROJECT["name"] + " — Manual técnico"
@@ -760,7 +843,7 @@ def main():
         "canonicalManualSource": artifacts["manual"]["source"],
         "canonicalContentSha256": content_hash,
         "chapterCount": len(sections),
-        "expectedPresentationSlides": len(sections) + 2,
+        "expectedPresentationSlides": len(group_presentation_sections(sections)) + 2,
         "artifacts": records,
     }
     (draft_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")

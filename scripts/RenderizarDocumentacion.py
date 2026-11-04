@@ -1,16 +1,20 @@
 """Renderiza borradores a PDF y PNG sin modificar entregables finales."""
-import argparse, json, pathlib, subprocess
+import argparse, hashlib, json, pathlib, subprocess
 import fitz
 from PIL import Image, ImageDraw
 root=pathlib.Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser();parser.add_argument('--renderer',choices=['com','soffice'],default='com');parser.add_argument('--soffice',default='D:/tools/LibreOffice/program/soffice.exe');parser.add_argument('--skip-conversion',action='store_true');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--renderer',choices=['com','soffice'],default='soffice');parser.add_argument('--soffice',default='D:/tools/LibreOffice/program/soffice.exe');parser.add_argument('--skip-conversion',action='store_true');args=parser.parse_args()
 profile=json.loads((root/'documentation-profile.json').read_text(encoding='utf-8'))
 drafts=pathlib.Path(profile['documentation']['draft_directory']);dest=pathlib.Path(profile['documentation']['render_directory']);dest.mkdir(parents=True,exist_ok=True)
-files=[pathlib.Path(a['draft']) for a in json.loads((drafts/'manifest.json').read_text(encoding='utf-8'))['artifacts']]
+manifest_path=drafts/'manifest.json';manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
+files=[pathlib.Path(a['draft']) for a in manifest['artifacts']]
 if not args.skip_conversion:
     if args.renderer=='com':
         subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(root/'scripts/RenderizarOffice.ps1'),'-DraftDirectory',str(drafts),'-RenderDirectory',str(dest),'-FilesJson',json.dumps([f.name for f in files])],check=True)
     else:
+        word_files=[f for f in files if f.suffix.casefold()=='.docx']
+        if word_files:
+            subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(root/'scripts/RenderizarOffice.ps1'),'-DraftDirectory',str(drafts),'-RenderDirectory',str(dest),'-FilesJson',json.dumps([f.name for f in word_files]),'-UpdateFieldsOnly'],check=True)
         subprocess.run([args.soffice,'-env:UserInstallation=file:///D:/tools/LibreOfficeProfile-CelularGR09-QA','--headless','--convert-to','pdf','--outdir',str(dest),*[str(f) for f in files]],check=True)
 records=[]
 for file in files:
@@ -29,4 +33,8 @@ for file in files:
         output=dest/(file.stem+f'_contacto_{start//12+1:02}.png');sheet.save(output);contact_sheets.append(str(output))
     records.append({'archivo':str(pdf),'paginas':len(doc),'contact_sheets':contact_sheets})
 (dest/'render-manifest.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')
+for artifact in manifest['artifacts']:
+    draft=pathlib.Path(artifact['draft'])
+    artifact['draftSha256']=hashlib.sha256(draft.read_bytes()).hexdigest()
+manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(records,ensure_ascii=False,indent=2))

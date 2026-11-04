@@ -33,7 +33,7 @@ Las semillas proporcionan 5 clientes, 5 cuentas y 50 movimientos. Las imágenes 
 39 pruebas unitarias aprobadas; 53 comprobaciones HTTP QA; 14 comprobaciones consola/MVC; 10 WPF y 9 recorridos Android. La prueba posterior en Chrome aprobó 13 comprobaciones e identificó/corrigió la lectura cultural de decimales MVC.
 Las evidencias están en 05. DOCUMENTACION/EVIDENCIA_*.json y evidencias/. La compilación y los resultados de QA no certifican un despliegue productivo ni sustituyen la defensa ante el tribunal.
 ## 9. Limitaciones y referencias
-PowerDesigner está instalado pero su licencia de evaluación está vencida. No se afirma haber regenerado modelos editables durante esta revisión. Conservar sus fuentes existentes y ejecutar los VBS cuando haya licencia válida. Referencias: enunciado local, código del repositorio, pruebas y registros QA.
+PowerDesigner está instalado pero su licencia de evaluación está vencida. No se afirma haber regenerado modelos editables durante esta revisión. Los modelos editables existentes se conservan. El generador actual produce figuras SVG y PNG sin PowerDesigner; la licencia vencida solo bloquea la regeneración de modelos nativos. Referencias: enunciado local, código del repositorio, pruebas y registros QA.
 
 ## Figura: Casos de uso bancarios
 ![Casos de uso bancarios](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_BanQuito_CasosUso.png)

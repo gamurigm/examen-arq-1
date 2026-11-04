@@ -1,34 +1,36 @@
-# Diagramas y documentación: revisión actual
+# Revisión de diagramas y documentos
 
 Fecha: 4 de noviembre de 2026.
 
-## Figuras entregadas
+## Figuras
 
-- Casos de uso UML bancarios: comercializadora como actor, elegibilidad, máximo, otorgamiento y consulta; relaciones include hacia validaciones y registro de amortización.
-- Arquitectura: cuatro clientes, dos API REST .NET en host y solo SQL Server en Docker; dos bases y conexiones separadas.
-- Modelo físico de tienda: 21 atributos entre CELULAR y FACTURA, imágenes incluidas, referencia remota bancaria y relación 1 a 0..N. Sin inventario.
+- Casos de uso bancarios: cliente comercializadora, elegibilidad, máximo, crédito y amortización.
+- Arquitectura: cuatro clientes, dos API REST .NET en el host, SQL Server en Docker y bases separadas.
+- MER físico: tablas CELULAR y FACTURA, imágenes, referencia bancaria remota y relación 1:N; sin inventario.
 
-Cada figura tiene SVG editable y PNG junto al archivo fuente. Se generaron realmente con GenerarFigurasEntrega.vbs y se revisaron las tres exportaciones. EVIDENCIA_DIAGRAMAS.json registra huellas de los archivos y comparación con los atributos y FK de SQL Docker. Se verificaron nombres de atributos y relación; los tipos y restricciones se contrastaron también con 01_CrearBases.sql durante la revisión.
+Las tres figuras se generaron con `01. UML/GenerarFigurasEntrega.vbs`. Cada una tiene fuente SVG editable y PNG. `05. DOCUMENTACION/EVIDENCIA_DIAGRAMAS.json` registra hashes y comparación de columnas y claves foráneas con SQL Server.
 
-No se regeneraron modelos PowerDesigner: su licencia está vencida. El generador VBS alternativo no modifica licencia ni archivos nativos existentes. SVG es el formato editable de las figuras nuevas.
+No se regeneraron modelos nativos de PowerDesigner porque la licencia de evaluación venció. Se conservaron los modelos existentes; las figuras actuales no dependen de esa licencia.
 
-## Word integrado
+## Entregables revisados
 
-Los borradores ERS, ECUD y manual contienen las tres figuras y conservan las portadas gráficas de las plantillas. Se actualizaron títulos, autores desde documentation-profile.json, tutor y fecha. Se eliminaron páginas vacías introducidas por los saltos heredados y no quedan los marcadores XXXX/YYYY/ZZZZ ni títulos Java/SOAP/EurekaBank del ejemplo.
+| Artefacto | Render | Revisión |
+| --- | ---: | --- |
+| ERS | 6 páginas | Portada, requisitos, tablas y tres figuras; todas las páginas revisadas. |
+| ECUD | 12 páginas | Portada, ocho casos, reglas comunes y tres figuras; todas las páginas revisadas. |
+| Manual técnico | 34 páginas | Índices actualizados, tablas, diagramas, capturas QA/clientes, resultados, límites y bibliografía; las 34 páginas revisadas. |
+| Presentación | 69 diapositivas | 81 secciones de la fuente canónica; todas las diapositivas revisadas. |
 
-PDF revisados: ERS 6 páginas, ECUD 12 páginas, manual 7 páginas. Se revisaron hojas de contacto y portadas; son versiones de revisión, no sustituyen todavía el paquete final completo.
+El manual DOCX y la presentación usan `05. DOCUMENTACION/fuentes/manual_verificado.md`, SHA-256 `6cf1b168c2bc5d1b28942a85fbc56bcd7305a14ec872deac319a3cf0c2629070`. La generación conserva cada sección canónica una vez; las diapositivas agrupan pruebas breves y separan capturas cuando hace falta espacio. La cantidad de diapositivas sigue el contenido, no las 83 diapositivas de la plantilla.
 
-Reproducción:
+Las cuatro versiones oficiales se reemplazaron desde borradores revisados. Respaldo previo: `D:\tools\CelularGR09-documentacion\respaldo\20261104-181500`. `REVISION_RENDERIZADOS.json` contiene hashes, conteos y estado de revisión.
+
+## Reproducción
 
 ```powershell
-cscript //nologo "01. UML/GenerarFigurasEntrega.vbs" (Get-Location).Path
-python scripts/VerificarDiagramas.py
-python scripts/GenerarDocumentacion.py --artifacts ers ecud manual
-python scripts/RenderizarDocumentacion.py
+python scripts/ValidarDocumentacion.py
+python scripts/GenerarDocumentacion.py
+python scripts/RenderizarDocumentacion.py --soffice <ruta-soffice>
 ```
 
-Dependencias Python: scripts/requirements-documentacion.txt. Carpetas de borrador y renderizado configuradas en documentation-profile.json; en este equipo bajo D:/tools/CelularGR09-documentacion. manifest.json conserva hashes y distingue los tres artefactos generados de la presentación anterior.
-
-## Pendiente concreto
-
-La presentación fuente tiene 15 secciones, pero la plantilla tiene 83 diapositivas. El generador rechaza esa discrepancia para conservar la estructura existente. Falta completar la correspondencia, integrar sus figuras, renderizar y revisar todas las diapositivas. Después se podrá cerrar trazabilidad y publicar el paquete Word/PPT final con respaldo de las versiones anteriores.
+Las API y los cuatro clientes no se compilaron ni se probaron en esta revisión documental. Las figuras nativas de PowerDesigner tampoco se regeneraron por la licencia vencida.

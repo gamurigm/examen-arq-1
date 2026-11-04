@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory)][string]$DraftDirectory,
     [Parameter(Mandatory)][string]$RenderDirectory,
-    [string]$FilesJson = '[]'
+    [string]$FilesJson = '[]',
+    [switch]$UpdateFieldsOnly
 )
 
 Set-StrictMode -Version Latest
@@ -39,9 +40,11 @@ try {
                 }
                 $document.Repaginate()
                 $document.Save()
-                $pdfPath = Join-Path $RenderDirectory ([System.IO.Path]::GetFileNameWithoutExtension($path) + '.pdf')
-                $document.ExportAsFixedFormat($pdfPath, 17)
-                Write-Output ("Word: {0} páginas · {1}" -f $document.ComputeStatistics(2), [System.IO.Path]::GetFileName($path))
+                if (-not $UpdateFieldsOnly) {
+                    $pdfPath = Join-Path $RenderDirectory ([System.IO.Path]::GetFileNameWithoutExtension($path) + '.pdf')
+                    $document.ExportAsFixedFormat($pdfPath, 17)
+                    Write-Output ("Word: {0} páginas · {1}" -f $document.ComputeStatistics(2), [System.IO.Path]::GetFileName($path))
+                }
             } finally {
                 if ($null -ne $document) {
                     $document.Close($false)

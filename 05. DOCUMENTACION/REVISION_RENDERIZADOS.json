@@ -1,28 +1,55 @@
 {
-  "fecha": "2026-11-04T16:46:17.974354",
-  "estado": "RECHAZADO_PARA_PROMOCION",
-  "renderizado": "Word y PowerPoint COM; PDF y PNG generados",
+  "fecha": "2026-11-04",
+  "estado": "PROMOCIONADO_A_OFICIALES",
+  "renderizador": "Word COM actualiza índices; LibreOffice headless produce PDF y PNG",
+  "fuenteManual": {
+    "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
+    "sha256": "6cf1b168c2bc5d1b28942a85fbc56bcd7305a14ec872deac319a3cf0c2629070",
+    "secciones": 81
+  },
+  "respaldoPrevio": "D:\\tools\\CelularGR09-documentacion\\respaldo\\20261104-181500",
   "archivos": [
     {
       "tipo": "ERS",
-      "paginas_pdf": 6,
-      "revision": "Contacto de todas las paginas inspeccionado; falta comprobar indices y estructura completa"
+      "oficial": "01. UML/01. ERS/ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+      "sha256": "977d84d10126ae1ef15753fef071b710c801a4a685a2b399a80fbf97c63fb085",
+      "renderPdf": "ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+      "renderPdfSha256": "d59c6459bd7bf28e4af5c9352ff9645ce73280ee026fe747534e833660506eda",
+      "paginasPdf": 6,
+      "revision": "Todas las páginas revisadas; portada, requisitos, tablas y figuras legibles."
     },
     {
       "tipo": "ECUD",
-      "paginas_pdf": 12,
-      "revision": "Contacto de todas las paginas inspeccionado; tablas y figuras visibles; indices pendientes"
+      "oficial": "01. UML/02. ECUD/ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+      "sha256": "92969cafd16d3289510f5b9ad8a32035235735fe18da3c98ae02d5c2cb79c6d7",
+      "renderPdf": "ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+      "renderPdfSha256": "d03575f04698ff76b1918de0ff0719588ef7bc589c7526440fc12ee9e294b166",
+      "paginasPdf": 12,
+      "revision": "Todas las páginas revisadas; ocho casos, reglas comunes y tres figuras presentes."
     },
     {
       "tipo": "manual",
-      "paginas_pdf": 7,
-      "revision": "Desbordamiento de tabla detectado; formula de ancho corregida, requiere regenerar"
+      "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+      "sha256": "49fa54229aeaced03e457ee83de27ef814a36f0cdbab3ac0d778e5d69b2a855a",
+      "renderPdf": "MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+      "renderPdfSha256": "d401bebd1b24efcec68b57a6d70e24577d28d43af4530373bf36ee1f0e220414",
+      "paginasPdf": 34,
+      "revision": "Las 34 páginas revisadas; índice, figuras, tablas, evidencias, resultados y bibliografía presentes."
     },
     {
       "tipo": "presentacion",
-      "diapositivas": 83,
-      "revision": "Contacto global inspeccionado; requiere revision individual y asociacion explicita de imagenes a escenarios"
+      "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
+      "sha256": "a19f554eb9765ef8b3b081fad191707b946ad652cff7edf577c430296bf7585b",
+      "renderPdf": "PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+      "renderPdfSha256": "acb4f5b0e3a7e125933c852314d8afbceb07a2213bdf6ceebd6b6d5d25fbc92b",
+      "diapositivasPdf": 69,
+      "seccionesCanonicas": 81,
+      "revision": "Las 69 diapositivas revisadas; capítulos y figuras ligados a la fuente manual compartida."
     }
   ],
-  "oficiales_sustituidos": false
+  "oficialesSustituidos": true,
+  "limitaciones": [
+    "No se compilaron los cuatro clientes ni se ejecutaron pruebas de las API en esta revisión documental.",
+    "No se regeneraron modelos PowerDesigner porque la licencia de evaluación venció."
+  ]
 }
