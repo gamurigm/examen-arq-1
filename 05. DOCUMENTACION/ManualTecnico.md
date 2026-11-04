@@ -18,19 +18,26 @@ Desde esta carpeta, en una terminal normal:
 
 ```powershell
 $dotnet = 'D:\tools\dotnet10\dotnet.exe'
-$banco = '..\..\TG.1\1.4. PAO202651_RESTFUL_DOTNET_CONBDD_NRC36884_GR09'
-& $dotnet run --project (Join-Path $banco '01. SERVIDOR\BanQuito.Administracion\BanQuito.Administracion.csproj') -- --aplicar (Join-Path $banco '03. BDD\BanQuito_01_CrearBase.sql') (Join-Path $banco '03. BDD\BanQuito_02_DatosPrueba.sql')
-& $dotnet run --project '.\04. SERVIDOR\Administracion\Administracion.csproj' -- --aplicar '.\03. BDD\01_CrearBases.sql' '.\03. BDD\02_DatosPrueba.sql'
+& $dotnet run --project '.\04. SERVIDOR\BanQuito.Administracion\BanQuito.Administracion.csproj' -- --aplicar '.\03. BDD\BanQuito\BanQuito_01_CrearBase.sql' '.\03. BDD\BanQuito\BanQuito_02_DatosPrueba.sql'
+& $dotnet run --project '.\04. SERVIDOR\Administracion\Administracion.csproj' -- --aplicar '.\03. BDD\01_CrearBases.sql' '.\03. BDD\03_MigrarImagenes.sql' '.\03. BDD\02_DatosPrueba.sql'
 ```
 
-Los inicializadores usan autenticación Windows y `SQLEXPRESS`. Los scripts son idempotentes; revise los datos existentes antes de aplicarlos. Si la base comercializadora ya existe, ejecute `03. BDD/03_MigrarImagenes.sql` para añadir columnas de imagen.
+Los inicializadores usan autenticación Windows y `SQLEXPRESS`. Los scripts son idempotentes; revise los datos existentes antes de aplicarlos. Los comandos anteriores incluyen la migración de imágenes para bases nuevas y existentes. BanQuito crea `BanQuitoCore` con sus tablas de clientes, cuentas, movimientos, créditos y amortización; su carga inicial agrega 5 clientes, 5 cuentas y 50 movimientos. Ambos servidores y sus inicializadores están incluidos en este repositorio.
+
+Para actualizar únicamente una base de tienda existente:
+
+```powershell
+& 'D:\tools\dotnet10\dotnet.exe' run --project '.\04. SERVIDOR\Administracion\Administracion.csproj' -- --aplicar '.\03. BDD\03_MigrarImagenes.sql'
+```
+
+La migración añade columnas opcionales y conserva catálogo y facturas. Para volver a una versión anterior de la aplicación, se pueden conservar estas columnas; no es necesario eliminarlas ni perder las imágenes guardadas.
 
 ## Iniciar servicios y clientes
 
 Desde la carpeta del proyecto, en terminales separadas:
 
 ```powershell
-& 'D:\tools\dotnet10\dotnet.exe' run --project '..\..\TG.1\1.4. PAO202651_RESTFUL_DOTNET_CONBDD_NRC36884_GR09\01. SERVIDOR\BanQuito.Api\BanQuito.Api.csproj'
+& 'D:\tools\dotnet10\dotnet.exe' run --project '.\04. SERVIDOR\BanQuito.Api\BanQuito.Api.csproj'
 & 'D:\tools\dotnet10\dotnet.exe' run --project '.\04. SERVIDOR\Comercializadora.Api\Comercializadora.Api.csproj'
 & 'D:\tools\dotnet10\dotnet.exe' run --project '.\04. CLIWEB\Celulares.Web\Celulares.Web.csproj'
 ```
@@ -63,5 +70,14 @@ Sin emulador o teléfono conectado, no ejecute `-t:Run`; la compilación indepen
 Los cuatro clientes permiten administrar fotos. Si falla una carga, revise la migración, tamaño, formato, permisos SQL y disponibilidad de la API.
 
 ## Operación
+
+BanQuito conserva sus propios proyectos `BanQuito.Api`, `BanQuito.Dominio`, `BanQuito.Contratos`, `BanQuito.Administracion` y `BanQuito.Pruebas` bajo `04. SERVIDOR`. La comercializadora se comunica con él por HTTP; no referencia sus ensamblados ni accede a su base. `Servicios:BanQuitoUrl` configura la dirección bancaria en la API de tienda. Ambos usan la configuración de compilación de la raíz para guardar paquetes y salidas en D:.
+
+Para comprobar las reglas de ambos sistemas:
+
+```powershell
+& 'D:\tools\dotnet10\dotnet.exe' test '.\04. SERVIDOR\BanQuito.Pruebas\BanQuito.Pruebas.csproj'
+& 'D:\tools\dotnet10\dotnet.exe' test '.\04. SERVIDOR\Pruebas\Comercializadora.Pruebas.csproj'
+```
 
 La API expone catálogo, facturas, elegibilidad y amortización. BanQuito debe estar disponible para validar compras de crédito. Una operación pendiente debe reintentarse con el mismo identificador para evitar duplicados. No registre credenciales, cadenas de conexión ni datos personales en capturas o logs.

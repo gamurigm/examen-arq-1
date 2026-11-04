@@ -38,4 +38,4 @@ Implementar el sistema de la comercializadora descrito en `ExamenComplexivoPract
 
 ## Riesgos y límites
 
-Crédito requiere iniciar BanQuito antes de probarlo. La compilación Android no equivale a instalación o prueba en dispositivo. La API de crédito usa la base independiente de BanQuito; la carpeta de la comercializadora no incluye ese proyecto.
+Crédito requiere iniciar BanQuito antes de probarlo. La compilación Android no equivale a instalación o prueba en dispositivo. La API de crédito usa la base independiente de BanQuito; desde el 4 de noviembre de 2026, sus fuentes, scripts y pruebas están incluidos en este repositorio.

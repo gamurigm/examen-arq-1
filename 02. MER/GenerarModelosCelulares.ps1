@@ -8,8 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 if (-not $BanQuitoRoot) {
-    $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $CelularesRoot '..\..\..'))
-    $BanQuitoRoot = Join-Path $repoRoot 'U1\TG.1\1.4. PAO202651_RESTFUL_DOTNET_CONBDD_NRC36884_GR09'
+    $BanQuitoRoot = $CelularesRoot
 }
 
 function New-Column([string]$Code, [string]$Type, [bool]$Nullable = $false, [bool]$Identity = $false) {
@@ -268,7 +267,11 @@ $cellFiles = Get-Content -Raw -LiteralPath (Join-Path $CelularesRoot '03. BDD\01
 if ($cellFiles -notmatch 'CREATE TABLE dbo\.CELULAR' -or $cellFiles -notmatch 'CREATE TABLE dbo\.FACTURA') {
     throw 'Cellular SQL schema no longer matches the model definition.'
 }
-$bankSql = Get-Content -Raw -LiteralPath (Join-Path $BanQuitoRoot '03. BDD\BanQuito_01_CrearBase.sql')
+$bankSqlPath = Join-Path $BanQuitoRoot '03. BDD\BanQuito\BanQuito_01_CrearBase.sql'
+if (-not (Test-Path -LiteralPath $bankSqlPath)) {
+    $bankSqlPath = Join-Path $BanQuitoRoot '03. BDD\BanQuito_01_CrearBase.sql'
+}
+$bankSql = Get-Content -Raw -LiteralPath $bankSqlPath
 if ($bankSql -notmatch 'CREATE TABLE dbo\.CREDITO' -or $bankSql -notmatch 'CREATE TABLE dbo\.AMORTIZACION') {
     throw 'BanQuito SQL schema no longer matches the model definition.'
 }

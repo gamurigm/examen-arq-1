@@ -2,6 +2,8 @@
 
 Fecha de revisión: 27 de octubre de 2026. Este documento cubre la comercializadora de celulares; BanQuito permanece como sistema REST independiente.
 
+Actualización del 4 de noviembre de 2026: BanQuito ya está incluido en `04. SERVIDOR/BanQuito.*`, sus scripts están en `03. BDD/BanQuito` y su descripción de casos de uso en `01. UML/02. ECUD/CasosUsoCreditoBanQuito.md`. Se aplicó la migración de imágenes a la base principal, conservando catálogo y facturas. Pasan 20 pruebas bancarias y 19 de tienda; catálogo, elegibilidad, amortización y páginas web responden correctamente desde este repositorio. Los puntos siguientes conservan la evidencia histórica del 27 de octubre.
+
 ## Requisitos y evidencia
 
 1. **Catálogo sin inventario.** La tienda mantiene celulares disponibles, permite alta, edición y desactivación, y no descuenta existencias. Código: `04. SERVIDOR/Comercializadora.Api/Servicios/ServicioCatalogo.cs`.
