@@ -3,6 +3,7 @@ using System.IO;
 using Celulares.Cliente.Controladores;
 using Celulares.Cliente.Servicios;
 using Celulares.Contratos;
+using Celulares.Movil.Controladores;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace Celulares.Movil;
@@ -50,10 +51,8 @@ public sealed class MainPage : Shell
     private readonly Button botonTema;
     private readonly ContentPage editor;
     private readonly ContentPage detalleFactura;
-    private ControladorTienda? tienda;
-    private HttpClient? http;
+    private readonly ControladorMovil controlador = new();
     private Celular[] celulares = [];
-    private SolicitudFactura? pendiente;
     private int? editarId;
     private string seccionActual = "Catálogo";
     private bool temaClaro = Preferences.Default.Get("celulares.temaClaro", true);
@@ -287,9 +286,7 @@ public sealed class MainPage : Shell
 
     private async Task Conectar() => await Ejecutar(async () =>
     {
-        http?.Dispose();
-        http = new HttpClient { BaseAddress = ClienteComercializadora.Direccion(MauiProgram.DireccionServidor), Timeout = TimeSpan.FromSeconds(30) };
-        tienda = new ControladorTienda(new ClienteComercializadora(http));
+        controlador.Conectar(ClienteComercializadora.Direccion(MauiProgram.DireccionServidor));
         await CargarCatalogo();
     });
 
@@ -409,8 +406,8 @@ public sealed class MainPage : Shell
         var formaPago = forma.SelectedIndex == 1 ? "CREDITO_DIRECTO" : "EFECTIVO";
         var solicitud = new SolicitudFactura { Cedula = numeroCedula, NombreCliente = cliente, IdCelular = celular.Id, FormaPago = formaPago,
             NumeroCuotas = formaPago == "CREDITO_DIRECTO" ? Entero(cuotas.Text) : null, PrecioEsperado = celular.Precio };
-        if (pendiente is not null && !MismaVenta(pendiente, solicitud)) throw new InvalidOperationException("Hay una venta pendiente. Reintenta esa operación antes de cambiar los datos.");
-        if (formaPago == "CREDITO_DIRECTO" && pendiente is null)
+        Controlador().ValidarReintento(solicitud);
+        if (formaPago == "CREDITO_DIRECTO" && !Controlador().TieneVentaPendiente)
         {
             var evaluacion = await Controlador().EvaluarCredito(numeroCedula);
             elegibilidad.Text = evaluacion.SujetoCredito ? $"Elegible · máximo {evaluacion.MontoMaximo:C2}" : $"No elegible · {evaluacion.Motivo}";
@@ -418,10 +415,9 @@ public sealed class MainPage : Shell
         }
         var total = formaPago == "EFECTIVO" ? ControladorTienda.TotalEfectivo(celular.Precio) : celular.Precio;
         if (!await DisplayAlertAsync("Confirmar venta", $"{celular.Nombre}\n{cliente}\n{formaPago}\nTotal {total:C2}", "Confirmar", "Revisar")) return;
-        pendiente ??= solicitud;
         reintentar.IsVisible = true;
-        var factura = await Controlador().Facturar(pendiente);
-        pendiente = null; reintentar.IsVisible = false;
+        var factura = await Controlador().RegistrarVenta(solicitud);
+        reintentar.IsVisible = false;
         await MostrarFactura(factura);
         await GoToAsync("//facturasMenu/facturasSeccion/facturas");
         SeleccionarMenu("Facturas");
@@ -430,8 +426,8 @@ public sealed class MainPage : Shell
 
     private async Task Reintentar()
     {
-        if (pendiente is null) return;
-        await Ejecutar(async () => { var factura = await Controlador().Facturar(pendiente); pendiente = null; reintentar.IsVisible = false; await MostrarFactura(factura); await GoToAsync("//facturasMenu/facturasSeccion/facturas"); SeleccionarMenu("Facturas"); await Navigation.PushAsync(detalleFactura); });
+        if (!Controlador().TieneVentaPendiente) return;
+        await Ejecutar(async () => { var factura = await Controlador().ReintentarVenta(); reintentar.IsVisible = false; await MostrarFactura(factura); await GoToAsync("//facturasMenu/facturasSeccion/facturas"); SeleccionarMenu("Facturas"); await Navigation.PushAsync(detalleFactura); });
     }
 
     private async Task BuscarFacturas() => await Ejecutar(async () =>
@@ -554,8 +550,7 @@ public sealed class MainPage : Shell
     private static string TipoImagen(string ruta) => System.IO.Path.GetExtension(ruta).ToLowerInvariant() switch
     { ".jpg" or ".jpeg" => "image/jpeg", ".png" => "image/png", ".webp" => "image/webp", _ => throw new ArgumentException("Usa una foto JPEG, PNG o WebP.") };
     private static int Entero(string? texto) => int.TryParse(texto, out var n) && n is >= 3 and <= 18 ? n : throw new ArgumentException("Ingresa entre 3 y 18 cuotas.");
-    private static bool MismaVenta(SolicitudFactura a, SolicitudFactura b) => a.Cedula == b.Cedula && a.NombreCliente == b.NombreCliente && a.IdCelular == b.IdCelular && a.FormaPago == b.FormaPago && a.NumeroCuotas == b.NumeroCuotas && a.PrecioEsperado == b.PrecioEsperado;
-    private ControladorTienda Controlador() => tienda ?? throw new InvalidOperationException("La comercializadora todavía no se conecta.");
+    private ControladorMovil Controlador() => controlador;
     private Label TextoLabel(string texto, double tamano, FontAttributes estilo, Color color)
     {
         var label = new Label { Text = texto, FontSize = tamano, FontAttributes = estilo, LineBreakMode = LineBreakMode.WordWrap, VerticalOptions = LayoutOptions.Center };

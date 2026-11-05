@@ -9,13 +9,13 @@ using System.Windows.Controls;
 using Celulares.Cliente.Controladores;
 using Celulares.Cliente.Servicios;
 using Celulares.Contratos;
+using Celulares.Escritorio.Controladores;
 
 namespace Celulares.Escritorio;
 
 public partial class MainWindow : Window
 {
-    private readonly ControladorTienda tienda;
-    private SolicitudFactura? pendiente;
+    private readonly ControladorEscritorio controlador;
     private byte[]? fotoPendiente;
     private string? nombreFotoPendiente;
     private bool temaClaro;
@@ -28,7 +28,7 @@ public partial class MainWindow : Window
             BaseAddress = ClienteComercializadora.Direccion(Environment.GetEnvironmentVariable("CELULARES_API_URL")),
             Timeout = TimeSpan.FromSeconds(30)
         };
-        tienda = new ControladorTienda(new ClienteComercializadora(cliente));
+        controlador = new ControladorEscritorio(cliente);
     }
 
     private async void AlCargar(object sender, RoutedEventArgs e) => await CargarCatalogo();
@@ -38,7 +38,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            var datos = await tienda.Catalogo();
+            var datos = await controlador.Catalogo();
             Catalogo.ItemsSource = datos;
             CelularVenta.ItemsSource = datos;
             Catalogo.SelectedItem = datos.FirstOrDefault(c => c.Id == seleccionarId);
@@ -63,7 +63,7 @@ public partial class MainWindow : Window
         if (celular.ImagenUrl is null) { FotoEstado.Text = "Este celular aún no tiene foto."; return; }
         try
         {
-            var datos = await tienda.DescargarImagen(celular);
+            var datos = await controlador.DescargarImagen(celular);
             if (Catalogo.SelectedItem is Celular actual && actual.Id == celular.Id) FotoCelular.Source = Imagen(datos);
             FotoEstado.Text = "Foto guardada en SQL Server.";
         }
@@ -83,7 +83,7 @@ public partial class MainWindow : Window
             if (Catalogo.SelectedItem is Celular celular)
             {
                 using var flujo = new MemoryStream(datos);
-                await tienda.SubirImagen(celular.Id, flujo, Path.GetFileName(dialogo.FileName), tipo);
+                await controlador.SubirImagen(celular.Id, flujo, Path.GetFileName(dialogo.FileName), tipo);
                 await CargarCatalogo(celular.Id);
                 FotoEstado.Text = "Foto guardada o reemplazada.";
                 Estado.Text = $"Foto actualizada · {celular.Nombre}.";
@@ -109,7 +109,7 @@ public partial class MainWindow : Window
         }
         if (Catalogo.SelectedItem is not Celular celular || celular.ImagenUrl is null) { FotoEstado.Text = "Seleccione un celular con foto."; return; }
         if (MessageBox.Show($"¿Quitar la foto de {celular.Nombre}?", "Quitar foto", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
-        try { await tienda.QuitarImagen(celular.Id); await CargarCatalogo(celular.Id); Estado.Text = "Foto eliminada."; }
+        try { await controlador.QuitarImagen(celular.Id); await CargarCatalogo(celular.Id); Estado.Text = "Foto eliminada."; }
         catch (Exception error) { Estado.Text = error.Message; }
     }
 
@@ -172,11 +172,11 @@ public partial class MainWindow : Window
         {
             var precio = ControladorTienda.InterpretarPrecio(PrecioCelular.Text);
             var id = (Catalogo.SelectedItem as Celular)?.Id;
-            var celular = await tienda.Guardar(id, NombreCelular.Text, precio);
+            var celular = await controlador.Guardar(id, NombreCelular.Text, precio);
             if (fotoPendiente is not null)
             {
                 using var flujo = new MemoryStream(fotoPendiente);
-                await tienda.SubirImagen(celular.Id, flujo, nombreFotoPendiente ?? "foto.jpg", TipoImagen(nombreFotoPendiente ?? "foto.jpg"));
+                await controlador.SubirImagen(celular.Id, flujo, nombreFotoPendiente ?? "foto.jpg", TipoImagen(nombreFotoPendiente ?? "foto.jpg"));
                 fotoPendiente = null; nombreFotoPendiente = null;
             }
             await CargarCatalogo(celular.Id);
@@ -189,13 +189,13 @@ public partial class MainWindow : Window
     {
         if (Catalogo.SelectedItem is not Celular celular) { Estado.Text = "Seleccione un celular del catálogo."; return; }
         if (MessageBox.Show($"¿Desactivar {celular.Nombre}?", "Confirmar desactivación", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
-        try { await tienda.Eliminar(celular.Id); await CargarCatalogo(); Estado.Text = "Celular desactivado."; }
+        try { await controlador.Eliminar(celular.Id); await CargarCatalogo(); Estado.Text = "Celular desactivado."; }
         catch (Exception error) { Estado.Text = error.Message; }
     }
 
     private async void EvaluarCredito(object sender, RoutedEventArgs e)
     {
-        try { Mostrar(await tienda.EvaluarCredito(Cedula.Text)); }
+        try { Mostrar(await controlador.EvaluarCredito(Cedula.Text)); }
         catch (Exception error) { Elegibilidad.Text = "No se pudo verificar con BanQuito: " + error.Message; }
     }
 
@@ -204,7 +204,7 @@ public partial class MainWindow : Window
         BotonVender.IsEnabled = false;
         try
         {
-            var reintento = pendiente is not null;
+            var reintento = controlador.TieneVentaPendiente;
             if (CelularVenta.SelectedItem is not Celular celular) throw new ArgumentException("Seleccione un celular del catálogo.");
             var forma = (FormaPago.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "EFECTIVO";
             int? cuotas = forma == "CREDITO_DIRECTO" ? Entero(Cuotas.Text) : null;
@@ -213,14 +213,11 @@ public partial class MainWindow : Window
                 Cedula = Cedula.Text.Trim(), NombreCliente = Comprador.Text.Trim(), IdCelular = celular.Id,
                 FormaPago = forma, NumeroCuotas = cuotas, PrecioEsperado = celular.Precio
             };
-            if (pendiente is not null && (pendiente.Cedula != actual.Cedula || pendiente.NombreCliente != actual.NombreCliente ||
-                pendiente.IdCelular != actual.IdCelular || pendiente.FormaPago != actual.FormaPago ||
-                pendiente.NumeroCuotas != actual.NumeroCuotas || pendiente.PrecioEsperado != actual.PrecioEsperado))
-                throw new InvalidOperationException("Hay una venta pendiente. Reintente la misma operación o resuélvala antes de cambiar los datos.");
+            controlador.ValidarReintento(actual);
 
             if (forma == "CREDITO_DIRECTO" && !reintento)
             {
-                var evaluacion = await tienda.EvaluarCredito(actual.Cedula);
+                var evaluacion = await controlador.EvaluarCredito(actual.Cedula);
                 Mostrar(evaluacion);
                 if (!evaluacion.SujetoCredito || celular.Precio > evaluacion.MontoMaximo)
                     throw new InvalidOperationException("Crédito no elegible o precio superior al máximo de BanQuito.");
@@ -228,8 +225,7 @@ public partial class MainWindow : Window
 
             var total = forma == "EFECTIVO" ? ControladorTienda.TotalEfectivo(celular.Precio) : celular.Precio;
             if (MessageBox.Show($"{celular.Nombre}\n{forma}\nTotal: {total:C2}\n\n¿Confirmar venta?", "Confirmar venta", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
-            pendiente ??= actual;
-            await EnviarPendiente();
+            await EnviarVenta(actual);
         }
         catch (Exception error) { Estado.Text = "No se pudo completar la venta: " + error.Message; }
         finally { BotonVender.IsEnabled = true; }
@@ -237,7 +233,7 @@ public partial class MainWindow : Window
 
     private async void ReintentarVenta(object sender, RoutedEventArgs e)
     {
-        if (pendiente is null) { Estado.Text = "No hay una venta pendiente en esta sesión."; return; }
+        if (!controlador.TieneVentaPendiente) { Estado.Text = "No hay una venta pendiente en esta sesión."; return; }
         BotonReintentar.IsEnabled = false;
         try { await EnviarPendiente(); }
         catch (Exception error) { Estado.Text = "La venta sigue pendiente. Reintente con los mismos datos: " + error.Message; }
@@ -246,8 +242,8 @@ public partial class MainWindow : Window
 
     private void NuevaVenta(object sender, RoutedEventArgs e)
     {
-        if (pendiente is not null && MessageBox.Show("La venta pudo registrarse. Reintente o consulte sus facturas antes de descartarla. ¿Descartar esta referencia?", "Venta pendiente", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
-        pendiente = null;
+        if (controlador.TieneVentaPendiente && MessageBox.Show("La venta pudo registrarse. Reintente o consulte sus facturas antes de descartarla. ¿Descartar esta referencia?", "Venta pendiente", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        controlador.NuevaVenta();
         Cedula.Clear(); Comprador.Clear(); Cuotas.Clear(); CelularVenta.SelectedItem = null;
         Elegibilidad.Text = "";
         Estado.Text = "Nueva venta lista.";
@@ -257,7 +253,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            var facturas = await tienda.FacturasPorCedula(CedulaBusqueda.Text);
+            var facturas = await controlador.FacturasPorCedula(CedulaBusqueda.Text);
             FacturasEncontradas.ItemsSource = facturas;
             Estado.Text = facturas.Length == 0 ? "No hay facturas para esa cédula." : $"{facturas.Length} facturas encontradas. Seleccione una para ver detalle.";
         }
@@ -271,20 +267,26 @@ public partial class MainWindow : Window
         catch (Exception error) { Estado.Text = error.Message; }
     }
 
+    private async Task EnviarVenta(SolicitudFactura solicitud)
+    {
+        var factura = await controlador.RegistrarVenta(solicitud);
+        await MostrarFactura(factura.Id);
+        Estado.Text = $"Factura {factura.Id} · {factura.Estado} · total {factura.Total:C2}.";
+    }
+
     private async Task EnviarPendiente()
     {
-        var factura = await tienda.Facturar(pendiente!);
-        pendiente = null;
+        var factura = await controlador.ReintentarVenta();
         await MostrarFactura(factura.Id);
         Estado.Text = $"Factura {factura.Id} · {factura.Estado} · total {factura.Total:C2}.";
     }
 
     private async Task MostrarFactura(int id)
     {
-        var factura = await tienda.Factura(id);
+        var factura = await controlador.Factura(id);
         DetalleFactura.Text = $"FACTURA {factura.Id} · {factura.Estado}\n{factura.NombreCliente} · {factura.Cedula} · {factura.Celular}\n{factura.FormaPago} · precio {factura.Precio:C2} · descuento {factura.Descuento:C2} · total {factura.Total:C2}";
         TablaCuotas.ItemsSource = factura.FormaPago == "CREDITO_DIRECTO" && factura.Estado == "APROBADA"
-            ? await tienda.Amortizacion(id) : [];
+            ? await controlador.Amortizacion(id) : [];
     }
 
     private void Mostrar(EvaluacionCredito evaluacion) => Elegibilidad.Text = evaluacion.SujetoCredito

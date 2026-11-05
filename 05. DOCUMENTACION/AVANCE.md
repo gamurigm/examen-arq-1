@@ -3,12 +3,12 @@
 ## Implementado
 
 - Comercializadora REST .NET 10, contratos, reglas de facturación, persistencia SQL Server 2025 Express con ADO.NET y consultas parametrizadas.
-- Cuatro clientes MVC por plataforma: consola, escritorio WPF, web ASP.NET Core MVC y Android .NET MAUI.
+- Cuatro clientes: consola, escritorio WPF, web ASP.NET Core MVC y Android .NET MAUI.
 - BanQuito integrado por HTTP como aplicación independiente; elegibilidad, crédito y amortización siguen siendo responsabilidad bancaria.
 - Catálogo sin inventario, facturas de contado/crédito, búsqueda de facturas y consulta de amortización.
 - Fotos opcionales con cargar, reemplazar y quitar desde los cuatro clientes. El servidor valida JPEG, PNG y WebP, firma del archivo y límite de 5 MiB; guarda bytes en SQL Server.
 - Interfaces con identidad visual compartida; web, WPF y MAUI tienen tema claro y oscuro.
-- Capas de presentación, controlador, servicio y dominio; ASP.NET Core MVC en web e inyección de dependencias en servidor.
+- Separación de vistas, controladores y acceso HTTP en consola, WPF y MAUI; MVC de ASP.NET Core en web. El servidor separa controladores, servicios y dominio con dependencias inyectadas.
 - Decisión ORM: ADO.NET; no se usa Entity Framework Core. El enunciado permite seleccionar tecnología.
 
 ## Entregables
