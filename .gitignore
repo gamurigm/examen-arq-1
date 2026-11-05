@@ -45,3 +45,6 @@ Desktop.ini
 
 # Estado temporal de verificaciones QA
 scripts/*.local.json
+
+# Borradores y renderizados temporales de documentación
+05. DOCUMENTACION/.trabajo/

@@ -2,35 +2,21 @@
 
 Fecha: 4 de noviembre de 2026.
 
-## Figuras
+## Diagramas incluidos
 
-- Casos de uso bancarios: cliente comercializadora, elegibilidad, máximo, crédito y amortización.
-- Arquitectura: cuatro clientes, dos API REST .NET en el host, SQL Server en Docker y bases separadas.
-- MER físico: tablas CELULAR y FACTURA, imágenes, referencia bancaria remota y relación 1:N; sin inventario.
+El manual y la presentación comparten `05. DOCUMENTACION/fuentes/manual_verificado.md` y contienen seis exportaciones PNG de PowerDesigner: casos de uso, actividad, secuencia, clases, arquitectura y MER físico. Los hashes de las imágenes fuente están registrados en `05. DOCUMENTACION/EVIDENCIA_DIAGRAMAS.json`; se confirmó que ambos paquetes Office contienen esos mismos PNG.
 
-Las tres figuras se generaron con `01. UML/GenerarFigurasEntrega.vbs`. Cada una tiene fuente SVG editable y PNG. `05. DOCUMENTACION/EVIDENCIA_DIAGRAMAS.json` registra hashes y comparación de columnas y claves foráneas con SQL Server.
+Los modelos nativos se conservaron. No se regeneraron durante esta revisión porque la licencia de evaluación de PowerDesigner venció. La exportación PowerDesigner existente de arquitectura tiene rótulos recortados en sus bordes; se mantuvo por su procedencia. Corregirla requiere ajustar y exportar el modelo desde PowerDesigner con licencia válida. No se usó la figura SVG alternativa en los manuales.
 
-No se regeneraron modelos nativos de PowerDesigner porque la licencia de evaluación venció. Se conservaron los modelos existentes; las figuras actuales no dependen de esa licencia.
+## Entregables promovidos
 
-## Entregables revisados
-
-| Artefacto | Render | Revisión |
+| Artefacto | Páginas/diapositivas | Revisión |
 | --- | ---: | --- |
-| ERS | 6 páginas | Portada, requisitos, tablas y tres figuras; todas las páginas revisadas. |
-| ECUD | 12 páginas | Portada, ocho casos, reglas comunes y tres figuras; todas las páginas revisadas. |
-| Manual técnico | 34 páginas | Índices actualizados, tablas, diagramas, capturas QA/clientes, resultados, límites y bibliografía; las 34 páginas revisadas. |
-| Presentación | 69 diapositivas | 81 secciones de la fuente canónica; todas las diapositivas revisadas. |
+| Manual técnico DOCX | 39 páginas | Índices de contenido e ilustraciones actualizados; diagramas PowerDesigner en páginas propias; render revisado. |
+| Presentación PPTX | 72 diapositivas | Misma fuente y cobertura del manual; seis diagramas en diapositivas propias; render revisado. |
 
-El manual DOCX y la presentación usan `05. DOCUMENTACION/fuentes/manual_verificado.md`, SHA-256 `6cf1b168c2bc5d1b28942a85fbc56bcd7305a14ec872deac319a3cf0c2629070`. La generación conserva cada sección canónica una vez; las diapositivas agrupan pruebas breves y separan capturas cuando hace falta espacio. La cantidad de diapositivas sigue el contenido, no las 83 diapositivas de la plantilla.
+Se mantuvieron las plantillas Office y se retiró el texto heredado de la portada. No quedan referencias heredadas EurekaBank, SOAP o Java. Las diapositivas y páginas se revisaron en sus renderizados; no se forzó la cantidad del ejemplo.
 
-Las cuatro versiones oficiales se reemplazaron desde borradores revisados. Respaldo previo: `D:\tools\CelularGR09-documentacion\respaldo\20261104-181500`. `REVISION_RENDERIZADOS.json` contiene hashes, conteos y estado de revisión.
+La fuente canónica tiene SHA-256 `d190ee3bd4f30b25363dbb4e64909c1038834a80ed5c91b58f415e6dba52fea3`. Los hashes de documentos y PDF están en `05. DOCUMENTACION/REVISION_RENDERIZADOS.json`. Respaldo previo local: `05. DOCUMENTACION/.trabajo/respaldo-previo-promocion/`.
 
-## Reproducción
-
-```powershell
-python scripts/ValidarDocumentacion.py
-python scripts/GenerarDocumentacion.py
-python scripts/RenderizarDocumentacion.py --soffice <ruta-soffice>
-```
-
-Las API y los cuatro clientes no se compilaron ni se probaron en esta revisión documental. Las figuras nativas de PowerDesigner tampoco se regeneraron por la licencia vencida.
+La revisión cubre contenido y renderizado documental; no recompila ni vuelve a ejecutar las API o los cuatro clientes.

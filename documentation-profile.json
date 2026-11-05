@@ -24,8 +24,8 @@
   },
   "documentation": {
     "evidence_directory": "05. DOCUMENTACION/evidencias",
-    "draft_directory": "D:/tools/CelularGR09-documentacion/borradores",
-    "render_directory": "D:/tools/CelularGR09-documentacion/renderizados",
+    "draft_directory": "05. DOCUMENTACION/.trabajo/borradores",
+    "render_directory": "05. DOCUMENTACION/.trabajo/renderizados",
     "artifacts": {
       "ers": {
         "source": "05. DOCUMENTACION/fuentes/ers_verificado.md",

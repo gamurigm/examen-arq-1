@@ -1,13 +1,13 @@
 {
   "fecha": "2026-11-04",
   "estado": "PROMOCIONADO_A_OFICIALES",
-  "renderizador": "Word COM actualiza índices; LibreOffice headless produce PDF y PNG",
+  "renderizador": "Microsoft Word COM actualiza campos e índices y exporta el DOCX a PDF; Microsoft PowerPoint COM exporta la presentación a PDF",
   "fuenteManual": {
     "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
-    "sha256": "6cf1b168c2bc5d1b28942a85fbc56bcd7305a14ec872deac319a3cf0c2629070",
-    "secciones": 81
+    "sha256": "d190ee3bd4f30b25363dbb4e64909c1038834a80ed5c91b58f415e6dba52fea3",
+    "secciones": 84
   },
-  "respaldoPrevio": "D:\\tools\\CelularGR09-documentacion\\respaldo\\20261104-181500",
+  "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-previo-promocion",
   "archivos": [
     {
       "tipo": "ERS",
@@ -30,21 +30,21 @@
     {
       "tipo": "manual",
       "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-      "sha256": "49fa54229aeaced03e457ee83de27ef814a36f0cdbab3ac0d778e5d69b2a855a",
+      "sha256": "ab8349d3caa677217a4bad52b263ff3b71f40bb0384f90f5979e25192f28681a",
       "renderPdf": "MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "d401bebd1b24efcec68b57a6d70e24577d28d43af4530373bf36ee1f0e220414",
-      "paginasPdf": 34,
-      "revision": "Las 34 páginas revisadas; índice, figuras, tablas, evidencias, resultados y bibliografía presentes."
+      "renderPdfSha256": "60e3d54e70f9143230c7608192faef0a2b6a4e23a4c90b1486cd20665735fab5",
+      "paginasPdf": 39,
+      "revision": "39 páginas revisadas; índices actualizados y seis diagramas PowerDesigner incluidos."
     },
     {
       "tipo": "presentacion",
       "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-      "sha256": "a19f554eb9765ef8b3b081fad191707b946ad652cff7edf577c430296bf7585b",
+      "sha256": "e2d8d8d3b6eec8c7954a1467dbbd0a6a599e6dd10fd94eee86e66dd0d0edcab1",
       "renderPdf": "PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "acb4f5b0e3a7e125933c852314d8afbceb07a2213bdf6ceebd6b6d5d25fbc92b",
-      "diapositivasPdf": 69,
-      "seccionesCanonicas": 81,
-      "revision": "Las 69 diapositivas revisadas; capítulos y figuras ligados a la fuente manual compartida."
+      "renderPdfSha256": "8fc20580b0f8e1996f7b107cbcf9b827895a3467bef1b0b36a351188f74e1edf",
+      "diapositivasPdf": 72,
+      "seccionesCanonicas": 84,
+      "revision": "72 diapositivas revisadas; misma fuente canónica y seis diagramas PowerDesigner incluidos."
     }
   ],
   "oficialesSustituidos": true,

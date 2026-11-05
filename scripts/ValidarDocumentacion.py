@@ -35,9 +35,33 @@ def validate(profile_path, final=False):
                 content = path.read_text(encoding='utf-8-sig')
                 if final and re.search(r'REVISION PENDIENTE|SCREENSHOT PENDING|\bTODO\b|<project-id>', content, re.I):
                     errors.append(f'{key}: contiene marcadores pendientes')
-                for image in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', content):
+                images = re.findall(r'!\[([^\]]*)\]\(([^)]+)\)', content)
+                for caption, image in images:
                     if not (path.parent / image).is_file():
                         errors.append(f'{key}: imagen ausente: {image}')
+                if key == 'manual':
+                    expected_diagrams = {
+                        'GR09_CasosUso_Sistema de ventas de celulares.png',
+                        'GR09_Actividad_Venta a crédito.png',
+                        'GR09_Secuencia_Venta a crédito.png',
+                        'GR09_Clases_Clases del servicio y cliente.png',
+                        'GR09_Arquitectura_Arquitectura cliente-servidor.png',
+                        'GR09_Celulares_Physical_DotNet_SQLServer.png',
+                    }
+                    powerdesigner_images = {
+                        pathlib.Path(image).name
+                        for caption, image in images
+                        if caption.startswith('PowerDesigner: ')
+                    }
+                    if not expected_diagrams.issubset(powerdesigner_images):
+                        missing = sorted(expected_diagrams - powerdesigner_images)
+                        errors.append(f'{key}: faltan diagramas PowerDesigner requeridos: {missing}')
+                    for caption, image in images:
+                        if caption.startswith('PowerDesigner: ') and (
+                            pathlib.Path(image).suffix.lower() != '.png'
+                            or ('01. UML/03. DIAGRAMAS UML/' not in image and '02. MER/' not in image)
+                        ):
+                            errors.append(f'{key}: diagrama PowerDesigner con ruta/formato inválido: {image}')
         records.append(record)
     if final:
         review = root / profile['documentation'].get('visual_review', '05. DOCUMENTACION/revision-visual.json')

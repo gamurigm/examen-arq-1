@@ -46,5 +46,46 @@
       "png": "02. MER/03. FISICO/GR09_Celulares_SQL_Actual.png",
       "pngSha256": "03f5a336dcbaec3c2b0ec2492d1c3837a8ce91aac080fba6de543adeb4415b11"
     }
-  ]
+  ],
+  "usoFigurasAuxiliares": "Los SVG/PNG enumerados en figuras verifican el modelo y no se insertan en el manual DOCX ni en el PPTX.",
+  "figurasManualPowerDesigner": [
+    {
+      "tipo": "casos_uso",
+      "png": "01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_CasosUso_Sistema de ventas de celulares.png",
+      "origen": "Exportación PNG PowerDesigner existente",
+      "sha256": "aaa593d3f424b2c59e74109467383dcdcc7b1274638085befef691e6b32baebd"
+    },
+    {
+      "tipo": "actividad",
+      "png": "01. UML/03. DIAGRAMAS UML/02_ACTIVIDAD/GR09_Actividad_Venta a crédito.png",
+      "origen": "Exportación PNG PowerDesigner existente",
+      "sha256": "39aa4b8275c88400b803dae32fd44d8318edf60aab069936a3c714ccb8a1fe67"
+    },
+    {
+      "tipo": "secuencia",
+      "png": "01. UML/03. DIAGRAMAS UML/03_SECUENCIA/GR09_Secuencia_Venta a crédito.png",
+      "origen": "Exportación PNG PowerDesigner existente",
+      "sha256": "34a2f434024acc9bb6a8b71dfb7141cebbd6719414f65a28e74b37c7f6c4f9c1"
+    },
+    {
+      "tipo": "clases",
+      "png": "01. UML/03. DIAGRAMAS UML/04_CLASES/GR09_Clases_Clases del servicio y cliente.png",
+      "origen": "Exportación PNG PowerDesigner existente",
+      "sha256": "9f42907bb647f7f9ccd14ae07b253248627aac74feab542c639ed0d44bd8e38c"
+    },
+    {
+      "tipo": "arquitectura",
+      "png": "01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Arquitectura cliente-servidor.png",
+      "origen": "Exportación PNG PowerDesigner existente",
+      "sha256": "e31fe6bb8406ffe511b1fdd039c133b809bd56c30ec578c460dd435244f11111"
+    },
+    {
+      "tipo": "mer_fisico",
+      "png": "02. MER/03. FISICO/GR09_Celulares_Physical_DotNet_SQLServer.png",
+      "origen": "Exportación PNG PowerDesigner existente",
+      "sha256": "7b8ffb3114f9b973acd92743ad9785322f4f8b3a2136b7090532b723e3df5870"
+    }
+  ],
+  "modelosNativosRegeneradosEnEstaRevision": false,
+  "motivoNoRegeneracion": "Licencia de evaluación de PowerDesigner vencida; se reutilizaron exportaciones existentes."
 }

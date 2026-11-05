@@ -179,10 +179,14 @@ def clear_manual_body_preserving_front_matter(doc):
 
 def update_manual_cover(doc, cover):
     replacements = {
+        "Tema": "Manual técnico",
         "EXAMEN PRIMER PARCIAL": "COMERCIALIZADORA DE CELULARES",
         "GRUPO 1": "GRUPO 09 · NRC 36884",
         "EXAMEN PRIMER PARCIAL DOTNET": PROJECT["name"].upper(),
         "Ing. Eduardo Mauricio Campaña Ortega": PROJECT["tutor"],
+        "MIS.MDU.CCNA.CCIA.": PROJECT["authors"][0],
+        "PhD. (c) Ingeniería de Software": PROJECT["authors"][1],
+        "PhD. (c) Seguridad Información": "",
     }
     for node in cover.iter(qn("w:t")):
         value = node.text or ""
@@ -321,7 +325,9 @@ def generate_manual_word(template, source, target, sections):
     doc.add_page_break()
 
     for index, section in enumerate(sections):
-        doc.add_heading(section["title"], level=1)
+        heading = doc.add_heading(section["title"], level=1)
+        if section["title"].casefold().startswith("diagrama:"):
+            heading.paragraph_format.page_break_before = True
         image_blocks = [block for block in section["blocks"] if block["kind"] == "image"]
         emitted_images = False
         for block in section["blocks"]:
@@ -447,9 +453,8 @@ def slide_body(sections):
     result = []
     for section in sections:
         parts = [section["title"]]
-        title = re.sub(r"^Figura:\s*", "", normalize(section["title"]), flags=re.IGNORECASE)
         for block in section["blocks"]:
-            if block["kind"] == "image" and title.casefold() == normalize(block["caption"]).casefold():
+            if block["kind"] == "image":
                 continue
             text = block_text(block)
             if text:
@@ -710,23 +715,46 @@ def generate_presentation(template, source, target, sections):
             non_image_blocks = [block for section in group for block in section["blocks"] if block["kind"] != "image"]
             if len(group) != 1 or len(image_blocks) != 1 or non_image_blocks:
                 raise ValueError(f"La diapositiva {slide_index + 1} solo admite un capítulo formado por una figura.")
-            replace_frame_text(title, group[0]["title"].upper())
+            chapter_title = group[0]["title"]
+            if chapter_title.casefold().startswith("diagrama:"):
+                slide_title = re.sub(r"^Diagrama:\s*", "", chapter_title, flags=re.IGNORECASE).upper()
+            elif len(chapter_title) > 36:
+                slide_title = "EVIDENCIA QA"
+            else:
+                slide_title = chapter_title.upper()
+            replace_frame_text(title, slide_title)
             replace_slide_images(slide, image_blocks)
             update_sidebar(slide, nav, "ARQUITECTURA")
             set_slide_number(slide, slide_index + 1)
             continue
         label = " ".join(section["title"] for section in group).casefold()
+        image_blocks = [block for section in group for block in section["blocks"] if block["kind"] == "image"]
+        non_image_blocks = [block for section in group for block in section["blocks"] if block["kind"] != "image"]
+        image_only = (
+            len(group) == 1
+            and len(image_blocks) == 1
+            and not non_image_blocks
+            and group[0]["title"].casefold().startswith("diagrama:")
+        )
         if len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith("bibliografía")):
             replace_frame_text(title, group[0]["title"].upper())
+        elif image_only:
+            slide_title = re.sub(r"^Diagrama:\s*", "", group[0]["title"], flags=re.IGNORECASE).upper()
+            replace_frame_text(title, slide_title)
         else:
             replace_frame_text(title, "DESARROLLO")
-        replace_frame_text(content, slide_body(group))
+        replace_frame_text(content, "" if image_only else slide_body(group))
         old_pictures = [shape for shape in slide.shapes if shape.shape_type == 13]
         for shape in old_pictures:
             shape._element.getparent().remove(shape._element)
-        picture_bounds = fit_slide_body(slide, content, group)
+        if image_only:
+            content.text_frame.auto_size = MSO_AUTO_SIZE.NONE
+            content.text_frame.word_wrap = True
+            picture_bounds = (PInches(0.82), PInches(1.82), PInches(8.85), PInches(4.98))
+        else:
+            picture_bounds = fit_slide_body(slide, content, group)
         if picture_bounds:
-            images = [block for section in group for block in section["blocks"] if block["kind"] == "image"]
+            images = image_blocks
             left, top, width, height = picture_bounds
             gap = PInches(0.16)
             columns = min(2, len(images))

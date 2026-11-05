@@ -65,18 +65,22 @@ Los conteos registrados son 39 pruebas unitarias, 53 comprobaciones API, 14 de c
 Desde la raíz del repositorio se ejecutan `dotnet test "04. SERVIDOR/Pruebas/Comercializadora.Pruebas.csproj"` y `dotnet test "04. SERVIDOR/BanQuito.Pruebas/BanQuito.Pruebas.csproj"`. La verificación API se ejecuta con `python scripts/VerificarApiQA.py`; las pruebas de consola y MVC con `python scripts/VerificarClientesQA.py`.
 
 Para los recorridos visuales se inicia `python scripts/IniciarQAVisual.py`; los arneses WPF y Android operan con sus controles y emulador reales. Chrome/Playwright utiliza `python scripts/VerificarWebNavegador.py`. Los registros JSON y las capturas indican el alcance observado; no equivalen a certificación de producción.
-## Entrega y diagramas
-Plantillas locales, fuentes revisadas y generación por scripts.
-Conservar modelos y exportaciones; comparar MER con SQL.
-VBS sin COM genera SVG editables y PNG actuales; PowerDesigner conserva sus fuentes previas.
-
-`GenerarFigurasEntrega.vbs` produce SVG editables sin invocar PowerDesigner; `VerificarDiagramas.py` exporta PNG y contrasta atributos y claves foráneas con SQL. La licencia de evaluación de PowerDesigner venció en este equipo, por lo que no se afirma una regeneración de modelos nativos.
-## Figura: Casos de uso bancarios
-![Casos de uso bancarios](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_BanQuito_CasosUso.png)
-## Figura: Arquitectura REST y Docker
-![Arquitectura REST y Docker](../../01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Docker.png)
-## Figura: Modelo físico comercializadora
-![Modelo físico comercializadora](../../02. MER/03. FISICO/GR09_Celulares_SQL_Actual.png)
+## Diagramas PowerDesigner del sistema
+Los diagramas que documentan el sistema se elaboraron en PowerDesigner. Se conservan los modelos editables y se insertan sus exportaciones PNG originales en el manual y la presentación.
+La arquitectura representa los clientes, las API REST y las bases independientes. En la ejecución local, SQL Server corre en Docker y las aplicaciones en el host.
+La licencia de evaluación de PowerDesigner venció en este equipo; se reutilizan las exportaciones existentes y no se afirma que los modelos nativos se hayan regenerado durante esta revisión.
+## Diagrama: Casos de uso de ventas
+![PowerDesigner: casos de uso de ventas](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_CasosUso_Sistema de ventas de celulares.png)
+## Diagrama: Actividad de venta a crédito
+![PowerDesigner: actividad de venta a crédito](../../01. UML/03. DIAGRAMAS UML/02_ACTIVIDAD/GR09_Actividad_Venta a crédito.png)
+## Diagrama: Secuencia de venta a crédito
+![PowerDesigner: secuencia de venta a crédito](../../01. UML/03. DIAGRAMAS UML/03_SECUENCIA/GR09_Secuencia_Venta a crédito.png)
+## Diagrama: Clases del servicio y cliente
+![PowerDesigner: clases del servicio y cliente](../../01. UML/03. DIAGRAMAS UML/04_CLASES/GR09_Clases_Clases del servicio y cliente.png)
+## Diagrama: Arquitectura cliente-servidor
+![PowerDesigner: arquitectura cliente-servidor](../../01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Arquitectura cliente-servidor.png)
+## Diagrama: Modelo físico comercializadora
+![PowerDesigner: modelo físico comercializadora](../../02. MER/03. FISICO/GR09_Celulares_Physical_DotNet_SQLServer.png)
 ## Comprobación QA: Catálogo, consulta, alta y edición
 Resultado observado: APROBADO.
 Fuente: EVIDENCIA_API_QA.json. Ejecución aislada; no acredita por sí sola interacción visual.
