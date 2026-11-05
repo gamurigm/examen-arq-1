@@ -4,10 +4,10 @@
   "renderizador": "Microsoft Word COM actualiza campos e índices y exporta el DOCX a PDF; Microsoft PowerPoint COM exporta la presentación a PDF",
   "fuenteManual": {
     "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
-    "sha256": "d190ee3bd4f30b25363dbb4e64909c1038834a80ed5c91b58f415e6dba52fea3",
+    "sha256": "65dac47e1dcb7889fd1aaa7984f4917d1c189af8105803d37ce705e7c0a7ffd7",
     "secciones": 84
   },
-  "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-previo-promocion",
+  "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-correccion-portada",
   "archivos": [
     {
       "tipo": "ERS",
@@ -30,21 +30,21 @@
     {
       "tipo": "manual",
       "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-      "sha256": "ab8349d3caa677217a4bad52b263ff3b71f40bb0384f90f5979e25192f28681a",
+      "sha256": "507c7e03eff10a468df2719516769d0ad8102afbcf37b2c9deb7506d99f98c67",
       "renderPdf": "MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "60e3d54e70f9143230c7608192faef0a2b6a4e23a4c90b1486cd20665735fab5",
-      "paginasPdf": 39,
-      "revision": "39 páginas revisadas; índices actualizados y seis diagramas PowerDesigner incluidos."
+      "renderPdfSha256": "fe4b66523f3ce3ec7685ef4b58a99ec66b9512083ca85bacfc18cf625091518f",
+      "paginasPdf": 34,
+      "revision": "34 páginas revisadas; portada conserva la imagen Monster original del máster; índice y seis diagramas PowerDesigner comprobados; sin títulos QA."
     },
     {
       "tipo": "presentacion",
       "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-      "sha256": "e2d8d8d3b6eec8c7954a1467dbbd0a6a599e6dd10fd94eee86e66dd0d0edcab1",
+      "sha256": "e257c686744b0da7ae563c831c7086ec331e1568f605c74a4b83b72b43ef5a02",
       "renderPdf": "PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "8fc20580b0f8e1996f7b107cbcf9b827895a3467bef1b0b36a351188f74e1edf",
-      "diapositivasPdf": 72,
+      "renderPdfSha256": "17cc91bc9f3a29d7cadbe40fdd5a9ebabd659b71c66dbed0fd89b35ae9d897bb",
+      "diapositivasPdf": 63,
       "seccionesCanonicas": 84,
-      "revision": "72 diapositivas revisadas; misma fuente canónica y seis diagramas PowerDesigner incluidos."
+      "revision": "63 diapositivas revisadas desde la misma fuente; seis diagramas PowerDesigner presentes y nombres de pruebas claros."
     }
   ],
   "oficialesSustituidos": true,

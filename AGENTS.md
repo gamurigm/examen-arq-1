@@ -43,6 +43,7 @@ El generador documental permite seleccionar artefactos con `--artifacts`. No dec
 
 - El manual técnico DOCX y su versión PPTX son dos formatos del mismo manual. Deben contener la misma información: alcance, arquitectura, requisitos del entorno, configuración, base de datos, compilación, ejecución, procedimientos, pruebas, resultados, errores, limitaciones, diagramas y capturas correspondientes.
 - Usar una única fuente canónica de contenido del manual para generar ambos formatos. El perfil puede definir su distribución visual; no mantener dos narraciones independientes que diverjan.
+- Escribir los títulos del manual en español directo. Usar «Pruebas» o «Resultados de pruebas»; no poner la sigla «QA» en encabezados destinados al lector. Conservar nombres reales de scripts y archivos de evidencia cuando se documenten comandos.
 - Adaptar únicamente la distribución y presentación: párrafos, tablas y figuras en Word; bloques legibles distribuidos entre diapositivas en PowerPoint. No resumir eliminando información del PPTX ni incorporar pruebas, pasos o explicaciones que falten en el DOCX.
 - Mantener correspondencia verificable entre cada sección, procedimiento, figura y evidencia del DOCX y sus diapositivas. Los mismos metadatos, valores y resultados deben coincidir en ambos; registrar el hash de la fuente compartida.
 - No rellenar la presentación para alcanzar el número de diapositivas de la plantilla ni comprimir el manual para obtener pocas páginas. Conservar la identidad visual de las plantillas y dimensionar ambos entregables según el contenido real.

@@ -13,7 +13,6 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
-from docx.text.paragraph import Paragraph
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_AUTO_SIZE
@@ -236,13 +235,25 @@ def add_word_image_group(doc, image_blocks, section):
         caption.add_run(". " + text)
 
 
+def add_test_result_label(doc, title):
+    label = re.sub(r"^Prueba:\s*", "", title, flags=re.IGNORECASE)
+    paragraph = doc.add_paragraph()
+    paragraph.paragraph_format.space_before = Pt(5)
+    paragraph.paragraph_format.space_after = Pt(1)
+    paragraph.paragraph_format.keep_with_next = True
+    paragraph.add_run(label).bold = True
+
+
 def render_word_block(doc, block, section):
     kind = block["kind"]
     if kind == "paragraph":
         p = doc.add_paragraph()
         add_inline_markdown(p, block["text"])
     elif kind == "heading":
-        doc.add_heading(block["text"], level=2)
+        if block["text"].casefold().startswith("prueba:"):
+            add_test_result_label(doc, block["text"])
+        else:
+            doc.add_heading(block["text"], level=2)
     elif kind == "list":
         style = "List Bullet" if "List Bullet" in doc.styles else "Normal"
         p = doc.add_paragraph(style=style)
@@ -289,31 +300,7 @@ def generate_manual_word(template, source, target, sections):
     doc = Document(template)
     cover, toc = clear_manual_body_preserving_front_matter(doc)
     update_manual_cover(doc, cover)
-    cover_blip = next(cover.iter(qn("a:blip")), None)
-    if cover_blip is not None:
-        rid = cover_blip.get(qn("r:embed"))
-        doc.part.related_parts[rid]._blob = (ROOT / "assets/celulares/prisma.jpg").read_bytes()
-        inline = cover_blip
-        while inline is not None and inline.tag not in (qn("wp:inline"), qn("wp:anchor")):
-            inline = inline.getparent()
-        if inline is None:
-            raise ValueError("La imagen de portada perdió su marco de dibujo.")
-        extent = inline.find(qn("wp:extent"))
-        old_width = int(extent.get("cx"))
-        extent.set("cx", str(round(int(extent.get("cy")) * 1.5)))
-        position = inline.find(qn("wp:positionH") + "/" + qn("wp:posOffset"))
-        if position is not None:
-            position.text = str(int(position.text) + round((old_width - int(extent.get("cx"))) / 2))
-        for node in inline.iter(qn("a:ext")):
-            node.set("cx", extent.get("cx"))
-        crop = next(inline.iter(qn("a:srcRect")), None)
-        if crop is not None:
-            for side in ("l", "t", "r", "b"):
-                crop.attrib.pop(side, None)
-        paragraph = inline
-        while paragraph is not None and paragraph.tag != qn("w:p"):
-            paragraph = paragraph.getparent()
-        Paragraph(paragraph, doc._body).alignment = WD_ALIGN_PARAGRAPH.CENTER
+    # Keep the approved master cover image, crop, position, and frame unchanged.
     update_manual_toc_label(toc)
 
     for title, instruction in (
@@ -325,9 +312,12 @@ def generate_manual_word(template, source, target, sections):
     doc.add_page_break()
 
     for index, section in enumerate(sections):
-        heading = doc.add_heading(section["title"], level=1)
-        if section["title"].casefold().startswith("diagrama:"):
-            heading.paragraph_format.page_break_before = True
+        if section["title"].casefold().startswith("prueba:"):
+            add_test_result_label(doc, section["title"])
+        else:
+            heading = doc.add_heading(section["title"], level=1)
+            if section["title"].casefold().startswith("diagrama:"):
+                heading.paragraph_format.page_break_before = True
         image_blocks = [block for block in section["blocks"] if block["kind"] == "image"]
         emitted_images = False
         for block in section["blocks"]:
@@ -484,7 +474,7 @@ def group_presentation_sections(sections):
 
     for section in expanded:
         title = section["title"].casefold()
-        groupable = title.startswith("comprobación qa:") or title.startswith(("consola ", "web ")) or title == "catálogo cargado"
+        groupable = title.startswith("prueba:") or title.startswith(("consola ", "web ")) or title == "catálogo cargado"
         has_images = any(block["kind"] == "image" for block in section["blocks"])
         if not groupable or has_images:
             flush()
@@ -719,7 +709,7 @@ def generate_presentation(template, source, target, sections):
             if chapter_title.casefold().startswith("diagrama:"):
                 slide_title = re.sub(r"^Diagrama:\s*", "", chapter_title, flags=re.IGNORECASE).upper()
             elif len(chapter_title) > 36:
-                slide_title = "EVIDENCIA QA"
+                slide_title = "RESULTADO DE PRUEBAS"
             else:
                 slide_title = chapter_title.upper()
             replace_frame_text(title, slide_title)

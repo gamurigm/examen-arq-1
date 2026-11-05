@@ -40,6 +40,9 @@ def validate(profile_path, final=False):
                     if not (path.parent / image).is_file():
                         errors.append(f'{key}: imagen ausente: {image}')
                 if key == 'manual':
+                    qa_headings = re.findall(r'(?im)^#{1,6}\s+.*\bQA\b', content)
+                    if qa_headings:
+                        errors.append(f'{key}: encabezados visibles usan la sigla QA: {qa_headings[:5]}')
                     expected_diagrams = {
                         'GR09_CasosUso_Sistema de ventas de celulares.png',
                         'GR09_Actividad_Venta a crédito.png',
