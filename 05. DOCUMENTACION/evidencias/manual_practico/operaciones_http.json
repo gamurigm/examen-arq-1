@@ -1,0 +1,103 @@
+﻿[
+    {
+        "ruta":  "/api/facturas",
+        "entrada":  {
+                        "nombreCliente":  "Documentacion GR09",
+                        "formaPago":  "EFECTIVO",
+                        "idCelular":  1,
+                        "precioEsperado":  450,
+                        "cedula":  "0102030405",
+                        "idOperacion":  "a3e27918-3259-4118-bc45-2ec861ca21fb"
+                    },
+        "salida":  {
+                       "id":  1,
+                       "idOperacion":  "a3e27918-3259-4118-bc45-2ec861ca21fb",
+                       "fecha":  "2026-11-05T22:47:29.895993",
+                       "cedula":  "0102030405",
+                       "nombreCliente":  "Documentacion GR09",
+                       "idCelular":  1,
+                       "celular":  "Celular Aurora 128 GB",
+                       "formaPago":  "EFECTIVO",
+                       "precio":  450.00,
+                       "descuento":  189.00,
+                       "total":  261.00,
+                       "creditoId":  null,
+                       "numeroCuotas":  null,
+                       "estado":  "APROBADA"
+                   },
+        "metodo":  "POST",
+        "estado":  201
+    },
+    {
+        "ruta":  "/api/facturas",
+        "entrada":  {
+                        "nombreCliente":  "Documentacion GR09",
+                        "formaPago":  "CREDITO_DIRECTO",
+                        "idCelular":  1,
+                        "precioEsperado":  450,
+                        "cedula":  "0102030405",
+                        "idOperacion":  "b5b88cc3-9ab9-4ad4-99e0-d71aba885037",
+                        "numeroCuotas":  3
+                    },
+        "salida":  {
+                       "id":  2,
+                       "idOperacion":  "b5b88cc3-9ab9-4ad4-99e0-d71aba885037",
+                       "fecha":  "2026-11-05T22:47:29.9699972",
+                       "cedula":  "0102030405",
+                       "nombreCliente":  "Documentacion GR09",
+                       "idCelular":  1,
+                       "celular":  "Celular Aurora 128 GB",
+                       "formaPago":  "CREDITO_DIRECTO",
+                       "precio":  450.00,
+                       "descuento":  0.00,
+                       "total":  450.00,
+                       "creditoId":  1,
+                       "numeroCuotas":  3,
+                       "estado":  "APROBADA"
+                   },
+        "metodo":  "POST",
+        "estado":  201
+    },
+    {
+        "ruta":  "/api/facturas/2/amortizacion",
+        "salida":  {
+                       "value":  [
+                                     {
+                                         "numeroCuota":  0,
+                                         "fechaPago":  "2026-11-05",
+                                         "valorCuota":  0.00,
+                                         "interesPagado":  0.00,
+                                         "capitalPagado":  0.00,
+                                         "saldo":  450.00
+                                     },
+                                     {
+                                         "numeroCuota":  1,
+                                         "fechaPago":  "2026-12-05",
+                                         "valorCuota":  154.14,
+                                         "interesPagado":  6.19,
+                                         "capitalPagado":  147.95,
+                                         "saldo":  302.05
+                                     },
+                                     {
+                                         "numeroCuota":  2,
+                                         "fechaPago":  "2027-01-05",
+                                         "valorCuota":  154.14,
+                                         "interesPagado":  4.15,
+                                         "capitalPagado":  149.99,
+                                         "saldo":  152.06
+                                     },
+                                     {
+                                         "numeroCuota":  3,
+                                         "fechaPago":  "2027-02-05",
+                                         "valorCuota":  154.15,
+                                         "interesPagado":  2.09,
+                                         "capitalPagado":  152.06,
+                                         "saldo":  0.00
+                                     }
+                                 ],
+                       "Count":  4
+                   },
+        "metodo":  "GET",
+        "estado":  200
+    }
+]

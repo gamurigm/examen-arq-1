@@ -1,0 +1,2 @@
+HTTP 200
+[{"numeroCuota":0,"fechaPago":"2026-11-05","valorCuota":0.00,"interesPagado":0.00,"capitalPagado":0.00,"saldo":450.00},{"numeroCuota":1,"fechaPago":"2026-12-05","valorCuota":154.14,"interesPagado":6.19,"capitalPagado":147.95,"saldo":302.05},{"numeroCuota":2,"fechaPago":"2027-01-05","valorCuota":154.14,"interesPagado":4.15,"capitalPagado":149.99,"saldo":152.06},{"numeroCuota":3,"fechaPago":"2027-02-05","valorCuota":154.15,"interesPagado":2.09,"capitalPagado":152.06,"saldo":0.00}]

@@ -1,62 +1,99 @@
 {
   "fecha": "2026-11-05",
-  "estado": "PROMOCIONADO_A_OFICIALES; revisión visual y estructural completada para manual técnico y presentación",
-  "revisionGitBase": "4edd79c654cfc7e1dac1edbbe87a979ae54599f1",
-  "renderizador": "Microsoft Word COM actualizó campos e índices; LibreOffice exportó el manual a PDF; Microsoft PowerPoint COM exportó la presentación a PDF; hojas de contacto revisadas visualmente",
+  "estado": "DOCUMENTOS_ACTUALIZADOS_CON_PENDIENTES_DE_EVIDENCIA",
+  "revisionGitBase": "53dd018b6d9b4fdea4e34fe39bfff07faeb76334",
+  "planCompletamenteCerrado": false,
   "fuenteManual": {
     "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
-    "sha256": "5d314b39ae7b93c1039ffca551cd5c061ff6a5ada17bc4048f642dc9779969a8",
-    "hashContenidoCanonico": "95e61cbef841b36d169d04a0395da83b06c1323d35edae892c54750b6dd8abcc",
-    "secciones": 40
+    "sha256": "f864be26d1d8536a8e7add3239a585f918c2a7f0a3aff6006ae2543f2f72d66d",
+    "hashContenidoCanonico": "52256103a3a86018a2e0224f82615f1e6c2b3b376cb34b1cffd637b24994ed14",
+    "secciones": 48
   },
-  "borradores": [
+  "archivosDocumentados": 75,
+  "artefactos": [
     {
       "tipo": "manual",
-      "plantilla": "examples/05.Documentacion/04.WS_EXAMEN_GRUPO_1.docx",
-      "plantillaSha256": "e18d2b03edffaaa83553d9693df5cc2f98b2475727ad2cb5bcc43b9deb4f4c1e",
-      "archivo": "05. DOCUMENTACION/.trabajo/borradores/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-      "sha256": "fceffd6382d6944cbe10953ff4c86c1738118f7333aa0902000c7bfdc522438a",
-      "renderPdf": "05. DOCUMENTACION/.trabajo/revision-tecnica-libreoffice/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "7c02474680c851c988888db9878c8b64814e5f42e9b9a68c252032e507bcfc6b",
-      "paginasPdf": 42,
-      "figurasInline": 23,
-      "revision": "42 páginas revisadas en seis hojas de contacto y páginas ampliadas; plantilla y figuras PowerDesigner conservadas, referencias bibliográficas académicas incluidas. Índice actualizado; sin marcadores rotos ni etiquetas de aprobación.",
       "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-      "oficialSha256": "fceffd6382d6944cbe10953ff4c86c1738118f7333aa0902000c7bfdc522438a"
+      "sha256": "52f1662a376b55202606ae27175def007321cb0139a0229c0b1b4611f9c9edc2",
+      "fuenteSha256": "f864be26d1d8536a8e7add3239a585f918c2a7f0a3aff6006ae2543f2f72d66d",
+      "renderPdf": "05. DOCUMENTACION/.trabajo/render-lo-entrega/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+      "renderPdfSha256": "cf25bfaa6811c3acde4b448239e02928f79b95cb13234309dd0b5f3562833bc9",
+      "paginasWord": 199,
+      "paginasPdf": 201,
+      "figurasCanonicas": 30
     },
     {
       "tipo": "presentacion",
-      "plantilla": "examples/05.Documentacion/REST_EXAMEN_GRUPO_1.pptx",
-      "plantillaSha256": "f76cafd8f094e2a483093cd6ee05ab1429888566481422ae0ebfbbde5c3b23cd",
-      "archivo": "05. DOCUMENTACION/.trabajo/borradores/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-      "sha256": "265a35b5c8a09c85f3dae15b9f332536ee92a7d7348fe45c5dd525f91b497454",
-      "renderPdf": "05. DOCUMENTACION/.trabajo/revision-tecnica-render/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "8147f23ffe02dcc227ddff20efe90e5c372c3ebd70fbf7c170329b7ada81cb77",
-      "diapositivasPdf": 177,
-      "imagenes": 23,
-      "imagenesFueraDelLienzo": 0,
-      "solapamientosConTexto": 0,
-      "seccionesCanonicas": 40,
-      "revision": "Las 177 diapositivas se revisaron en 15 hojas de contacto. Diagramas y capturas conservados en láminas dedicadas; sin invasión de encabezados ni figuras fuera del lienzo.",
       "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-      "oficialSha256": "265a35b5c8a09c85f3dae15b9f332536ee92a7d7348fe45c5dd525f91b497454"
+      "sha256": "f5f075e48318e4081e7fd8b8e5ad8ab5d8eb6716395a81a98ea75666d142f6fe",
+      "fuenteSha256": "f864be26d1d8536a8e7add3239a585f918c2a7f0a3aff6006ae2543f2f72d66d",
+      "renderPdf": "05. DOCUMENTACION/.trabajo/render-practico/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+      "renderPdfSha256": "5682455599d1e0f8c144d94c059377e3f24a6f378528f5ffedda8e5cd9d9a1d3",
+      "paginasWord": null,
+      "paginasPdf": 823,
+      "figurasCanonicas": 30
     }
   ],
-  "oficialesSustituidos": true,
-  "limitaciones": [
-    "No se ejecutaron pruebas de API ni compilaciones de clientes como parte de esta revisión documental. Las instrucciones describen los procedimientos y no declaran resultados nuevos de ejecución.",
-    "Los modelos PowerDesigner se conservaron; no se regeneraron durante esta edición."
+  "validacionEstructural": {
+    "archivosDocumentados": 75,
+    "capitulos": 48,
+    "diapositivasEsperadas": 823,
+    "codigoCompletoCoincidente": true,
+    "artefactos": [
+      {
+        "archivo": "05. DOCUMENTACION/.trabajo/borradores-practico-final/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+        "sha256": "52f1662a376b55202606ae27175def007321cb0139a0229c0b1b4611f9c9edc2"
+      },
+      {
+        "archivo": "05. DOCUMENTACION/.trabajo/borradores-practico-final/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
+        "sha256": "f5f075e48318e4081e7fd8b8e5ad8ab5d8eb6716395a81a98ea75666d142f6fe"
+      }
+    ],
+    "normalizacionHashes": "Contenido UTF-8 sin BOM, saltos LF; comparación independiente de CRLF del checkout."
+  },
+  "revisionVisual": {
+    "manual": "Todas las páginas examinadas en nueve hojas de contacto; muestras ampliadas de listados y capturas. Última sustitución de imagen de amortización revisada a tamaño completo; el texto de las 201 páginas no cambió.",
+    "presentacion": "823 diapositivas: distribución base examinada en 35 hojas de contacto; últimas redistribuciones revisadas por sus galerías y títulos. Captura final de amortización revisada en diapositiva775.",
+    "bordeDocx": "Los bordes artísticos twistedLines1 de la plantilla permanecen en las secciones del DOCX.",
+    "limitacionPdfWord": "Word actualizó índices y contó199 páginas; su exportación PDF no terminó. LibreOffice generó201páginas y omite los bordes artísticos. Ese PDF se conserva como revisión auxiliar, no como referencia de paginación de Word."
+  },
+  "ejecucion": {
+    "compilaciones": 6,
+    "pruebasUnitarias": 39,
+    "fallosUnitarios": 0,
+    "efectivo": {
+      "precio": 450,
+      "descuento": 189,
+      "total": 261,
+      "http": 201
+    },
+    "credito": {
+      "capital": 450,
+      "cuotas": 3,
+      "saldoFinal": 0,
+      "http": 201
+    },
+    "amortizacionHttp": 200,
+    "rechazoSinCedulaHttp": 400,
+    "entornoAislado": "manualgr09; puertosAPI19501/19502; web19503",
+    "entornoFinal": "Contenedor de prueba detenido; volumen conservado."
+  },
+  "pendientes": [
+    "Capturas de los instaladores y sus cargas seleccionadas.",
+    "Proyecto cargado en Visual Studio: automatización devolvió E_ABORT; se descartó una imagen de otra solución.",
+    "Secuencia gráfica de conexión y consultas en SSMS.",
+    "Repetir todos los recorridos de mantenimiento y ventas desde las cuatro interfaces."
   ],
   "revisionAnterior": {
     "fecha": "2026-11-05",
-    "estado": "PROMOCIONADO_A_OFICIALES; CAPTURAS_VISUAL_STUDIO_PENDIENTES",
-    "revisionGitBase": "ce2691ce1f8efc44e6c1475569da0a4272343931",
-    "renderizador": "Microsoft Word COM y Microsoft PowerPoint COM; hojas de contacto generadas desde sus PDF",
+    "estado": "PROMOCIONADO_A_OFICIALES; revisión visual y estructural completada para manual técnico y presentación",
+    "revisionGitBase": "4edd79c654cfc7e1dac1edbbe87a979ae54599f1",
+    "renderizador": "Microsoft Word COM actualizó campos e índices; LibreOffice exportó el manual a PDF; Microsoft PowerPoint COM exportó la presentación a PDF; hojas de contacto revisadas visualmente",
     "fuenteManual": {
       "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
-      "sha256": "e827122062f6f3030da21a99b950274cc110ffeaa8953180abbf2ec03458277a",
-      "hashContenidoCanonico": "e7fb72616c9b44c065b80a55d52ec990e654af1429319c87b5dfb68da013b977",
-      "secciones": 90
+      "sha256": "5d314b39ae7b93c1039ffca551cd5c061ff6a5ada17bc4048f642dc9779969a8",
+      "hashContenidoCanonico": "95e61cbef841b36d169d04a0395da83b06c1323d35edae892c54750b6dd8abcc",
+      "secciones": 40
     },
     "borradores": [
       {
@@ -64,118 +101,168 @@
         "plantilla": "examples/05.Documentacion/04.WS_EXAMEN_GRUPO_1.docx",
         "plantillaSha256": "e18d2b03edffaaa83553d9693df5cc2f98b2475727ad2cb5bcc43b9deb4f4c1e",
         "archivo": "05. DOCUMENTACION/.trabajo/borradores/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-        "sha256": "6347779eee6bc5aff8f663b4a4f610cd9f73afa5a6b0c231b69b76d7697e3178",
-        "renderPdf": "05. DOCUMENTACION/.trabajo/renderizados/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-        "renderPdfSha256": "79a33c29a1f151413adcaf18bdd3340ffdec8d36cc4691e1936fb185c9370f27",
-        "paginasPdf": 39,
+        "sha256": "fceffd6382d6944cbe10953ff4c86c1738118f7333aa0902000c7bfdc522438a",
+        "renderPdf": "05. DOCUMENTACION/.trabajo/revision-tecnica-libreoffice/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+        "renderPdfSha256": "7c02474680c851c988888db9878c8b64814e5f42e9b9a68c252032e507bcfc6b",
+        "paginasPdf": 42,
         "figurasInline": 23,
-        "alturaMaximaFiguraPulgadas": 5.25,
-        "revision": "Portada Monster y marco de la plantilla conservados; seis PNG originales de PowerDesigner y anexo SQL presentes. Las 39 páginas se revisaron en hojas de contacto; se comprobaron páginas SQL, configuración y diagramas a tamaño completo. No contiene capturas auténticas de Visual Studio.",
+        "revision": "42 páginas revisadas en seis hojas de contacto y páginas ampliadas; plantilla y figuras PowerDesigner conservadas, referencias bibliográficas académicas incluidas. Índice actualizado; sin marcadores rotos ni etiquetas de aprobación.",
         "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-        "oficialSha256": "6347779eee6bc5aff8f663b4a4f610cd9f73afa5a6b0c231b69b76d7697e3178"
+        "oficialSha256": "fceffd6382d6944cbe10953ff4c86c1738118f7333aa0902000c7bfdc522438a"
       },
       {
         "tipo": "presentacion",
         "plantilla": "examples/05.Documentacion/REST_EXAMEN_GRUPO_1.pptx",
         "plantillaSha256": "f76cafd8f094e2a483093cd6ee05ab1429888566481422ae0ebfbbde5c3b23cd",
         "archivo": "05. DOCUMENTACION/.trabajo/borradores/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-        "sha256": "a4b46da9a8468734400e519a69a06fb8e851e1af87d92d56deba975c7bc29ef1",
-        "renderPdf": "05. DOCUMENTACION/.trabajo/renderizados/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-        "renderPdfSha256": "9fbc1787ea1d3d997d33992be9c83b535573d8f6dcbd21f8888d4ee74dda2efb",
-        "diapositivasPdf": 96,
-        "imagenes": 25,
+        "sha256": "265a35b5c8a09c85f3dae15b9f332536ee92a7d7348fe45c5dd525f91b497454",
+        "renderPdf": "05. DOCUMENTACION/.trabajo/revision-tecnica-render/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+        "renderPdfSha256": "8147f23ffe02dcc227ddff20efe90e5c372c3ebd70fbf7c170329b7ada81cb77",
+        "diapositivasPdf": 177,
+        "imagenes": 23,
         "imagenesFueraDelLienzo": 0,
         "solapamientosConTexto": 0,
-        "seccionesCanonicas": 90,
-        "revision": "Los seis PNG originales de PowerDesigner están presentes. Las 96 diapositivas se revisaron en ocho hojas de contacto; se comprobaron las capturas de catálogo y amortización a tamaño completo. Las figuras están dentro del lienzo y no se cruzan con texto; las capturas verticales se agrupan en slides dedicadas cuando su explicación reduciría su tamaño.",
-        "anchoMinimoImagenPulgadas": 1.56,
-        "alturaMaximaImagenPulgadas": 4.55,
+        "seccionesCanonicas": 40,
+        "revision": "Las 177 diapositivas se revisaron en 15 hojas de contacto. Diagramas y capturas conservados en láminas dedicadas; sin invasión de encabezados ni figuras fuera del lienzo.",
         "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-        "oficialSha256": "a4b46da9a8468734400e519a69a06fb8e851e1af87d92d56deba975c7bc29ef1"
+        "oficialSha256": "265a35b5c8a09c85f3dae15b9f332536ee92a7d7348fe45c5dd525f91b497454"
       }
     ],
     "oficialesSustituidos": true,
     "limitaciones": [
-      "Visual Studio Community 2026 superó la pantalla inicial de cuenta, pero no pudo cargar el proyecto: ActivityLog.xml registra errores E_ACCESSDENIED (0x80070005) en EditorPackage, GlobalHubClientPackage y servicios Roslyn/ServiceHub. Las capturas auténticas de su configuración siguen pendientes. Las placas IDE_* no se usaron como evidencia.",
-      "Los modelos PowerDesigner se conservaron; no se regeneraron porque la licencia de evaluación venció.",
-      "No se ejecutaron pruebas de API ni compilaciones de clientes en esta revisión documental."
+      "No se ejecutaron pruebas de API ni compilaciones de clientes como parte de esta revisión documental. Las instrucciones describen los procedimientos y no declaran resultados nuevos de ejecución.",
+      "Los modelos PowerDesigner se conservaron; no se regeneraron durante esta edición."
     ],
     "revisionAnterior": {
-      "fecha": "2026-11-04",
-      "estado": "PROMOCIONADO_A_OFICIALES; revisión visual completa de imágenes",
-      "renderizador": "Microsoft Word COM actualiza campos e índices y exporta el DOCX a PDF; Microsoft PowerPoint COM exporta la presentación a PDF",
+      "fecha": "2026-11-05",
+      "estado": "PROMOCIONADO_A_OFICIALES; CAPTURAS_VISUAL_STUDIO_PENDIENTES",
+      "revisionGitBase": "ce2691ce1f8efc44e6c1475569da0a4272343931",
+      "renderizador": "Microsoft Word COM y Microsoft PowerPoint COM; hojas de contacto generadas desde sus PDF",
       "fuenteManual": {
         "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
-        "sha256": "0dfc01b8ce3e3ca9135dc81cdfa22a6f6198096ca73f046c8e6e28206f3fc6e0",
-        "secciones": 84
+        "sha256": "e827122062f6f3030da21a99b950274cc110ffeaa8953180abbf2ec03458277a",
+        "hashContenidoCanonico": "e7fb72616c9b44c065b80a55d52ec990e654af1429319c87b5dfb68da013b977",
+        "secciones": 90
       },
-      "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-ajuste-imagenes-20261104",
-      "archivos": [
-        {
-          "tipo": "ERS",
-          "oficial": "01. UML/01. ERS/ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-          "sha256": "977d84d10126ae1ef15753fef071b710c801a4a685a2b399a80fbf97c63fb085",
-          "renderPdf": "ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-          "renderPdfSha256": "d59c6459bd7bf28e4af5c9352ff9645ce73280ee026fe747534e833660506eda",
-          "paginasPdf": 6,
-          "revision": "Todas las páginas revisadas; portada, requisitos, tablas y figuras legibles."
-        },
-        {
-          "tipo": "ECUD",
-          "oficial": "01. UML/02. ECUD/ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-          "sha256": "92969cafd16d3289510f5b9ad8a32035235735fe18da3c98ae02d5c2cb79c6d7",
-          "renderPdf": "ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-          "renderPdfSha256": "d03575f04698ff76b1918de0ff0719588ef7bc589c7526440fc12ee9e294b166",
-          "paginasPdf": 12,
-          "revision": "Todas las páginas revisadas; ocho casos, reglas comunes y tres figuras presentes."
-        },
+      "borradores": [
         {
           "tipo": "manual",
+          "plantilla": "examples/05.Documentacion/04.WS_EXAMEN_GRUPO_1.docx",
+          "plantillaSha256": "e18d2b03edffaaa83553d9693df5cc2f98b2475727ad2cb5bcc43b9deb4f4c1e",
+          "archivo": "05. DOCUMENTACION/.trabajo/borradores/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+          "sha256": "6347779eee6bc5aff8f663b4a4f610cd9f73afa5a6b0c231b69b76d7697e3178",
+          "renderPdf": "05. DOCUMENTACION/.trabajo/renderizados/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+          "renderPdfSha256": "79a33c29a1f151413adcaf18bdd3340ffdec8d36cc4691e1936fb185c9370f27",
+          "paginasPdf": 39,
+          "figurasInline": 23,
+          "alturaMaximaFiguraPulgadas": 5.25,
+          "revision": "Portada Monster y marco de la plantilla conservados; seis PNG originales de PowerDesigner y anexo SQL presentes. Las 39 páginas se revisaron en hojas de contacto; se comprobaron páginas SQL, configuración y diagramas a tamaño completo. No contiene capturas auténticas de Visual Studio.",
           "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-          "sha256": "df07224e1eae32ad0b9083431b8e00dd5933162fefbfa171912647b36ea1b0ba",
-          "renderPdf": "MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-          "renderPdfSha256": "a203dfe1962c75281f4820a3bac07951570bcbfb52e4fc1ff3df2c0b6b3819ea",
-          "paginasPdf": 30,
-          "revision": "30 páginas revisadas; portada Monster conservada, índice sin marcadores rotos, figuras legibles y con altura máxima de 5,25 pulgadas; sin desbordes ni solapamientos."
+          "oficialSha256": "6347779eee6bc5aff8f663b4a4f610cd9f73afa5a6b0c231b69b76d7697e3178"
         },
         {
           "tipo": "presentacion",
+          "plantilla": "examples/05.Documentacion/REST_EXAMEN_GRUPO_1.pptx",
+          "plantillaSha256": "f76cafd8f094e2a483093cd6ee05ab1429888566481422ae0ebfbbde5c3b23cd",
+          "archivo": "05. DOCUMENTACION/.trabajo/borradores/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
+          "sha256": "a4b46da9a8468734400e519a69a06fb8e851e1af87d92d56deba975c7bc29ef1",
+          "renderPdf": "05. DOCUMENTACION/.trabajo/renderizados/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+          "renderPdfSha256": "9fbc1787ea1d3d997d33992be9c83b535573d8f6dcbd21f8888d4ee74dda2efb",
+          "diapositivasPdf": 96,
+          "imagenes": 25,
+          "imagenesFueraDelLienzo": 0,
+          "solapamientosConTexto": 0,
+          "seccionesCanonicas": 90,
+          "revision": "Los seis PNG originales de PowerDesigner están presentes. Las 96 diapositivas se revisaron en ocho hojas de contacto; se comprobaron las capturas de catálogo y amortización a tamaño completo. Las figuras están dentro del lienzo y no se cruzan con texto; las capturas verticales se agrupan en slides dedicadas cuando su explicación reduciría su tamaño.",
+          "anchoMinimoImagenPulgadas": 1.56,
+          "alturaMaximaImagenPulgadas": 4.55,
           "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-          "sha256": "47e7159192f4879fe930b3a675194949f87dca840ad6f396bae2bf19bde6f301",
-          "renderPdf": "PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-          "renderPdfSha256": "3cbfb1b4f83805d11dbebf302d2453efa835e524462d517124ddd2e3ec2f6781",
-          "diapositivasPdf": 65,
-          "seccionesCanonicas": 84,
-          "revision": "65 diapositivas revisadas; 25 imágenes dentro del lienzo, sin cruces con texto; captura adaptable dividida en seis tramos legibles."
+          "oficialSha256": "a4b46da9a8468734400e519a69a06fb8e851e1af87d92d56deba975c7bc29ef1"
         }
       ],
       "oficialesSustituidos": true,
       "limitaciones": [
-        "No se compilaron los cuatro clientes ni se ejecutaron pruebas de las API en esta revisión documental.",
-        "No se regeneraron modelos PowerDesigner porque la licencia de evaluación venció."
+        "Visual Studio Community 2026 superó la pantalla inicial de cuenta, pero no pudo cargar el proyecto: ActivityLog.xml registra errores E_ACCESSDENIED (0x80070005) en EditorPackage, GlobalHubClientPackage y servicios Roslyn/ServiceHub. Las capturas auténticas de su configuración siguen pendientes. Las placas IDE_* no se usaron como evidencia.",
+        "Los modelos PowerDesigner se conservaron; no se regeneraron porque la licencia de evaluación venció.",
+        "No se ejecutaron pruebas de API ni compilaciones de clientes en esta revisión documental."
       ],
-      "canonicalContentSha256": "a92ee31f49851f0bc5a74a8a45f2161b5a30400f18a0cbf33ace88c855dfcb21"
+      "revisionAnterior": {
+        "fecha": "2026-11-04",
+        "estado": "PROMOCIONADO_A_OFICIALES; revisión visual completa de imágenes",
+        "renderizador": "Microsoft Word COM actualiza campos e índices y exporta el DOCX a PDF; Microsoft PowerPoint COM exporta la presentación a PDF",
+        "fuenteManual": {
+          "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
+          "sha256": "0dfc01b8ce3e3ca9135dc81cdfa22a6f6198096ca73f046c8e6e28206f3fc6e0",
+          "secciones": 84
+        },
+        "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-ajuste-imagenes-20261104",
+        "archivos": [
+          {
+            "tipo": "ERS",
+            "oficial": "01. UML/01. ERS/ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+            "sha256": "977d84d10126ae1ef15753fef071b710c801a4a685a2b399a80fbf97c63fb085",
+            "renderPdf": "ERS_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+            "renderPdfSha256": "d59c6459bd7bf28e4af5c9352ff9645ce73280ee026fe747534e833660506eda",
+            "paginasPdf": 6,
+            "revision": "Todas las páginas revisadas; portada, requisitos, tablas y figuras legibles."
+          },
+          {
+            "tipo": "ECUD",
+            "oficial": "01. UML/02. ECUD/ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+            "sha256": "92969cafd16d3289510f5b9ad8a32035235735fe18da3c98ae02d5c2cb79c6d7",
+            "renderPdf": "ECUD_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+            "renderPdfSha256": "d03575f04698ff76b1918de0ff0719588ef7bc589c7526440fc12ee9e294b166",
+            "paginasPdf": 12,
+            "revision": "Todas las páginas revisadas; ocho casos, reglas comunes y tres figuras presentes."
+          },
+          {
+            "tipo": "manual",
+            "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
+            "sha256": "df07224e1eae32ad0b9083431b8e00dd5933162fefbfa171912647b36ea1b0ba",
+            "renderPdf": "MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+            "renderPdfSha256": "a203dfe1962c75281f4820a3bac07951570bcbfb52e4fc1ff3df2c0b6b3819ea",
+            "paginasPdf": 30,
+            "revision": "30 páginas revisadas; portada Monster conservada, índice sin marcadores rotos, figuras legibles y con altura máxima de 5,25 pulgadas; sin desbordes ni solapamientos."
+          },
+          {
+            "tipo": "presentacion",
+            "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
+            "sha256": "47e7159192f4879fe930b3a675194949f87dca840ad6f396bae2bf19bde6f301",
+            "renderPdf": "PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
+            "renderPdfSha256": "3cbfb1b4f83805d11dbebf302d2453efa835e524462d517124ddd2e3ec2f6781",
+            "diapositivasPdf": 65,
+            "seccionesCanonicas": 84,
+            "revision": "65 diapositivas revisadas; 25 imágenes dentro del lienzo, sin cruces con texto; captura adaptable dividida en seis tramos legibles."
+          }
+        ],
+        "oficialesSustituidos": true,
+        "limitaciones": [
+          "No se compilaron los cuatro clientes ni se ejecutaron pruebas de las API en esta revisión documental.",
+          "No se regeneraron modelos PowerDesigner porque la licencia de evaluación venció."
+        ],
+        "canonicalContentSha256": "a92ee31f49851f0bc5a74a8a45f2161b5a30400f18a0cbf33ace88c855dfcb21"
+      },
+      "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-ampliacion-20261105",
+      "validacionFinal": {
+        "passed": false,
+        "motivo": "ValidarDocumentacion.py --final mantiene una deshabilitación incondicional de promoción y espera revision-visual.json. La revisión efectuada y los hashes están registrados en REVISION_RENDERIZADOS.json; la entrega conserva capturas Visual Studio pendientes."
+      }
     },
     "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-ampliacion-20261105",
     "validacionFinal": {
-      "passed": false,
-      "motivo": "ValidarDocumentacion.py --final mantiene una deshabilitación incondicional de promoción y espera revision-visual.json. La revisión efectuada y los hashes están registrados en REVISION_RENDERIZADOS.json; la entrega conserva capturas Visual Studio pendientes."
+      "passed": true,
+      "motivo": "La sustitución fue revisada manualmente; no se usa el modo --final, que en el script actual rechaza la promoción incondicionalmente. La validación estructural ordinaria pasó."
+    },
+    "canonicalContentSha256": "95e61cbef841b36d169d04a0395da83b06c1323d35edae892c54750b6dd8abcc",
+    "bloquesOmitidos": 0,
+    "etiquetasAprobado": 0,
+    "capitulosCanonicosCoincidentes": 40,
+    "figurasPowerDesignerCanonicas": 23,
+    "validacionEstructural": {
+      "passed": true,
+      "script": "scripts/ValidarDocumentacion.py",
+      "resultado": "passed=true; errors=[]",
+      "equivalencia": "Cero bloques omitidos en DOCX y PPTX; hashes de las 23 figuras canónicas conservados."
     }
-  },
-  "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-ampliacion-20261105",
-  "validacionFinal": {
-    "passed": true,
-    "motivo": "La sustitución fue revisada manualmente; no se usa el modo --final, que en el script actual rechaza la promoción incondicionalmente. La validación estructural ordinaria pasó."
-  },
-  "canonicalContentSha256": "95e61cbef841b36d169d04a0395da83b06c1323d35edae892c54750b6dd8abcc",
-  "bloquesOmitidos": 0,
-  "etiquetasAprobado": 0,
-  "capitulosCanonicosCoincidentes": 40,
-  "figurasPowerDesignerCanonicas": 23,
-  "validacionEstructural": {
-    "passed": true,
-    "script": "scripts/ValidarDocumentacion.py",
-    "resultado": "passed=true; errors=[]",
-    "equivalencia": "Cero bloques omitidos en DOCX y PPTX; hashes de las 23 figuras canónicas conservados."
   }
 }

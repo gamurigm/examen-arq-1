@@ -1,0 +1,4 @@
+Test run for C:\Users\GABI\AppData\Local\Temp\ManualPracticoGR09\bin\BanQuito.Pruebas\Debug\net10.0\BanQuito.Pruebas.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 145 ms - BanQuito.Pruebas.dll (net10.0)

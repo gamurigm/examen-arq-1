@@ -10,6 +10,7 @@ import zipfile
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.section import WD_SECTION_START, WD_ORIENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.opc.constants import RELATIONSHIP_TYPE as WordRelationship
@@ -33,6 +34,7 @@ DATE = "05/11/2026"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--artifacts", nargs="+", choices=["ers", "ecud", "manual", "presentacion"])
+parser.add_argument("--draft-directory", type=pathlib.Path, help="Directorio alternativo para revisar sin sobrescribir un borrador abierto en Office")
 ARGS = parser.parse_args()
 
 
@@ -80,7 +82,8 @@ def parse_source(source):
                 i += 1
             if i < len(lines):
                 i += 1
-            blocks.append({"kind": "code", "text": "\n".join(code)})
+            label = next((b["text"] for b in reversed(blocks) if b["kind"] == "heading" and b["text"].startswith("04. ")), "")
+            blocks.append({"kind": "code", "text": "\n".join(code), "file_label": label})
             continue
         if line.startswith("|"):
             rows = [table_cells(line)]
@@ -157,7 +160,7 @@ def add_inline_markdown(paragraph, text):
         if match.group(1) is not None:
             run = paragraph.add_run(match.group(1))
             run.font.name = "Consolas"
-            run.font.size = Pt(9)
+            run.font.size = Pt(10)
         else:
             url = match.group(0)
             hyperlink = OxmlElement("w:hyperlink")
@@ -251,7 +254,7 @@ def rebuild_manual_toc(doc, toc):
     begin.set(qn("w:fldCharType"), "begin")
     instruction = OxmlElement("w:instrText")
     instruction.set(qn("xml:space"), "preserve")
-    instruction.text = ' TOC \\o "1-1" \\h \\z \\u '
+    instruction.text = ' TOC \\o "1-2" \\h \\z \\u '
     separate = OxmlElement("w:fldChar")
     separate.set(qn("w:fldCharType"), "separate")
     result = OxmlElement("w:t")
@@ -265,6 +268,10 @@ def rebuild_manual_toc(doc, toc):
 
 
 def add_word_image_group(doc, image_blocks, section):
+    if len(image_blocks) > 1 and any("respuesta real" in b["caption"].lower() or "rechazo real" in b["caption"].lower() for b in image_blocks):
+        for block in image_blocks:
+            add_word_image_group(doc, [block], section)
+        return
     page = doc.sections[-1]
     max_width = page.page_width - page.left_margin - page.right_margin
     max_height = min(
@@ -401,7 +408,7 @@ def render_word_block(doc, block, section):
                 add_inline_markdown(cells[column].paragraphs[0], value)
                 for paragraph in cells[column].paragraphs:
                     for run in paragraph.runs:
-                        run.font.size = Pt(9)
+                        run.font.size = Pt(10)
                         if row_index == 0:
                             run.bold = True
             tr_pr = table.rows[-1]._tr.get_or_add_trPr()
@@ -410,7 +417,17 @@ def render_word_block(doc, block, section):
             table.rows[0]._tr.get_or_add_trPr().append(OxmlElement("w:tblHeader"))
         doc.add_paragraph()
     elif kind == "code":
-        paragraph = doc.add_paragraph()
+        if block.get("file_label"):
+            table = doc.add_table(rows=2, cols=1)
+            table.style = "Table Grid"
+            table.cell(0, 0).text = "Archivo: " + block["file_label"]
+            table.rows[0]._tr.get_or_add_trPr().append(OxmlElement("w:tblHeader"))
+            for run in table.cell(0, 0).paragraphs[0].runs:
+                run.font.size = Pt(10)
+                run.bold = True
+            paragraph = table.cell(1, 0).paragraphs[0]
+        else:
+            paragraph = doc.add_paragraph()
         paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
         paragraph.paragraph_format.left_indent = Inches(0.12)
         paragraph.paragraph_format.right_indent = Inches(0.12)
@@ -420,7 +437,7 @@ def render_word_block(doc, block, section):
         paragraph.paragraph_format.keep_together = False
         run = paragraph.add_run(block["text"])
         run.font.name = "Consolas"
-        run.font.size = Pt(8.5)
+        run.font.size = Pt(9)
         run.font.color.rgb = WordRGBColor(31, 41, 55)
     elif kind == "image":
         add_word_image_group(doc, [block], section)
@@ -441,23 +458,37 @@ def generate_manual_word(template, source, target, sections):
         add_field(doc.add_paragraph(), instruction, "")
     doc.add_page_break()
 
+    normal = doc.styles["Normal"]
+    normal.font.size = Pt(11)
+    landscape = False
     for index, section in enumerate(sections):
+        wide = section["title"].startswith(("Código fuente", "Anexo A.", "Anexo B."))
+        if wide != landscape:
+            page = doc.add_section(WD_SECTION_START.NEW_PAGE)
+            page.orientation = WD_ORIENT.LANDSCAPE if wide else WD_ORIENT.PORTRAIT
+            page.page_width = Inches(11.693 if wide else 8.268)
+            page.page_height = Inches(8.268 if wide else 11.693)
+            page.left_margin = Inches(.886 if wide else 1.18125)
+            page.right_margin = Inches(.886 if wide else 1.18125)
+            landscape = wide
         if section["title"].casefold().startswith("prueba:"):
             add_test_result_label(doc, section["title"])
         else:
             heading = doc.add_heading(section["title"], level=1)
             if section["title"].casefold().startswith("diagrama:"):
                 heading.paragraph_format.page_break_before = True
-        image_blocks = [block for block in section["blocks"] if block["kind"] == "image"]
-        emitted_images = False
+        # Group only adjacent images: keep each procedure beside its evidence.
+        pending_images = []
         for block in section["blocks"]:
             if block["kind"] == "image":
-                if emitted_images:
-                    continue
-                add_word_image_group(doc, image_blocks, section)
-                emitted_images = True
-            else:
-                render_word_block(doc, block, section)
+                pending_images.append(block)
+                continue
+            if pending_images:
+                add_word_image_group(doc, pending_images, section)
+                pending_images = []
+            render_word_block(doc, block, section)
+        if pending_images:
+            add_word_image_group(doc, pending_images, section)
     doc.save(target)
 
 
@@ -580,6 +611,8 @@ def slide_body(sections):
             if text:
                 if block["kind"] != "code":
                     text = text.replace("`", "").replace("**", "")
+                if block["kind"] == "code" and block.get("file_label"):
+                    parts.append("Archivo: " + block["file_label"])
                 parts.append(text)
         result.append("\n".join(parts))
     return "\n".join(result)
@@ -587,20 +620,37 @@ def slide_body(sections):
 
 def format_slide_code_blocks(shape, sections):
     """Use compact monospaced, unbulleted text for SQL/config code on slides."""
-    code_paragraphs = set()
-    paragraph_index = 0
+    parts = []
+    intervals = []
+    offset = 0
+    def append(text, code=False):
+        nonlocal offset
+        if parts:
+            offset += 1
+        if code:
+            intervals.append((offset, offset + len(text)))
+        parts.append(text)
+        offset += len(text)
     for section in sections:
-        paragraph_index += 1  # canonical section title
+        append(section["title"])
         for block in section["blocks"]:
             if block["kind"] == "image":
                 continue
             text = block_text(block)
             if not text:
                 continue
-            lines = text.splitlines() or [text]
             if block["kind"] == "code":
-                code_paragraphs.update(range(paragraph_index, paragraph_index + len(lines)))
-            paragraph_index += len(lines)
+                if block.get("file_label"):
+                    append("Archivo: " + block["file_label"])
+                append(text, code=True)
+            else:
+                append(text.replace("`", "").replace("**", ""))
+    code_paragraphs = set()
+    offset = 0
+    for index, line in enumerate("\n".join(parts).splitlines(keepends=True)):
+        if any(start <= offset < end for start, end in intervals):
+            code_paragraphs.add(index)
+        offset += len(line)
 
     paragraphs = shape.text_frame.paragraphs
     for index in code_paragraphs:
@@ -673,7 +723,8 @@ def split_block_for_presentation(block, max_lines=10):
         ]
 
     if block["kind"] == "code":
-        lines = block["text"].splitlines(keepends=True)
+        lines = [part for line in block["text"].splitlines(keepends=True)
+                 for part in split_text_preserving_content(line, max_chars=600)]
         chunks = []
         current = []
         current_lines = 0
@@ -688,7 +739,7 @@ def split_block_for_presentation(block, max_lines=10):
         if current:
             chunks.append("".join(current))
         return [
-            {"kind": "code", "text": chunk, "_canonical_block": block}
+            {**block, "text": chunk, "_canonical_block": block}
             for chunk in chunks
         ]
 
@@ -744,81 +795,28 @@ def group_presentation_sections(sections):
     expanded = []
 
     for source_index, section in enumerate(sections):
-        images = [block for block in section["blocks"] if block["kind"] == "image"]
-        text = [block for block in section["blocks"] if block["kind"] != "image"]
-        if images:
-            if text:
-                expanded.extend(chunk_section_blocks({**section, "blocks": text}, source_index))
-            gallery_title = section["title"].replace("Cliente móvil:", "Android:").replace("Cliente web:", "Web:")
-            if all(block["caption"].startswith("PowerDesigner: ") for block in images):
-                gallery_title = images[0]["caption"].removeprefix("PowerDesigner: ")
-            for start in range(0, len(images), 2):
-                end = min(start + 2, len(images))
-                label = gallery_title if len(images) <= 2 else f"{gallery_title} · {start + 1}–{end}/{len(images)}"
-                expanded.append({
-                    **section,
-                    "blocks": images[start:end],
-                    "_source_index": source_index,
-                    "_gallery_title": label,
-                })
-            continue
-        if images and text:
-            if len(images) <= 2:
-                portrait_evidence = all(image_ratio(block) < 0.65 for block in images)
-                text_lines = presentation_line_count(slide_body([section]))
-                if section["title"].casefold().startswith("prueba:") and portrait_evidence and text_lines > 3:
-                    # Keep a dense result readable, then show its full phone captures
-                    # together on an adjacent, dedicated slide.
-                    expanded.extend(chunk_section_blocks(
-                        {**section, "blocks": text}, source_index
-                    ))
-                    short_gallery_titles = {
-                        "prueba: catálogo, consulta, alta y edición": "CATÁLOGO Y EDICIÓN",
-                        "prueba: amortización a 3 meses: filas, capital y saldo": "AMORTIZACIÓN A 3 MESES",
-                    }
-                    short_title = short_gallery_titles.get(
-                        section["title"].casefold(),
-                        re.sub(r"^Prueba:\s*", "", section["title"].strip(), flags=re.IGNORECASE),
-                    )
-                    gallery_title = "CAPTURAS · " + short_title
-                    expanded.append({
-                        **section,
-                        "title": gallery_title,
-                        "blocks": images,
-                        "_source_index": source_index,
-                        "_gallery_title": gallery_title,
-                    })
-                else:
-                    # A short explanation and its one or two screenshots belong together.
-                    expanded.extend(chunk_section_blocks(section, source_index))
+        blocks = section["blocks"]
+        index = 0
+        while index < len(blocks):
+            images = blocks[index]["kind"] == "image"
+            end = index + 1
+            while end < len(blocks) and (blocks[end]["kind"] == "image") == images:
+                end += 1
+            run = blocks[index:end]
+            if not images:
+                expanded.extend(chunk_section_blocks({**section, "blocks": run}, source_index))
             else:
-                expanded.extend(chunk_section_blocks({**section, "blocks": text}, source_index))
-                image_section = {**section, "blocks": images, "_source_index": source_index}
-                for start in range(0, len(images), 2):
-                    end = min(start + 2, len(images))
-                    expanded.append({
-                        **image_section,
-                        "blocks": images[start:end],
-                        "_gallery_title": f"{section['title']} · tramos {start + 1}–{end} de {len(images)}",
-                        "_gallery_start": start + 1,
-                        "_gallery_end": end,
-                        "_gallery_total": len(images),
-                    })
-        else:
-            if images and len(images) > 2:
-                image_section = {**section, "_source_index": source_index}
-                for start in range(0, len(images), 2):
-                    end = min(start + 2, len(images))
-                    expanded.append({
-                        **image_section,
-                        "blocks": images[start:end],
-                        "_gallery_title": f"{section['title']} · tramos {start + 1}–{end} de {len(images)}",
-                        "_gallery_start": start + 1,
-                        "_gallery_end": end,
-                        "_gallery_total": len(images),
-                    })
-            else:
-                expanded.extend(chunk_section_blocks(section, source_index))
+                offset = 0
+                while offset < len(run):
+                    count = 1 if image_ratio(run[offset]) >= 1.8 or "respuesta real" in run[offset]["caption"].lower() or "rechazo real" in run[offset]["caption"].lower() else 2
+                    gallery = run[offset:offset + count]
+                    label = gallery[0]["caption"].removeprefix("PowerDesigner: ")
+                    if len(gallery) > 1:
+                        label = section["title"].replace("Cliente móvil:", "Android:").replace("Cliente web:", "Web:")
+                    expanded.append({**section, "blocks": gallery,
+                                     "_source_index": source_index, "_gallery_title": label})
+                    offset += count
+            index = end
 
     def flush():
         if pending:
@@ -862,7 +860,7 @@ def group_presentation_sections(sections):
                 rows.extend(part_rows)
             if rows != source_block["rows"]:
                 raise ValueError("La distribución PPTX alteró filas de una tabla canónica.")
-        elif source_block["kind"] in ("paragraph", "code") and len(parts) > 1:
+        elif source_block["kind"] in ("paragraph", "code"):
             if "".join(part["text"] for part in parts) != source_block["text"]:
                 raise ValueError("La distribución PPTX alteró un bloque de texto canónico.")
         elif len(parts) != 1 or parts[0] is not source_block:
@@ -1266,7 +1264,7 @@ def main():
     canonical_path = ROOT / artifacts["manual"]["source"]
     title, sections = parse_source(canonical_path)
     content_hash = canonical_content_hash(sections)
-    draft_dir = pathlib.Path(DOCS["draft_directory"])
+    draft_dir = ARGS.draft_directory or pathlib.Path(DOCS["draft_directory"])
     draft_dir.mkdir(parents=True, exist_ok=True)
     records = []
     for key, item in artifacts.items():

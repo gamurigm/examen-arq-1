@@ -1,0 +1,22 @@
+﻿[
+    {
+        "ruta":  "http://127.0.0.1:19501/api/salud",
+        "cuerpo":  "{\"servicio\":\"BanQuito\",\"baseDatos\":\"disponible\"}",
+        "estado":  200
+    },
+    {
+        "ruta":  "http://127.0.0.1:19502/api/salud",
+        "cuerpo":  "{\"servicio\":\"Comercializadora\",\"baseDatos\":\"disponible\"}",
+        "estado":  200
+    },
+    {
+        "ruta":  "/api/celulares",
+        "cuerpo":  "[{\"id\":1,\"nombre\":\"Celular Aurora 128 GB\",\"precio\":450.00,\"activo\":true,\"imagenUrl\":null},{\"id\":2,\"nombre\":\"Celular Nova 256 GB\",\"precio\":750.00,\"activo\":true,\"imagenUrl\":null},{\"id\":3,\"nombre\":\"Celular Prisma 64 GB\",\"precio\":250.00,\"activo\":true,\"imagenUrl\":null}]",
+        "estado":  200
+    },
+    {
+        "ruta":  "/api/credito/elegibilidad?cedula=0102030405",
+        "cuerpo":  "{\"sujetoCredito\":true,\"codigoCliente\":1,\"nombre\":\"Juan Perez\",\"motivo\":\"El cliente es sujeto de crédito.\",\"montoMaximo\":1974.00}",
+        "estado":  200
+    }
+]

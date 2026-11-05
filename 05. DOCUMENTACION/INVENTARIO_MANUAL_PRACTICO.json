@@ -1,0 +1,606 @@
+{
+  "fecha": "2026-11-05",
+  "archivos": [
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Administracion/BanQuito.Administracion.csproj",
+      "sha256": "34415144c8da3f1fafea1f3ad947ed379594361212178589e99ec27bc35d744e",
+      "lineas": 4,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "470be2f4c24ce4fbafe94ee89f7e392ee1561e833903deb65a09b4a0918dfad4"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Administracion/Program.cs",
+      "sha256": "1eea0b62a93ade8e2cf78e7cc8af911c2a52c8f837a7d0ed493a2c143f8e9617",
+      "lineas": 31,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Punto de entrada del ejecutable. Configura dependencias y pone en marcha el flujo del componente; revisar los argumentos y la dirección del servicio antes de ejecutarlo.",
+      "sha256Contenido": "b8df65b388b60351639d35412299ac39da6969a49bdd853c3b136cdb2a8b99a7"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Api/BanQuito.Api.csproj",
+      "sha256": "ef0816b89b30cc099e1b5e72ffb05018b74ba52575e777959d2cd675af2a6ac2",
+      "lineas": 6,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "f914279fd29dd28feb6dd43156e2baf694448475f4829ce7d762a9b4baa42924"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Api/Controllers/CreditoController.cs",
+      "sha256": "7e4ed173144c5069195c28d0acd537db3189853d284ba52c4c95b43d0c675dfb",
+      "lineas": 27,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Expone elegibilidad, monto máximo, otorgamiento y consulta de crédito y cuotas. Delega la evaluación y persistencia en ServicioCredito.",
+      "sha256Contenido": "ba37b794c9977d049b1d8e12c3e25e1d6781f67e94a3106d7d0182500b65ff1d"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Api/Program.cs",
+      "sha256": "e3104542e07000e9575c4b776b9c38e629cf63ad261cb6b6310ba8fa4556d00d",
+      "lineas": 31,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Inicializa la API, registra controladores y servicios, configura errores HTTP y publica la comprobación de salud.",
+      "sha256Contenido": "bc816c476a0b6a371e551fb225b3056df21bd94f1cf6297390196b53e9c875e8"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Api/Servicios/ServicioCredito.cs",
+      "sha256": "0de2e430b3fafa8467951d48f7bcdb4bb137d80b541eee5eb9c2f5264f5e6e72",
+      "lineas": 129,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Consulta clientes, movimientos y créditos bancarios; evalúa elegibilidad, calcula el límite y registra crédito y cuotas dentro de una transacción.",
+      "sha256Contenido": "301cd82d6fe2d3d4f5fc84fe9f902539dfcfa9f3653ff5be0984c893a0aeb3d3"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Api/appsettings.json",
+      "sha256": "09adc1e312fd94f8fd2af980040eb9c6ba990fe94f9dd0ffbac9671f41ca2263",
+      "lineas": 12,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Declara las direcciones y parámetros de configuración. La cadena efectiva de SQL Server se completa mediante configuración del entorno; no incorporar contraseñas a este archivo.",
+      "sha256Contenido": "0c49f5e974fa1ec5d25a7495e1144f7af14256d6c0e72068961a34052a438550"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Contratos/BanQuito.Contratos.csproj",
+      "sha256": "ea617a6bea4d9dfd3cebef9a49ed71b98a91f320a6b3c130b9ec3997e510acbd",
+      "lineas": 7,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "2fdbb0ccdef922bfda5b379cbc768b7c0c1cfce3b8a8f7dcdacecb06b4e736d7"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Contratos/Modelos.cs",
+      "sha256": "bf1f4786086fb6e1fdb677e120df9499d46683a537261e196b1b9a290eaedff3",
+      "lineas": 17,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Define los registros de solicitud y respuesta del componente. Sus propiedades y tipos forman el contrato que deben respetar consumidores y productores.",
+      "sha256Contenido": "8a174903521b2f10cb4771ed0f80bb18cb01cabb35c016c985e36822f92741cb"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Dominio/BanQuito.Dominio.csproj",
+      "sha256": "d0ebad819986f0ad4b0fc685439bc46ca531f7a7823e7f628b410e9411507e7f",
+      "lineas": 4,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "7be72a367679bffe6db0aac7449c1ea8fe71cc9bd79d48459df1ec52f1cb736c"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Dominio/ErrorNegocio.cs",
+      "sha256": "18144fca48ccd43e131de2a8a82b95abfefc1f19fdccb240aecfb2ba077a6b2a",
+      "lineas": 6,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Representa un rechazo de negocio y su estado HTTP para que el límite del servicio entregue una respuesta consistente.",
+      "sha256Contenido": "2555a339234c88bb7399d334edb36b25ba5a9d65d9f8ccbbd50b96366c6c138f"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Dominio/ReglasCredito.cs",
+      "sha256": "cc508eea1c457194d64fd4ce70f9668c29d7b6ffbe376fec6976e3dc9863ef86",
+      "lineas": 50,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Implementa las fórmulas y condiciones del dominio bancario. Revisar tasas, plazos, elegibilidad y redondeo antes de modificar sus cálculos.",
+      "sha256Contenido": "7e668ff65410a4d78bb926edd5ddce135517d2866fd8783f7853816183dca96f"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Pruebas/BanQuito.Pruebas.csproj",
+      "sha256": "7f1f9e8aaaa3b54b851a1644d6b1c1716e489fab77be80f374bcea3f95ae7faf",
+      "lineas": 9,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "828ef1faf36d78627ad73f17b4f572f6af08bdc374964d7f01c358ba0e091fde"
+    },
+    {
+      "archivo": "04. SERVIDOR/BanQuito.Pruebas/ReglasCreditoTests.cs",
+      "sha256": "d0e43fd599c34fdb164627a15ee6a6cb6d32c9c8119a59c9fb94a7cad7177323",
+      "lineas": 80,
+      "capitulo": "Código fuente de BanQuito",
+      "explicacion": "Especifica casos de comprobación del comportamiento: las entradas y aserciones del listado describen el resultado esperado, no acreditan una ejecución nueva.",
+      "sha256Contenido": "34d3057dc8dfc1099665f9f56846c2900e93585e65baf403167a681b01a1753d"
+    },
+    {
+      "archivo": "04. SERVIDOR/Administracion/Administracion.csproj",
+      "sha256": "bd9bc19060bff467fd5d6331146820a51e8361cc6e218a0a89272bf061c5cc0f",
+      "lineas": 7,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "087182694043e573fe1b3413d9869cad13f0a9df15f2e5c9c892bc2050289296"
+    },
+    {
+      "archivo": "04. SERVIDOR/Administracion/Program.cs",
+      "sha256": "530b383636d8fa21b5c5db8436af9a56839e05bf962e9f269fcc1d49abe671f9",
+      "lineas": 31,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Punto de entrada del ejecutable. Configura dependencias y pone en marcha el flujo del componente; revisar los argumentos y la dirección del servicio antes de ejecutarlo.",
+      "sha256Contenido": "c3a0743253fcc273180732810c7a66ca7101902ef8add60bb7047b17e78a9278"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Comercializadora.Api.csproj",
+      "sha256": "16525b0f47eec7d9c9672ece679181a3c1e48a1943af97c99489a9817a494250",
+      "lineas": 11,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "c9b3335d5adb12271997695b3c46a117dd64a6ffc448ecbcb3e19db0069cc959"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Controllers/CelularesController.cs",
+      "sha256": "785c999152e17cc9bf5420b82491c700bbd375d08614f32104dfb2a005d2b282",
+      "lineas": 65,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Expone consultas y mantenimiento del catálogo y sus imágenes. Delega las operaciones de persistencia en ServicioCatalogo.",
+      "sha256Contenido": "e8614f62d85ada6fc469c4da4908d3a0112456c5ea2e9ed38dfeb0c6142f9dde"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Controllers/CreditoController.cs",
+      "sha256": "3adf5225fc446a8abc46e30dcf1d40fc5edaf85540c097c6bf322312c4076125",
+      "lineas": 19,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Recibe la consulta de elegibilidad de los clientes y la remite a BanQuito mediante ServicioBanQuito.",
+      "sha256Contenido": "7531abb53f701cbcb5ec0cfd4ef0b5e3c288d36710e489bec948976812c4dfaa"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Controllers/FacturasController.cs",
+      "sha256": "00976d3c03b2c1da536b15918c00584e95c3c2fcad508a6326f765b8e9f1c7ee",
+      "lineas": 28,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Recibe nuevas ventas y consultas de facturas y cuotas. ServicioFacturas coordina los cambios locales y el crédito bancario.",
+      "sha256Contenido": "4e3d30e4fca63d1ed93036a98255287df4718fb5ea637cc85e7d1ec5d00279fa"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Program.cs",
+      "sha256": "cdc810941c7e5cfbd3aca9aec9773519edfd80127cd9a2b51434a4eed6ab2c41",
+      "lineas": 43,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Inicializa la API, registra controladores y servicios, configura errores HTTP y publica la comprobación de salud.",
+      "sha256Contenido": "aeae101a469042a9a5fb8959e0ad607050c30e05dc0acacac592e883a0e26a5a"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Servicios/ServicioBanQuito.cs",
+      "sha256": "2cef35c6d11dfbcd7946e240fd3657567c32ae7575605dcb0e9b0e26a4b53077",
+      "lineas": 83,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Encapsula las solicitudes HTTP del servidor comercial al banco y traduce sus respuestas y errores.",
+      "sha256Contenido": "04046bc99a68a075f09208ecec86ee93ff4ee4e1216b6116103b906e8d5354aa"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Servicios/ServicioCatalogo.cs",
+      "sha256": "1383f05ee2efd5b89737948d52f284c132b7efbe7264e5a963ac37b8f9e0b051",
+      "lineas": 145,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Administra productos e imágenes en SQL Server. Abre conexiones, parametriza comandos y transforma las filas en contratos de respuesta.",
+      "sha256Contenido": "209f856db3d86b862cc9639fb8f41d432336868a515ea82eb45d65b6e7047af3"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/Servicios/ServicioFacturas.cs",
+      "sha256": "a05db253988fedb6665d8e1ac7ca8971f491af8297bb77550bfbdec82b40a355",
+      "lineas": 247,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Coordina la venta local y la solicitud bancaria; conserva el identificador de operación para recuperar ventas interrumpidas y evitar duplicarlas.",
+      "sha256Contenido": "e3340e9cefd69033a46d7a95ae57d6ac79409e8df5798c8a08483387cb01d294"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Api/appsettings.json",
+      "sha256": "6fb3ed20169baf44bed174fdf189955d878085a705ac46133ebf5101eb3b0c38",
+      "lineas": 15,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Declara las direcciones y parámetros de configuración. La cadena efectiva de SQL Server se completa mediante configuración del entorno; no incorporar contraseñas a este archivo.",
+      "sha256Contenido": "8044cf713569af713ffeb3be8b257e45773b980a6998e58ac9285ddcb53dfbdc"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Dominio/Comercializadora.Dominio.csproj",
+      "sha256": "5d5501f6174b1bb76fbbd38669ac638fcfe7fbc00fa7c88febfd5e650f09ed62",
+      "lineas": 10,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "3ab4eedd600b9ffbe8b4ba1383066a4601ccd6097cc45754ab3ee0dff1cf9e60"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Dominio/ReglasFacturacion.cs",
+      "sha256": "2314ba9be5ff6cfdd1287c1cca7d4831a0c27a17cfb100607fe049a8e2f0e7c3",
+      "lineas": 22,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Centraliza descuentos y condiciones de facturación para que las interfaces no decidan el importe persistido.",
+      "sha256Contenido": "a2e91a68c255647e8b5e13be51c10d2369be0fefbbce3cb85e0b7f4fe27cd3b7"
+    },
+    {
+      "archivo": "04. SERVIDOR/Comercializadora.Dominio/ReglasImagenCelular.cs",
+      "sha256": "a788a2e12fb0d38239f5930b14215b0e1835be9a5e677b11924cbd2614b7a70f",
+      "lineas": 22,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Valida tamaño y contenido de imágenes antes de su almacenamiento.",
+      "sha256Contenido": "ecef0212e40d817a8250a7d4d2a368968b06c7671db8d81a9727adadd944dcb1"
+    },
+    {
+      "archivo": "04. SERVIDOR/Contratos/Celulares.Contratos.csproj",
+      "sha256": "b6d06396c22e7acdad94f69e10f90571a923c393c9e27a418b04694ae0a3ca9d",
+      "lineas": 1,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "95f56d43ff5029f5e7d563fa155a2722a03af1b4f54e858bb489cbddef5748bc"
+    },
+    {
+      "archivo": "04. SERVIDOR/Contratos/Modelos.cs",
+      "sha256": "88816e50caf750eb5820544e16ea50bf9516b7732ed3e81b3103c66872901c87",
+      "lineas": 42,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Define los registros de solicitud y respuesta del componente. Sus propiedades y tipos forman el contrato que deben respetar consumidores y productores.",
+      "sha256Contenido": "0694df0cf3bae96ab95e35af062622f10e615ebaaba49832024a9af0eb943458"
+    },
+    {
+      "archivo": "04. SERVIDOR/Pruebas/Comercializadora.Pruebas.csproj",
+      "sha256": "cc7a1b838dddfd7eb1bf0b070a6a32791bd22efd69f481ca0eb2ec60a847fa1a",
+      "lineas": 15,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "3a4591e1e219caf32ae640ab289964c7fabe428e13425a1d68760737f6cb3ab7"
+    },
+    {
+      "archivo": "04. SERVIDOR/Pruebas/PrecioClienteTests.cs",
+      "sha256": "799b1ec2427bdf97d87f68c7ae0d4de608b646fd6c70f484dd147a5014973fb5",
+      "lineas": 20,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Especifica casos de comprobación del comportamiento: las entradas y aserciones del listado describen el resultado esperado, no acreditan una ejecución nueva.",
+      "sha256Contenido": "7efed85e0127865b3af88f84cf03c470873f2b7443047e2ae01458debb47f49b"
+    },
+    {
+      "archivo": "04. SERVIDOR/Pruebas/PrecioEsperadoTests.cs",
+      "sha256": "f7f936917364ebd8c7a1aa0fbdc51e6a625d70ec900bf1caf215d97270856c75",
+      "lineas": 33,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Especifica casos de comprobación del comportamiento: las entradas y aserciones del listado describen el resultado esperado, no acreditan una ejecución nueva.",
+      "sha256Contenido": "922e2746f4e96dee2db16d6683c50f1e5f647fa3d305d51b7254a483f145de02"
+    },
+    {
+      "archivo": "04. SERVIDOR/Pruebas/ReglasFacturacionTests.cs",
+      "sha256": "3ba87d1947b7bceb8e50b07db48c842a2243fe9dd64bfc36739f2cb36c6b5284",
+      "lineas": 16,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Especifica casos de comprobación del comportamiento: las entradas y aserciones del listado describen el resultado esperado, no acreditan una ejecución nueva.",
+      "sha256Contenido": "448f8ad2de53bf7317b87445b9c591520cada7cfe9cb66024537d83a348c4d89"
+    },
+    {
+      "archivo": "04. SERVIDOR/Pruebas/ReglasImagenCelularTests.cs",
+      "sha256": "76fa8e044c6ac61374d42ef162792a8faae562964a11f5e668c06255bd883f91",
+      "lineas": 24,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Especifica casos de comprobación del comportamiento: las entradas y aserciones del listado describen el resultado esperado, no acreditan una ejecución nueva.",
+      "sha256Contenido": "4131895038985f511751cce0814bd9aa1ce719f54bd1280a8b7c712c736ddfa2"
+    },
+    {
+      "archivo": "04. SERVIDOR/Pruebas/ReintentoCreditoTests.cs",
+      "sha256": "5d6263eae413dff0f00684ba89a6e4c3f7d2247bbc4dfa018abb62254b6ca10f",
+      "lineas": 76,
+      "capitulo": "Código fuente de la comercializadora",
+      "explicacion": "Especifica casos de comprobación del comportamiento: las entradas y aserciones del listado describen el resultado esperado, no acreditan una ejecución nueva.",
+      "sha256Contenido": "3bb6d792e0c37881494a8d46f672c58593caae56f5aafa7e4c065e51ec766147"
+    },
+    {
+      "archivo": "04. COMPARTIDO/Celulares.Cliente/Celulares.Cliente.csproj",
+      "sha256": "c72147d7df6ce4c479b32a6fc2e382ee086dc577dfd303d3a0006357b014b31a",
+      "lineas": 8,
+      "capitulo": "Código fuente de la capa compartida",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "e943ada879d17110b1ae7d214c63af960245cbd48e259f7172a40ac606e7c3a9"
+    },
+    {
+      "archivo": "04. COMPARTIDO/Celulares.Cliente/Controladores/ControladorTienda.cs",
+      "sha256": "f7254d4996df7c6ec2e0827e3d34efc2c5df1f3e56fbe57fb6ddabdd89487a04",
+      "lineas": 36,
+      "capitulo": "Código fuente de la capa compartida",
+      "explicacion": "Comparte la coordinación de operaciones y la conversión de entradas entre las interfaces y el cliente HTTP.",
+      "sha256Contenido": "752a781fa93df3bf5ff41eab4dd3d3c2024e0a1cca51e9c6a4dcfd8503f0be39"
+    },
+    {
+      "archivo": "04. COMPARTIDO/Celulares.Cliente/Servicios/ClienteComercializadora.cs",
+      "sha256": "a451b23b54ab241cdf2b0841d5e672e83de6af0675dbffd265eb220b9637b718",
+      "lineas": 89,
+      "capitulo": "Código fuente de la capa compartida",
+      "explicacion": "Implementa el contrato HTTP usado por los cuatro clientes: catálogo, imágenes, facturación, elegibilidad y amortización.",
+      "sha256Contenido": "c8aef66751dd8004f97b7bb0619ef35f2ea766aa45c504293796d2160fcdc7b2"
+    },
+    {
+      "archivo": "04. CLICON/Celulares.Consola/Celulares.Consola.csproj",
+      "sha256": "0baf6ca7360c740fbf79424bb8be55e2794bb5ab4a77b78be183560f188a7a91",
+      "lineas": 4,
+      "capitulo": "Código fuente del cliente de consola",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "845b2a827c93477c133d0bfa6388ea46065c67fdc76358121565d9c16dfb25b8"
+    },
+    {
+      "archivo": "04. CLICON/Celulares.Consola/Controladores/ControladorConsola.cs",
+      "sha256": "cc7c7a30c6809ac125f73f6f343cf6c751805a36a07867ef6334d0197e727e91",
+      "lineas": 190,
+      "capitulo": "Código fuente del cliente de consola",
+      "explicacion": "Conduce el menú y los recorridos de la terminal mediante la vista y el controlador compartido.",
+      "sha256Contenido": "c936337cf7a08225d51994d56f509b28d34fb5b32d447505e6407cc47a7476fa"
+    },
+    {
+      "archivo": "04. CLICON/Celulares.Consola/Program.cs",
+      "sha256": "14a8b06e6f7bcd8e72b20c7ae04bfc0fc6b0d5008dbf60da42c6958bd362a8e7",
+      "lineas": 10,
+      "capitulo": "Código fuente del cliente de consola",
+      "explicacion": "Punto de entrada del ejecutable. Configura dependencias y pone en marcha el flujo del componente; revisar los argumentos y la dirección del servicio antes de ejecutarlo.",
+      "sha256Contenido": "894205fcea053bcd85ea63a6b16806ab581446488a45a7cd7ee55a4faee9c31a"
+    },
+    {
+      "archivo": "04. CLICON/Celulares.Consola/Vistas/VistaConsola.cs",
+      "sha256": "7543aa55a85769142590b01d2b0079de2c5bdffeeb9c521b26f264bd8dc017b1",
+      "lineas": 51,
+      "capitulo": "Código fuente del cliente de consola",
+      "explicacion": "Lee datos de terminal y muestra catálogo, facturas, mensajes y cuotas; separa la entrada y salida de la comunicación HTTP.",
+      "sha256Contenido": "4a2b2501c9ff93730b9694e85d3fab3720b25950a1bc6a0366dc1a1b19d015ca"
+    },
+    {
+      "archivo": "04. CLIESC/Celulares.Escritorio/App.xaml",
+      "sha256": "39a323d8390cd144f8ba2b7b51c7d75cdaf4c6dd8ac0cad520e4574d2ecac44e",
+      "lineas": 1,
+      "capitulo": "Código fuente del cliente WPF",
+      "explicacion": "Define el inicio y los recursos de la aplicación cliente; establece la ventana o página inicial y conecta el ciclo de vida con el componente de presentación.",
+      "sha256Contenido": "8f82e3b87790d22505f0ae4a3f782e8fcc7121ddd83dcef1261ac94f2b5de028"
+    },
+    {
+      "archivo": "04. CLIESC/Celulares.Escritorio/App.xaml.cs",
+      "sha256": "2d2c5156f5e10ec8681218d6087cd97693987d41ec90b911dc9f9c4bd41b849e",
+      "lineas": 3,
+      "capitulo": "Código fuente del cliente WPF",
+      "explicacion": "Define el inicio y los recursos de la aplicación cliente; establece la ventana o página inicial y conecta el ciclo de vida con el componente de presentación.",
+      "sha256Contenido": "6e6aa104df8e9c1514e936e79d884171cc8b9b29c2e6ad436f049983ba0e7002"
+    },
+    {
+      "archivo": "04. CLIESC/Celulares.Escritorio/Celulares.Escritorio.csproj",
+      "sha256": "4851fa1da808c727e3f8febf47e26ab586b1b66095230ee92ad7fdd4817ee41d",
+      "lineas": 4,
+      "capitulo": "Código fuente del cliente WPF",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "dd88f7808e63d80cee1af4f996d8e7e1cdc1525f72e4f6970f59ed85ccc4cfb0"
+    },
+    {
+      "archivo": "04. CLIESC/Celulares.Escritorio/Controladores/ControladorEscritorio.cs",
+      "sha256": "9bf6b5d7c2ef4d3b1e3f2ceef841222390d98d64fc501d37c2a78f06e395b4bf",
+      "lineas": 74,
+      "capitulo": "Código fuente del cliente WPF",
+      "explicacion": "Adapta las acciones de la ventana WPF al controlador compartido.",
+      "sha256Contenido": "9bf6b5d7c2ef4d3b1e3f2ceef841222390d98d64fc501d37c2a78f06e395b4bf"
+    },
+    {
+      "archivo": "04. CLIESC/Celulares.Escritorio/MainWindow.xaml",
+      "sha256": "e1ea4ae8ba9ba3fd47ea01f1a3b43c0196bce0909c4c80820b0c8c92c565ffb1",
+      "lineas": 66,
+      "capitulo": "Código fuente del cliente WPF",
+      "explicacion": "Declara la ventana, controles y distribución de la interfaz WPF.",
+      "sha256Contenido": "4f6c147c6924e9d09aa8fefbe1ab0a53cddadb464cb6557a6a990954564ad692"
+    },
+    {
+      "archivo": "04. CLIESC/Celulares.Escritorio/MainWindow.xaml.cs",
+      "sha256": "bfc3f0e4138f91962d7f5246ec130e0c5424c26589829db336afd77656bb4abf",
+      "lineas": 298,
+      "capitulo": "Código fuente del cliente WPF",
+      "explicacion": "Conecta los eventos de la ventana con el controlador de escritorio y actualiza los controles después de las operaciones asíncronas.",
+      "sha256Contenido": "7b034c4abb9f56b8d9a6e8a936c508bc1ff5f466cdcee28e97eeafa0d6bf787c"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Celulares.Web.csproj",
+      "sha256": "ef8497c51c1039521dd702a118ff3aa07c73b679abc1d92b5d28c33273a6465a",
+      "lineas": 4,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "bcc8280ee0bc6092755ee418b1a1e1766bfb7454566bdaaf99dbb8fc6700a03c"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Controllers/TiendaController.cs",
+      "sha256": "7f579191ee4913bcfee4ce83f2f57a00a5e876d8112efeae89213348d60e405c",
+      "lineas": 137,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Recibe formularios MVC, valida la operación solicitada y selecciona la vista o redirección; las llamadas remotas se realizan desde el servidor web.",
+      "sha256Contenido": "c2860f1d6bcf72f59a996644b8a8dc98c9d7f1f4f76c87267139fa7d211e96e7"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Modelos/FormularioInvariante.cs",
+      "sha256": "31a4bdafc6eeb1c16111f74815871c2824fe23c92ec939f29078127a070a9cac",
+      "lineas": 16,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Normaliza campos de formularios para evitar que la configuración regional cambie la interpretación de precios.",
+      "sha256Contenido": "8e05ca41f5ef3e1e60428907a41b9f9fa6a69a4ee40f78b454f471dcd914acd3"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Modelos/PaginasTienda.cs",
+      "sha256": "5685918dd0bdbaad3513762bda14eba7b50ff9281201bd4a796c98c7179172c0",
+      "lineas": 14,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Agrupa los modelos de presentación que reciben las vistas de catálogo y facturas.",
+      "sha256Contenido": "45dcde225cbc2be9cdea098ea826f7904a7bb09a9a466b459e7ea5ec708216b3"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Program.cs",
+      "sha256": "dbe6bbd552def73695a8e54bb7a9d65bb3e3a8a55c70c72403d1e5c31fb693ae",
+      "lineas": 22,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Punto de entrada del ejecutable. Configura dependencias y pone en marcha el flujo del componente; revisar los argumentos y la dirección del servicio antes de ejecutarlo.",
+      "sha256Contenido": "a3efc1637ec667da27f8135fc93f1f4fb787bcea5a923c7fba565f63aea0061b"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Views/Shared/_Layout.cshtml",
+      "sha256": "3d33754373f78f854861ae3ec2a918e95c668ef18bedae945b72b4c60a029e32",
+      "lineas": 18,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Define la estructura HTML común y los recursos compartidos de las páginas MVC.",
+      "sha256Contenido": "baa9ae728f6dcfe9f2f39020a78d70bb9cbb068ca24c6efc671cbf9d60a50975"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Views/Tienda/Factura.cshtml",
+      "sha256": "a1b7eed12b7e55a589064dd1d49f9524b4aec8a30255d916ef1b09137a41a8aa",
+      "lineas": 20,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Renderiza el detalle de la factura y las cuotas del crédito cuando están disponibles.",
+      "sha256Contenido": "f16a16cad5ab76b5498341d9776514448d51c96fd77dd62bc9539386ce805368"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Views/Tienda/Index.cshtml",
+      "sha256": "32294274ac32a4020203d1f8b6279fd494c9b59f786cd2bf16b4e5f3ed228db8",
+      "lineas": 187,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Renderiza catálogo, edición, venta y búsqueda de facturas a partir del modelo MVC.",
+      "sha256Contenido": "8a15e19da436f0bb4333911b61e8724239e517c8369fb5133bdad177df8e718a"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Views/_ViewImports.cshtml",
+      "sha256": "772516c0ea388ccf5c29f0edbf14cb09131f0728b3bf39888721f646db3f8d11",
+      "lineas": 2,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Importa espacios de nombres y auxiliares de etiquetas usados por Razor.",
+      "sha256Contenido": "8029842aea02aeb3710f68d8a7fe209cef0dec3e5643a2f630f9194b04719258"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/Views/_ViewStart.cshtml",
+      "sha256": "4aa2ee81e05f0966fa762ae93e5c22be6092d1c4d1de683e20a2c41cd749910f",
+      "lineas": 1,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Selecciona el diseño compartido para las vistas Razor.",
+      "sha256Contenido": "3a8c523f595b40ed4d5b54a0ea7b8a42728d368582b2a29ef12db188990f7373"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/appsettings.json",
+      "sha256": "9c4423b0ad831bb57f702ce6e823260eb4c795e5887fb49c4b475a5966707473",
+      "lineas": 4,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Declara las direcciones y parámetros de configuración. La cadena efectiva de SQL Server se completa mediante configuración del entorno; no incorporar contraseñas a este archivo.",
+      "sha256Contenido": "9eb2d98d9f03920a09f92b79a4224861502bf93dec436c1520abcdbcf60497a7"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/wwwroot/css/site.css",
+      "sha256": "7ac7b067cd3e3a867652b7e337b8d451998aa917d0f64e9679b132790f98edbc",
+      "lineas": 49,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Define distribución, temas y adaptación de la interfaz web a pantallas estrechas.",
+      "sha256Contenido": "ddfd480a8bbc79a24a77916880b85f11c09dc03403cc3ed002831c50d24fe9f0"
+    },
+    {
+      "archivo": "04. CLIWEB/Celulares.Web/wwwroot/js/tema.js",
+      "sha256": "d54ceb938ff93685166466ebc0efb24ee9cd843ea2df994054fb3ff24ccde2e9",
+      "lineas": 17,
+      "capitulo": "Código fuente del cliente web MVC",
+      "explicacion": "Gestiona la selección de tema de la interfaz web.",
+      "sha256Contenido": "39c94773796b9407342b841bbe3679b38e7391e0037dad1718c0eec2b9b1a3c1"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/App.cs",
+      "sha256": "cb2839d7d68ddcf0f13dd0b76b6b0b383d702c57b835d0a44eb82f3c807bf0dc",
+      "lineas": 6,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Define el inicio y los recursos de la aplicación cliente; establece la ventana o página inicial y conecta el ciclo de vida con el componente de presentación.",
+      "sha256Contenido": "7c4f2365a70a3e25f793d66f3da440638613afba0675b0ec6d721466f7bc4c1a"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Celulares.Movil.csproj",
+      "sha256": "2f6653929a7e9a73a937ef916943a2b6f0eb94488ba23beb2d8795328a15ea27",
+      "lineas": 14,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Declara el marco de destino, los paquetes y las referencias entre proyectos. Restaurar sus dependencias antes de compilar; las referencias relativas requieren conservar la organización del repositorio.",
+      "sha256Contenido": "e5f74c83ebdb038b76db2883e33f685e56e5d7d1dc60fe152a2704d81972b3a7"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Controladores/ControladorMovil.cs",
+      "sha256": "5ea0f8e38607853091a1d017b9afe6c16e4e0ffa7e0a6fa9c465104485a48ca2",
+      "lineas": 86,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Adapta catálogo, ventas, fotos y consultas del cliente Android al controlador compartido.",
+      "sha256Contenido": "32bf153e31fe599e0f3ddfb9b126a20b371490f5c6efd38848c7fd2c4bdc08dc"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/MainPage.cs",
+      "sha256": "0897be6734aa0d271ea4d5e4ecd6ad543f75aae4620d549167df9189c48c0429",
+      "lineas": 585,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Construye la navegación y las pantallas MAUI; conecta selección de productos, formularios y consultas con el controlador móvil.",
+      "sha256Contenido": "e5cce09b38a9b10fe14c47ea779c98149a9d30e55c0dae1601cedf81f710b80e"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/MauiProgram.cs",
+      "sha256": "acd42127fa10a3216687e34be18a74ec12e9598ae61de9b276b125086aa68613",
+      "lineas": 15,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Registra los componentes MAUI y configura el cliente HTTP; la dirección del emulador se resuelve aquí.",
+      "sha256Contenido": "be02142f1a974e7dd866aedcb1edb48b5a40b55ea648700de3c02306e47a61d9"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Platforms/Android/AndroidManifest.xml",
+      "sha256": "3c9ec894fcfe836121a692a245c4011b067dcca278eb9356812e2b0473429782",
+      "lineas": 5,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Declara permisos y opciones de red y ejecución del paquete Android.",
+      "sha256Contenido": "7c8f530a374b091303361a572e6c46eccc5cac0dde74a9b62cfe551a385bc00d"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Platforms/Android/MainActivity.cs",
+      "sha256": "1c48d3d586814c2621ce5ce70d5f94847334e1214fda726d1288dd5273f61494",
+      "lineas": 9,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Configura la actividad Android que hospeda la aplicación MAUI.",
+      "sha256Contenido": "0daed27dead60e7c296a312c5fdd9a43b8c6107ebc26add5370eed880fbe7e04"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Platforms/Android/MainApplication.cs",
+      "sha256": "39a9754e04790a0c89125f1823fa6350234f9e8472f813238b2c79113fe33026",
+      "lineas": 10,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Proporciona la aplicación Android y delega su creación al registro MAUI.",
+      "sha256Contenido": "24b7710b63abe52ff48a9c2f3b0dd12f963f203a6c8fcfb4d5dcfc9f86818438"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Platforms/Android/Resources/values/styles.xml",
+      "sha256": "8af6961f02b31956392bff8fdfa79719d046acef0938660e07d40b03191b9f3f",
+      "lineas": 10,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Configura los recursos de apariencia nativos Android usados por la actividad MAUI.",
+      "sha256Contenido": "414316c87e58a6905431a7d19e62037fa83f759f88ae62145bd847e3df171efe"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Resources/Images/catalogo.svg",
+      "sha256": "44356e50ebd52e44153441e3ab681707df71f900a5b90274771247fdadb8ff81",
+      "lineas": 1,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Recurso vectorial de la interfaz móvil. El proyecto lo procesa como imagen de aplicación; no constituye un diagrama ni una captura de ejecución.",
+      "sha256Contenido": "d05058d0c1169fef8d28e62108b98247a33f9b1b94a572f12c29a67bee2ea7a2"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Resources/Images/facturas.svg",
+      "sha256": "09daae8b3e6715289ecd6179be3425654e8e713b32fd109dc8033b57aae4361a",
+      "lineas": 1,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Recurso vectorial de la interfaz móvil. El proyecto lo procesa como imagen de aplicación; no constituye un diagrama ni una captura de ejecución.",
+      "sha256Contenido": "54ae2e498b651f13e30eeed15e77e10772e3e88b17a0422ad1fd83e1f7f81130"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Resources/Images/telefono.svg",
+      "sha256": "68e25d3fa4d0904fd499250e43c6793d912f8020a40b5fdb18ecaa07e2d84ba8",
+      "lineas": 1,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Recurso vectorial de la interfaz móvil. El proyecto lo procesa como imagen de aplicación; no constituye un diagrama ni una captura de ejecución.",
+      "sha256Contenido": "e69e53436a1a5c3421ea82e02cdc8d8caaacd93cec70a1b6775b42ca6b581b9e"
+    },
+    {
+      "archivo": "04. CLIMOV/Celulares.Movil/Resources/Images/venta.svg",
+      "sha256": "ea4bbb67234ebd06dfa3ab3299f257447198a4ad1484f6c55500981c7f998f79",
+      "lineas": 1,
+      "capitulo": "Código fuente del cliente Android",
+      "explicacion": "Recurso vectorial de la interfaz móvil. El proyecto lo procesa como imagen de aplicación; no constituye un diagrama ni una captura de ejecución.",
+      "sha256Contenido": "b6e81fbcdc3ef511158c5bfb7b8cc8cf9eed89c7d259f856bf45435253a61802"
+    }
+  ],
+  "total": 75
+}
