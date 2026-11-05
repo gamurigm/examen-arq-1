@@ -199,22 +199,99 @@ def update_manual_cover(doc, cover):
     doc.core_properties.keywords = "GR09, NRC 36884, REST, .NET, celulares, BanQuito"
 
 
-def update_manual_toc_label(toc):
-    for node in toc.iter(qn("w:t")):
-        value = node.text or ""
-        if normalize(value).casefold() in ("índice de tablas", "indice de tablas"):
-            node.text = "ÍNDICE DE CONTENIDOS"
+def rebuild_manual_toc(doc, toc):
+    content = toc.find(qn("w:sdtContent"))
+    if content is None:
+        raise ValueError("La plantilla perdió el contenido del índice dinámico.")
+    for child in list(content):
+        content.remove(child)
+
+    title = OxmlElement("w:p")
+    title_properties = OxmlElement("w:pPr")
+    title_style = OxmlElement("w:pStyle")
+    title_style.set(qn("w:val"), doc.styles["TOC Heading"].style_id)
+    title_properties.append(title_style)
+    title.append(title_properties)
+    title_run = OxmlElement("w:r")
+    title_text = OxmlElement("w:t")
+    title_text.text = "ÍNDICE DE CONTENIDOS"
+    title_run.append(title_text)
+    title.append(title_run)
+    content.append(title)
+
+    field_paragraph = OxmlElement("w:p")
+    field_properties = OxmlElement("w:pPr")
+    field_style = OxmlElement("w:pStyle")
+    field_style.set(qn("w:val"), doc.styles["toc 1"].style_id)
+    field_properties.append(field_style)
+    field_paragraph.append(field_properties)
+    field_run = OxmlElement("w:r")
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instruction = OxmlElement("w:instrText")
+    instruction.set(qn("xml:space"), "preserve")
+    instruction.text = ' TOC \\o "1-1" \\h \\z \\u '
+    separate = OxmlElement("w:fldChar")
+    separate.set(qn("w:fldCharType"), "separate")
+    result = OxmlElement("w:t")
+    result.text = ""
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    for element in (begin, instruction, separate, result, end):
+        field_run.append(element)
+    field_paragraph.append(field_run)
+    content.append(field_paragraph)
 
 
 def add_word_image_group(doc, image_blocks, section):
     page = doc.sections[-1]
     max_width = page.page_width - page.left_margin - page.right_margin
-    max_height = page.page_height - page.top_margin - page.bottom_margin - Inches(1.25)
+    max_height = min(
+        page.page_height - page.top_margin - page.bottom_margin - Inches(1.5),
+        Inches(5.25),
+    )
     columns = min(2, len(image_blocks))
     image_width = int((max_width - Inches(0.18) * (columns - 1)) / columns)
-    max_height = int(max_height if columns == 1 else min(max_height, Inches(6.2)))
+    max_height = int(max_height)
+
+    if len(image_blocks) > 2:
+        rows = (len(image_blocks) + 1) // 2
+        table = doc.add_table(rows=rows, cols=2)
+        table.autofit = False
+        column_width = int((max_width - Inches(0.18)) / 2)
+        for column in table.columns:
+            column.width = column_width
+        borders = OxmlElement("w:tblBorders")
+        for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+            border = OxmlElement(f"w:{edge}")
+            border.set(qn("w:val"), "nil")
+            borders.append(border)
+        table._tbl.tblPr.append(borders)
+        for index, block in enumerate(image_blocks):
+            cell = table.cell(index // 2, index % 2)
+            cell.width = column_width
+            image_paragraph = cell.paragraphs[0]
+            image_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            image_paragraph.paragraph_format.keep_with_next = True
+            with Image.open(block["path"]) as bitmap:
+                scale = min(column_width / bitmap.width, max_height / bitmap.height)
+                width = int(bitmap.width * scale)
+                height = int(bitmap.height * scale)
+            image_paragraph.add_run().add_picture(str(block["path"]), width=width, height=height)
+            caption = cell.add_paragraph(style="Caption" if "Caption" in doc.styles else "Normal")
+            caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            caption.paragraph_format.keep_together = True
+            caption.add_run("Figura ")
+            add_field(caption, "SEQ Figura \\* ARABIC", "1")
+            caption.add_run(". " + block["caption"])
+        for row in table.rows:
+            row._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
+        doc.add_paragraph()
+        return
+
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    paragraph.paragraph_format.keep_with_next = True
     captions = []
     for index, block in enumerate(image_blocks):
         with Image.open(block["path"]) as bitmap:
@@ -227,6 +304,7 @@ def add_word_image_group(doc, image_blocks, section):
         captions.append(block["caption"])
     caption = doc.add_paragraph(style="Caption" if "Caption" in doc.styles else "Normal")
     caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    caption.paragraph_format.keep_together = True
     for index, text in enumerate(captions):
         if index:
             caption.add_run("     ")
@@ -301,7 +379,7 @@ def generate_manual_word(template, source, target, sections):
     cover, toc = clear_manual_body_preserving_front_matter(doc)
     update_manual_cover(doc, cover)
     # Keep the approved master cover image, crop, position, and frame unchanged.
-    update_manual_toc_label(toc)
+    rebuild_manual_toc(doc, toc)
 
     for title, instruction in (
         ("ÍNDICE DE ILUSTRACIONES", 'TOC \\h \\z \\c "Figura"'),
@@ -463,9 +541,35 @@ def group_presentation_sections(sections):
         text = [block for block in section["blocks"] if block["kind"] != "image"]
         if images and text:
             expanded.append({**section, "blocks": text, "_source_index": source_index})
-            expanded.append({**section, "blocks": images, "_source_index": source_index})
+            image_section = {**section, "blocks": images, "_source_index": source_index}
+            if len(images) > 2:
+                for start in range(0, len(images), 2):
+                    end = min(start + 2, len(images))
+                    expanded.append({
+                        **image_section,
+                        "blocks": images[start:end],
+                        "_gallery_title": f"{section['title']} · tramos {start + 1}–{end} de {len(images)}",
+                        "_gallery_start": start + 1,
+                        "_gallery_end": end,
+                        "_gallery_total": len(images),
+                    })
+            else:
+                expanded.append(image_section)
         else:
-            expanded.append({**section, "_source_index": source_index})
+            image_section = {**section, "_source_index": source_index}
+            if images and len(images) > 2:
+                for start in range(0, len(images), 2):
+                    end = min(start + 2, len(images))
+                    expanded.append({
+                        **image_section,
+                        "blocks": images[start:end],
+                        "_gallery_title": f"{section['title']} · tramos {start + 1}–{end} de {len(images)}",
+                        "_gallery_start": start + 1,
+                        "_gallery_end": end,
+                        "_gallery_total": len(images),
+                    })
+            else:
+                expanded.append(image_section)
 
     def flush():
         if pending:
@@ -617,6 +721,27 @@ def move_image_only_template_to_matching_chapter(prs, groups):
         sld_id_list.append(child)
 
 
+def presentation_image_title(section):
+    title = section["title"].strip()
+    normalized_title = title.casefold()
+    short_titles = {
+        "prueba: catálogo, consulta, alta y edición": "PRUEBA: CATÁLOGO Y EDICIÓN",
+        "prueba: efectivo: descuento 189 y total 261": "PRUEBA: VENTA EN EFECTIVO",
+        "prueba: crédito 450 aprobado sin descuento": "PRUEBA: CRÉDITO APROBADO",
+        "prueba: amortización a 3 meses: filas, capital y saldo": "PRUEBA: AMORTIZACIÓN A 3 MESES",
+        "prueba: tabla bancaria coincide con pasarela": "PRUEBA: AMORTIZACIÓN Y SALDO",
+        "prueba: consulta factura y búsqueda por cédula": "PRUEBA: BÚSQUEDA DE FACTURA",
+    }
+    if normalized_title in short_titles:
+        return short_titles[normalized_title]
+    if "_gallery_start" in section and normalized_title.startswith("diseño web adaptable"):
+        return (
+            f"VISTA WEB 390 PX · TRAMOS {section['_gallery_start']}–"
+            f"{section['_gallery_end']}/{section['_gallery_total']}"
+        )
+    return re.sub(r"^Diagrama:\s*", "", title, flags=re.IGNORECASE)
+
+
 def update_sidebar(slide, nav_text, active_item):
     nav_levels = [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
     for shape in slide.shapes:
@@ -722,14 +847,13 @@ def generate_presentation(template, source, target, sections):
         non_image_blocks = [block for section in group for block in section["blocks"] if block["kind"] != "image"]
         image_only = (
             len(group) == 1
-            and len(image_blocks) == 1
+            and len(image_blocks) >= 1
             and not non_image_blocks
-            and group[0]["title"].casefold().startswith("diagrama:")
         )
         if len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith("bibliografía")):
             replace_frame_text(title, group[0]["title"].upper())
         elif image_only:
-            slide_title = re.sub(r"^Diagrama:\s*", "", group[0]["title"], flags=re.IGNORECASE).upper()
+            slide_title = presentation_image_title(group[0]).upper()
             replace_frame_text(title, slide_title)
         else:
             replace_frame_text(title, "DESARROLLO")
@@ -740,7 +864,7 @@ def generate_presentation(template, source, target, sections):
         if image_only:
             content.text_frame.auto_size = MSO_AUTO_SIZE.NONE
             content.text_frame.word_wrap = True
-            picture_bounds = (PInches(0.82), PInches(1.82), PInches(8.85), PInches(4.98))
+            picture_bounds = (PInches(0.82), PInches(1.92), PInches(8.85), PInches(4.78))
         else:
             picture_bounds = fit_slide_body(slide, content, group)
         if picture_bounds:

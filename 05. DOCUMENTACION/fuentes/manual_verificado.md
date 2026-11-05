@@ -314,7 +314,12 @@ Resultado: APROBADO
 ## Diseño web adaptable y validación visual
 Chrome verificó el cambio de tema, los formularios y la ausencia de desbordamiento horizontal a 390 píxeles. El registro de navegador informa cero excepciones JavaScript.
 
-![Navegador: vista adaptable a 390 píxeles](../evidencias/web_responsive.png)
+![Navegador: vista adaptable a 390 píxeles, tramo 1 de 6](../evidencias/web_responsive_panel_01.png)
+![Navegador: vista adaptable a 390 píxeles, tramo 2 de 6](../evidencias/web_responsive_panel_02.png)
+![Navegador: vista adaptable a 390 píxeles, tramo 3 de 6](../evidencias/web_responsive_panel_03.png)
+![Navegador: vista adaptable a 390 píxeles, tramo 4 de 6](../evidencias/web_responsive_panel_04.png)
+![Navegador: vista adaptable a 390 píxeles, tramo 5 de 6](../evidencias/web_responsive_panel_05.png)
+![Navegador: vista adaptable a 390 píxeles, tramo 6 de 6](../evidencias/web_responsive_panel_06.png)
 ## Web total CREDITO_DIRECTO
 
 Resultado: APROBADO

@@ -1,13 +1,13 @@
 {
   "fecha": "2026-11-04",
-  "estado": "PROMOCIONADO_A_OFICIALES",
+  "estado": "PROMOCIONADO_A_OFICIALES; revisión visual completa de imágenes",
   "renderizador": "Microsoft Word COM actualiza campos e índices y exporta el DOCX a PDF; Microsoft PowerPoint COM exporta la presentación a PDF",
   "fuenteManual": {
     "ruta": "05. DOCUMENTACION/fuentes/manual_verificado.md",
-    "sha256": "65dac47e1dcb7889fd1aaa7984f4917d1c189af8105803d37ce705e7c0a7ffd7",
+    "sha256": "0dfc01b8ce3e3ca9135dc81cdfa22a6f6198096ca73f046c8e6e28206f3fc6e0",
     "secciones": 84
   },
-  "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-correccion-portada",
+  "respaldoPrevio": "05. DOCUMENTACION/.trabajo/respaldo-antes-ajuste-imagenes-20261104",
   "archivos": [
     {
       "tipo": "ERS",
@@ -30,26 +30,27 @@
     {
       "tipo": "manual",
       "oficial": "05. DOCUMENTACION/01. MANUAL TECNICO/MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.docx",
-      "sha256": "507c7e03eff10a468df2719516769d0ad8102afbcf37b2c9deb7506d99f98c67",
+      "sha256": "df07224e1eae32ad0b9083431b8e00dd5933162fefbfa171912647b36ea1b0ba",
       "renderPdf": "MANUAL_TECNICO_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "fe4b66523f3ce3ec7685ef4b58a99ec66b9512083ca85bacfc18cf625091518f",
-      "paginasPdf": 34,
-      "revision": "34 páginas revisadas; portada conserva la imagen Monster original del máster; índice y seis diagramas PowerDesigner comprobados; sin títulos QA."
+      "renderPdfSha256": "a203dfe1962c75281f4820a3bac07951570bcbfb52e4fc1ff3df2c0b6b3819ea",
+      "paginasPdf": 30,
+      "revision": "30 páginas revisadas; portada Monster conservada, índice sin marcadores rotos, figuras legibles y con altura máxima de 5,25 pulgadas; sin desbordes ni solapamientos."
     },
     {
       "tipo": "presentacion",
       "oficial": "05. DOCUMENTACION/02. PRESENTACION/PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pptx",
-      "sha256": "e257c686744b0da7ae563c831c7086ec331e1568f605c74a4b83b72b43ef5a02",
+      "sha256": "47e7159192f4879fe930b3a675194949f87dca840ad6f396bae2bf19bde6f301",
       "renderPdf": "PRESENTACION_CELULAR_BDDLOCAL_RESTFUL_DOTNET_GR09.pdf",
-      "renderPdfSha256": "17cc91bc9f3a29d7cadbe40fdd5a9ebabd659b71c66dbed0fd89b35ae9d897bb",
-      "diapositivasPdf": 63,
+      "renderPdfSha256": "3cbfb1b4f83805d11dbebf302d2453efa835e524462d517124ddd2e3ec2f6781",
+      "diapositivasPdf": 65,
       "seccionesCanonicas": 84,
-      "revision": "63 diapositivas revisadas desde la misma fuente; seis diagramas PowerDesigner presentes y nombres de pruebas claros."
+      "revision": "65 diapositivas revisadas; 25 imágenes dentro del lienzo, sin cruces con texto; captura adaptable dividida en seis tramos legibles."
     }
   ],
   "oficialesSustituidos": true,
   "limitaciones": [
     "No se compilaron los cuatro clientes ni se ejecutaron pruebas de las API en esta revisión documental.",
     "No se regeneraron modelos PowerDesigner porque la licencia de evaluación venció."
-  ]
+  ],
+  "canonicalContentSha256": "a92ee31f49851f0bc5a74a8a45f2161b5a30400f18a0cbf33ace88c855dfcb21"
 }
