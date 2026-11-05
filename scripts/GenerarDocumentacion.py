@@ -12,10 +12,12 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Inches, Pt
+from docx.shared import Inches, Pt, RGBColor as WordRGBColor
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.oxml.xmlchemy import OxmlElement as PptOxmlElement
+from pptx.oxml.ns import qn as ppt_qn
 from pptx.util import Inches as PInches, Pt as PPt
 from PIL import Image
 
@@ -322,6 +324,19 @@ def add_test_result_label(doc, title):
     paragraph.add_run(label).bold = True
 
 
+def table_caption_for_section(section):
+    title = section["title"].casefold()
+    captions = (
+        ("contrato rest", "Métodos y recursos REST confirmados"),
+        ("configuración de sql server", "Parámetros de SQL Server local"),
+        ("configuración de los proyectos en visual studio", "Archivos de configuración revisados"),
+        ("secuencia de scripts", "Secuencia de inicialización de las bases"),
+        ("verificación y solución de problemas", "Comprobaciones y errores frecuentes"),
+        ("modelo de datos", "Tablas, relaciones y reglas de datos"),
+    )
+    return next((caption for prefix, caption in captions if prefix in title), "Datos verificados del proyecto")
+
+
 def render_word_block(doc, block, section):
     kind = block["kind"]
     if kind == "paragraph":
@@ -342,7 +357,7 @@ def render_word_block(doc, block, section):
         caption = doc.add_paragraph(style="Caption" if "Caption" in doc.styles else "Normal")
         caption.add_run("Tabla ")
         add_field(caption, "SEQ Tabla \\* ARABIC", "1")
-        caption.add_run(". Servicios REST confirmados")
+        caption.add_run(". " + table_caption_for_section(section))
         table = doc.add_table(rows=0, cols=columns)
         table.style = "Table Grid" if "Table Grid" in [style.name for style in doc.styles] else doc.tables[0].style
         table.autofit = True
@@ -361,15 +376,18 @@ def render_word_block(doc, block, section):
             table.rows[0]._tr.get_or_add_trPr().append(OxmlElement("w:tblHeader"))
         doc.add_paragraph()
     elif kind == "code":
-        table = doc.add_table(rows=1, cols=1)
-        table.style = "Table Grid" if "Table Grid" in [style.name for style in doc.styles] else doc.tables[0].style
-        cell = table.cell(0, 0)
-        cell.text = block["text"]
-        for paragraph in cell.paragraphs:
-            for run in paragraph.runs:
-                run.font.name = "Consolas"
-                run.font.size = Pt(8)
-        table.rows[0]._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
+        paragraph = doc.add_paragraph()
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        paragraph.paragraph_format.left_indent = Inches(0.12)
+        paragraph.paragraph_format.right_indent = Inches(0.12)
+        paragraph.paragraph_format.space_before = Pt(0)
+        paragraph.paragraph_format.space_after = Pt(4)
+        paragraph.paragraph_format.line_spacing = 1.0
+        paragraph.paragraph_format.keep_together = False
+        run = paragraph.add_run(block["text"])
+        run.font.name = "Consolas"
+        run.font.size = Pt(8.5)
+        run.font.color.rgb = WordRGBColor(31, 41, 55)
     elif kind == "image":
         add_word_image_group(doc, [block], section)
 
@@ -531,6 +549,159 @@ def slide_body(sections):
     return "\n".join(result).replace("`", "").replace("**", "")
 
 
+def format_slide_code_blocks(shape, sections):
+    """Use compact monospaced, unbulleted text for SQL/config code on slides."""
+    code_paragraphs = set()
+    paragraph_index = 0
+    for section in sections:
+        paragraph_index += 1  # canonical section title
+        for block in section["blocks"]:
+            if block["kind"] == "image":
+                continue
+            text = block_text(block)
+            if not text:
+                continue
+            lines = text.splitlines() or [text]
+            if block["kind"] == "code":
+                code_paragraphs.update(range(paragraph_index, paragraph_index + len(lines)))
+            paragraph_index += len(lines)
+
+    paragraphs = shape.text_frame.paragraphs
+    for index in code_paragraphs:
+        if index >= len(paragraphs):
+            raise ValueError("No se pudo dar formato a todos los renglones de código de la diapositiva.")
+        paragraph = paragraphs[index]
+        paragraph.level = 0
+        p_pr = paragraph._p.get_or_add_pPr()
+        for child in list(p_pr):
+            if child.tag in {
+                ppt_qn("a:buChar"), ppt_qn("a:buAutoNum"),
+                ppt_qn("a:buBlip"), ppt_qn("a:buNone"),
+            }:
+                p_pr.remove(child)
+        p_pr.append(PptOxmlElement("a:buNone"))
+        p_pr.set("marL", "0")
+        p_pr.set("indent", "0")
+        for run in paragraph.runs:
+            run.font.name = "Consolas"
+            run.font.size = PPt(11)
+            run.font.color.rgb = RGBColor(48, 54, 61)
+
+
+def presentation_line_count(text):
+    return sum(max(1, (len(line) + 74) // 75) for line in text.splitlines() or [text])
+
+
+def split_text_preserving_content(text, max_chars=1000):
+    """Split a long textual block at word boundaries while retaining every character."""
+    parts = []
+    start = 0
+    while start < len(text):
+        end = min(start + max_chars, len(text))
+        if end < len(text):
+            boundary = text.rfind(" ", start + max_chars // 2, end)
+            if boundary > start:
+                end = boundary + 1
+        parts.append(text[start:end])
+        start = end
+    return parts
+
+
+def split_block_for_presentation(block, max_lines=14):
+    """Create readable slide fragments for long blocks without changing the Word source."""
+    if presentation_line_count(block_text(block)) <= max_lines:
+        return [block]
+
+    if block["kind"] == "table":
+        rows = block["rows"]
+        if len(rows) <= 1:
+            return [block]
+        header = rows[0]
+        header_lines = presentation_line_count(" | ".join(header))
+        chunks = []
+        current = [header]
+        current_lines = header_lines
+        for row in rows[1:]:
+            row_lines = presentation_line_count(" | ".join(row))
+            if len(current) > 1 and current_lines + row_lines > max_lines:
+                chunks.append(current)
+                current = [header]
+                current_lines = header_lines
+            current.append(row)
+            current_lines += row_lines
+        if current:
+            chunks.append(current)
+        return [
+            {"kind": "table", "rows": chunk, "_canonical_block": block}
+            for chunk in chunks
+        ]
+
+    if block["kind"] == "code":
+        lines = block["text"].splitlines(keepends=True)
+        chunks = []
+        current = []
+        current_lines = 0
+        for line in lines:
+            line_count = presentation_line_count(line)
+            if current and current_lines + line_count > max_lines:
+                chunks.append("".join(current))
+                current = []
+                current_lines = 0
+            current.append(line)
+            current_lines += line_count
+        if current:
+            chunks.append("".join(current))
+        return [
+            {"kind": "code", "text": chunk, "_canonical_block": block}
+            for chunk in chunks
+        ]
+
+    if block["kind"] == "paragraph":
+        return [
+            {"kind": "paragraph", "text": part, "_canonical_block": block}
+            for part in split_text_preserving_content(block["text"])
+        ]
+    return [block]
+
+
+def chunk_section_blocks(section, source_index, max_lines=14):
+    fragments = []
+    for block in section["blocks"]:
+        fragments.extend(split_block_for_presentation(block))
+
+    chunks = []
+    current = []
+    current_lines = 1  # section title
+    for block in fragments:
+        block_lines = presentation_line_count(block_text(block))
+        if current and current_lines + block_lines > max_lines:
+            chunks.append(current)
+            current = []
+            current_lines = 1
+        current.append(block)
+        current_lines += block_lines
+    if current:
+        chunks.append(current)
+
+    result = []
+    for index, chunk in enumerate(chunks):
+        title = section["title"]
+        if index:
+            title += " (continuación)"
+        result.append({
+            **section,
+            "title": title,
+            "blocks": chunk,
+            "_source_index": source_index,
+        })
+    return result
+
+
+def image_ratio(block):
+    with Image.open(block["path"]) as bitmap:
+        return bitmap.width / bitmap.height
+
+
 def group_presentation_sections(sections):
     groups = []
     pending = []
@@ -540,9 +711,37 @@ def group_presentation_sections(sections):
         images = [block for block in section["blocks"] if block["kind"] == "image"]
         text = [block for block in section["blocks"] if block["kind"] != "image"]
         if images and text:
-            expanded.append({**section, "blocks": text, "_source_index": source_index})
-            image_section = {**section, "blocks": images, "_source_index": source_index}
-            if len(images) > 2:
+            if len(images) <= 2:
+                portrait_evidence = all(image_ratio(block) < 0.65 for block in images)
+                text_lines = presentation_line_count(slide_body([section]))
+                if section["title"].casefold().startswith("prueba:") and portrait_evidence and text_lines > 3:
+                    # Keep a dense result readable, then show its full phone captures
+                    # together on an adjacent, dedicated slide.
+                    expanded.extend(chunk_section_blocks(
+                        {**section, "blocks": text}, source_index
+                    ))
+                    short_gallery_titles = {
+                        "prueba: catálogo, consulta, alta y edición": "CATÁLOGO Y EDICIÓN",
+                        "prueba: amortización a 3 meses: filas, capital y saldo": "AMORTIZACIÓN A 3 MESES",
+                    }
+                    short_title = short_gallery_titles.get(
+                        section["title"].casefold(),
+                        re.sub(r"^Prueba:\s*", "", section["title"].strip(), flags=re.IGNORECASE),
+                    )
+                    gallery_title = "CAPTURAS · " + short_title
+                    expanded.append({
+                        **section,
+                        "title": gallery_title,
+                        "blocks": images,
+                        "_source_index": source_index,
+                        "_gallery_title": gallery_title,
+                    })
+                else:
+                    # A short explanation and its one or two screenshots belong together.
+                    expanded.extend(chunk_section_blocks(section, source_index))
+            else:
+                expanded.extend(chunk_section_blocks({**section, "blocks": text}, source_index))
+                image_section = {**section, "blocks": images, "_source_index": source_index}
                 for start in range(0, len(images), 2):
                     end = min(start + 2, len(images))
                     expanded.append({
@@ -553,11 +752,9 @@ def group_presentation_sections(sections):
                         "_gallery_end": end,
                         "_gallery_total": len(images),
                     })
-            else:
-                expanded.append(image_section)
         else:
-            image_section = {**section, "_source_index": source_index}
             if images and len(images) > 2:
+                image_section = {**section, "_source_index": source_index}
                 for start in range(0, len(images), 2):
                     end = min(start + 2, len(images))
                     expanded.append({
@@ -569,7 +766,7 @@ def group_presentation_sections(sections):
                         "_gallery_total": len(images),
                     })
             else:
-                expanded.append(image_section)
+                expanded.extend(chunk_section_blocks(section, source_index))
 
     def flush():
         if pending:
@@ -586,14 +783,38 @@ def group_presentation_sections(sections):
             continue
         candidate = pending + [section]
         candidate_text = slide_body(candidate)
-        lines = sum(max(1, (len(line) + 74) // 75) for line in candidate_text.splitlines())
-        if pending and (lines > 10 or len(candidate) > 3):
+        lines = presentation_line_count(candidate_text)
+        if pending and (lines > 14 or len(candidate) > 5):
             flush()
         pending.append(section)
     flush()
     grouped_sections = [section for group in groups for section in group]
-    if sorted(id(block) for section in grouped_sections for block in section["blocks"]) != sorted(id(block) for section in sections for block in section["blocks"]):
-        raise ValueError("La distribución PPTX omitió o duplicó contenido canónico.")
+    expected_blocks = {
+        id(block): block for section in sections for block in section["blocks"]
+    }
+    actual_parts = {}
+    for section in grouped_sections:
+        for block in section["blocks"]:
+            source_block = block.get("_canonical_block", block)
+            actual_parts.setdefault(id(source_block), []).append(block)
+    if set(actual_parts) != set(expected_blocks):
+        raise ValueError("La distribución PPTX omitió o agregó bloques canónicos.")
+    for block_id, source_block in expected_blocks.items():
+        parts = actual_parts[block_id]
+        if source_block["kind"] == "table":
+            rows = []
+            for part in parts:
+                part_rows = part["rows"]
+                if rows and part_rows and part_rows[0] == source_block["rows"][0]:
+                    part_rows = part_rows[1:]
+                rows.extend(part_rows)
+            if rows != source_block["rows"]:
+                raise ValueError("La distribución PPTX alteró filas de una tabla canónica.")
+        elif source_block["kind"] in ("paragraph", "code") and len(parts) > 1:
+            if "".join(part["text"] for part in parts) != source_block["text"]:
+                raise ValueError("La distribución PPTX alteró un bloque de texto canónico.")
+        elif len(parts) != 1 or parts[0] is not source_block:
+            raise ValueError("La distribución PPTX duplicó un bloque canónico.")
     source_order = list(dict.fromkeys(section["_source_index"] for section in grouped_sections))
     if source_order != list(range(len(sections))):
         raise ValueError("La distribución PPTX omitió o reordenó capítulos canónicos.")
@@ -638,7 +859,7 @@ def fit_slide_body(slide, content, sections):
     left = max(content.left, PInches(0.62))
     right = min(nav_left - PInches(0.22), PInches(10.05))
     width = right - left
-    top = max(content.top, PInches(1.92))
+    top = max(content.top, PInches(2.12))
     bottom = PInches(6.88)
     if not images:
         content.left = left
@@ -721,7 +942,33 @@ def move_image_only_template_to_matching_chapter(prs, groups):
         sld_id_list.append(child)
 
 
+def extend_presentation_with_template_slides(prs, required_count):
+    """Add content slides that retain the approved template layout and navigation."""
+    content_template = next((
+        slide for slide in prs.slides
+        if {0, 1}.issubset({shape.placeholder_format.idx for shape in slide.placeholders})
+        and not any(shape.shape_type == 13 for shape in slide.shapes)
+        and any(shape.has_text_frame and "MARCO TE" in shape.text.upper() for shape in slide.shapes)
+    ), None)
+    if content_template is None:
+        raise ValueError("No se encontró una diapositiva de contenido de la plantilla para ampliar el manual.")
+
+    excluded_tags = ("}nvGrpSpPr", "}grpSpPr", "}extLst")
+    source_tree = content_template.shapes._spTree
+    while len(prs.slides) < required_count:
+        slide = prs.slides.add_slide(content_template.slide_layout)
+        tree = slide.shapes._spTree
+        for child in list(tree):
+            if not child.tag.endswith(excluded_tags):
+                tree.remove(child)
+        for child in source_tree:
+            if not child.tag.endswith(excluded_tags):
+                tree.append(copy.deepcopy(child))
+
+
 def presentation_image_title(section):
+    if "_gallery_title" in section:
+        return section["_gallery_title"]
     title = section["title"].strip()
     normalized_title = title.casefold()
     short_titles = {
@@ -766,7 +1013,7 @@ def generate_presentation(template, source, target, sections):
     prs = Presentation(template)
     groups = group_presentation_sections(sections)
     if len(groups) + 2 > len(prs.slides):
-        raise ValueError("La plantilla no tiene suficientes diapositivas para la distribución canónica.")
+        extend_presentation_with_template_slides(prs, len(groups) + 2)
     move_image_only_template_to_matching_chapter(prs, groups)
     cover = prs.slides[0]
     title_shape = next((shape for shape in cover.placeholders if shape.placeholder_format.idx == 0), None)
@@ -858,25 +1105,50 @@ def generate_presentation(template, source, target, sections):
         else:
             replace_frame_text(title, "DESARROLLO")
         replace_frame_text(content, "" if image_only else slide_body(group))
+        if not image_only:
+            format_slide_code_blocks(content, group)
         old_pictures = [shape for shape in slide.shapes if shape.shape_type == 13]
         for shape in old_pictures:
             shape._element.getparent().remove(shape._element)
         if image_only:
             content.text_frame.auto_size = MSO_AUTO_SIZE.NONE
             content.text_frame.word_wrap = True
-            picture_bounds = (PInches(0.82), PInches(1.92), PInches(8.85), PInches(4.78))
+            if "_gallery_title" in group[0] and all(
+                image_ratio(block) < 0.65 for block in image_blocks
+            ):
+                # Portrait phone evidence stays tall enough to read without filling
+                # nearly the full slide like a long infographic.
+                picture_bounds = (PInches(0.82), PInches(2.42), PInches(8.85), PInches(4.0))
+            else:
+                picture_bounds = (PInches(0.82), PInches(2.12), PInches(8.85), PInches(4.55))
         else:
             picture_bounds = fit_slide_body(slide, content, group)
         if picture_bounds:
             images = image_blocks
             left, top, width, height = picture_bounds
             gap = PInches(0.16)
-            columns = min(2, len(images))
-            column_width = int((width - gap * (columns - 1)) / columns)
-            for image_index, block in enumerate(images):
-                fit_picture(slide, block["path"], (
-                    left + image_index * (column_width + gap), top, column_width, height
-                ))
+            portrait_gallery = (
+                image_only
+                and "_gallery_title" in group[0]
+                and all(image_ratio(block) < 0.65 for block in images)
+            )
+            if portrait_gallery:
+                image_widths = []
+                for block in images:
+                    with Image.open(block["path"]) as bitmap:
+                        image_widths.append(int(min(width, height * bitmap.width / bitmap.height)))
+                total_width = sum(image_widths) + gap * (len(images) - 1)
+                cursor = left + (width - total_width) // 2
+                for block, image_width in zip(images, image_widths):
+                    fit_picture(slide, block["path"], (cursor, top, image_width, height))
+                    cursor += image_width + gap
+            else:
+                columns = min(2, len(images))
+                column_width = int((width - gap * (columns - 1)) / columns)
+                for image_index, block in enumerate(images):
+                    fit_picture(slide, block["path"], (
+                        left + image_index * (column_width + gap), top, column_width, height
+                    ))
         if label.startswith("conclus"):
             active = "CONCLUSIONES"
         elif label.startswith("recomend"):

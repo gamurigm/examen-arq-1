@@ -3,7 +3,7 @@ import argparse, hashlib, json, pathlib, subprocess
 import fitz
 from PIL import Image, ImageDraw
 root=pathlib.Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser();parser.add_argument('--renderer',choices=['com','soffice'],default='soffice');parser.add_argument('--soffice',default='D:/tools/LibreOffice/program/soffice.exe');parser.add_argument('--skip-conversion',action='store_true');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--renderer',choices=['com','soffice'],default='soffice');parser.add_argument('--soffice',default='soffice.com');parser.add_argument('--skip-conversion',action='store_true');args=parser.parse_args()
 profile=json.loads((root/'documentation-profile.json').read_text(encoding='utf-8'))
 drafts=pathlib.Path(profile['documentation']['draft_directory']);dest=pathlib.Path(profile['documentation']['render_directory']);dest.mkdir(parents=True,exist_ok=True)
 manifest_path=drafts/'manifest.json';manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
@@ -15,7 +15,8 @@ if not args.skip_conversion:
         word_files=[f for f in files if f.suffix.casefold()=='.docx']
         if word_files:
             subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(root/'scripts/RenderizarOffice.ps1'),'-DraftDirectory',str(drafts),'-RenderDirectory',str(dest),'-FilesJson',json.dumps([f.name for f in word_files]),'-UpdateFieldsOnly'],check=True)
-        subprocess.run([args.soffice,'-env:UserInstallation=file:///D:/tools/LibreOfficeProfile-CelularGR09-QA','--headless','--convert-to','pdf','--outdir',str(dest),*[str(f) for f in files]],check=True)
+        office_profile=dest/'libreoffice-profile';office_profile.mkdir(parents=True,exist_ok=True)
+        subprocess.run([args.soffice,'-env:UserInstallation='+office_profile.resolve().as_uri(),'--headless','--convert-to','pdf','--outdir',str(dest),*[str(f) for f in files]],check=True)
 records=[]
 for file in files:
     pdf=dest/(file.stem+'.pdf')
