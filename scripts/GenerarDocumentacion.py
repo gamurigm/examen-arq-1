@@ -12,10 +12,11 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.opc.constants import RELATIONSHIP_TYPE as WordRelationship
 from docx.shared import Inches, Pt, RGBColor as WordRGBColor
 from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.enum.text import MSO_AUTO_SIZE, MSO_ANCHOR
 from pptx.oxml.xmlchemy import OxmlElement as PptOxmlElement
 from pptx.oxml.ns import qn as ppt_qn
 from pptx.util import Inches as PInches, Pt as PPt
@@ -28,7 +29,7 @@ PROFILE = json.loads(PROFILE_PATH.read_text(encoding="utf-8-sig"))
 DOCS = PROFILE["documentation"]
 PROJECT = PROFILE["project"]
 AUTHOR_LINE = "; ".join(PROJECT["authors"])
-DATE = "04/11/2026"
+DATE = "05/11/2026"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--artifacts", nargs="+", choices=["ers", "ecud", "manual", "presentacion"])
@@ -148,14 +149,32 @@ def add_field(paragraph, instruction, result=""):
 
 
 def add_inline_markdown(paragraph, text):
-    """Keep template paragraph styles and apply only inline-code treatment."""
+    """Preserve template typography, format code and make reference URLs usable."""
     cursor = 0
-    for match in re.finditer(r"`([^`]+)`", text):
+    for match in re.finditer(r"`([^`]+)`|https?://[^\s]+", text):
         if match.start() > cursor:
             paragraph.add_run(text[cursor:match.start()])
-        run = paragraph.add_run(match.group(1))
-        run.font.name = "Consolas"
-        run.font.size = Pt(9)
+        if match.group(1) is not None:
+            run = paragraph.add_run(match.group(1))
+            run.font.name = "Consolas"
+            run.font.size = Pt(9)
+        else:
+            url = match.group(0)
+            hyperlink = OxmlElement("w:hyperlink")
+            hyperlink.set(qn("r:id"), paragraph.part.relate_to(
+                url, WordRelationship.HYPERLINK, is_external=True
+            ))
+            run = OxmlElement("w:r")
+            properties = OxmlElement("w:rPr")
+            style = OxmlElement("w:rStyle")
+            style.set(qn("w:val"), "Hyperlink")
+            properties.append(style)
+            run.append(properties)
+            label = OxmlElement("w:t")
+            label.text = url
+            run.append(label)
+            hyperlink.append(run)
+            paragraph._p.append(hyperlink)
         cursor = match.end()
     if cursor < len(text):
         paragraph.add_run(text[cursor:])
@@ -333,8 +352,18 @@ def table_caption_for_section(section):
         ("secuencia de scripts", "Secuencia de inicialización de las bases"),
         ("verificación y solución de problemas", "Comprobaciones y errores frecuentes"),
         ("modelo de datos", "Tablas, relaciones y reglas de datos"),
+        ("estructura del proyecto", "Organización de carpetas y responsabilidades"),
+        ("arquitectura y comunicación", "Direcciones y consumidores de los servicios"),
+        ("creación y carga", "Orden de ejecución de los scripts SQL"),
+        ("contratos rest de la comercializadora", "Recursos HTTP de la comercializadora"),
+        ("contratos rest de banquito", "Recursos HTTP de BanQuito"),
+        ("cálculo y consulta de amortización", "Ejemplo de amortización de 450,00 a tres meses"),
+        ("capa compartida", "Configuración del destino HTTP de los clientes"),
+        ("cliente de consola", "Opciones del menú de consola"),
+        ("pruebas de los servicios", "Entradas y criterios de comprobación funcional"),
+        ("manejo de errores", "Diagnóstico y tratamiento de errores frecuentes"),
     )
-    return next((caption for prefix, caption in captions if prefix in title), "Datos verificados del proyecto")
+    return next((caption for prefix, caption in captions if prefix in title), "Configuración y responsabilidades del componente")
 
 
 def render_word_block(doc, block, section):
@@ -342,6 +371,11 @@ def render_word_block(doc, block, section):
     if kind == "paragraph":
         p = doc.add_paragraph()
         add_inline_markdown(p, block["text"])
+        if section["title"] == "Referencias bibliográficas":
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            p.paragraph_format.left_indent = Inches(0.25)
+            p.paragraph_format.first_line_indent = Inches(-0.25)
+            p.paragraph_format.keep_together = True
     elif kind == "heading":
         if block["text"].casefold().startswith("prueba:"):
             add_test_result_label(doc, block["text"])
@@ -364,7 +398,7 @@ def render_word_block(doc, block, section):
         for row_index, values in enumerate(rows):
             cells = table.add_row().cells
             for column, value in enumerate(values):
-                cells[column].text = value
+                add_inline_markdown(cells[column].paragraphs[0], value)
                 for paragraph in cells[column].paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9)
@@ -544,9 +578,11 @@ def slide_body(sections):
                 continue
             text = block_text(block)
             if text:
+                if block["kind"] != "code":
+                    text = text.replace("`", "").replace("**", "")
                 parts.append(text)
         result.append("\n".join(parts))
-    return "\n".join(result).replace("`", "").replace("**", "")
+    return "\n".join(result)
 
 
 def format_slide_code_blocks(shape, sections):
@@ -607,7 +643,7 @@ def split_text_preserving_content(text, max_chars=1000):
     return parts
 
 
-def split_block_for_presentation(block, max_lines=14):
+def split_block_for_presentation(block, max_lines=10):
     """Create readable slide fragments for long blocks without changing the Word source."""
     if presentation_line_count(block_text(block)) <= max_lines:
         return [block]
@@ -664,7 +700,7 @@ def split_block_for_presentation(block, max_lines=14):
     return [block]
 
 
-def chunk_section_blocks(section, source_index, max_lines=14):
+def chunk_section_blocks(section, source_index, max_lines=10):
     fragments = []
     for block in section["blocks"]:
         fragments.extend(split_block_for_presentation(block))
@@ -710,6 +746,22 @@ def group_presentation_sections(sections):
     for source_index, section in enumerate(sections):
         images = [block for block in section["blocks"] if block["kind"] == "image"]
         text = [block for block in section["blocks"] if block["kind"] != "image"]
+        if images:
+            if text:
+                expanded.extend(chunk_section_blocks({**section, "blocks": text}, source_index))
+            gallery_title = section["title"].replace("Cliente móvil:", "Android:").replace("Cliente web:", "Web:")
+            if all(block["caption"].startswith("PowerDesigner: ") for block in images):
+                gallery_title = images[0]["caption"].removeprefix("PowerDesigner: ")
+            for start in range(0, len(images), 2):
+                end = min(start + 2, len(images))
+                label = gallery_title if len(images) <= 2 else f"{gallery_title} · {start + 1}–{end}/{len(images)}"
+                expanded.append({
+                    **section,
+                    "blocks": images[start:end],
+                    "_source_index": source_index,
+                    "_gallery_title": label,
+                })
+            continue
         if images and text:
             if len(images) <= 2:
                 portrait_evidence = all(image_ratio(block) < 0.65 for block in images)
@@ -867,6 +919,7 @@ def fit_slide_body(slide, content, sections):
         content.top = top
         content.height = bottom - top
         content.text_frame.auto_size = MSO_AUTO_SIZE.NONE
+        content.text_frame.vertical_anchor = MSO_ANCHOR.TOP
         return None
 
     requested_height = slide_text_height(slide_body(sections), width / 914400, bottom - top - PInches(1.25), content)
@@ -1077,13 +1130,7 @@ def generate_presentation(template, source, target, sections):
             non_image_blocks = [block for section in group for block in section["blocks"] if block["kind"] != "image"]
             if len(group) != 1 or len(image_blocks) != 1 or non_image_blocks:
                 raise ValueError(f"La diapositiva {slide_index + 1} solo admite un capítulo formado por una figura.")
-            chapter_title = group[0]["title"]
-            if chapter_title.casefold().startswith("diagrama:"):
-                slide_title = re.sub(r"^Diagrama:\s*", "", chapter_title, flags=re.IGNORECASE).upper()
-            elif len(chapter_title) > 36:
-                slide_title = "RESULTADO DE PRUEBAS"
-            else:
-                slide_title = chapter_title.upper()
+            slide_title = presentation_image_title(group[0]).upper()
             replace_frame_text(title, slide_title)
             replace_slide_images(slide, image_blocks)
             update_sidebar(slide, nav, "ARQUITECTURA")
@@ -1097,7 +1144,7 @@ def generate_presentation(template, source, target, sections):
             and len(image_blocks) >= 1
             and not non_image_blocks
         )
-        if len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith("bibliografía")):
+        if len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith(("bibliografía", "referencias bibliográficas"))):
             replace_frame_text(title, group[0]["title"].upper())
         elif image_only:
             slide_title = presentation_image_title(group[0]).upper()
@@ -1153,7 +1200,7 @@ def generate_presentation(template, source, target, sections):
             active = "CONCLUSIONES"
         elif label.startswith("recomend"):
             active = "RECOMENDACIONES"
-        elif label.startswith("bibliograf"):
+        elif label.startswith(("bibliograf", "referencias bibliograf")):
             active = "BIBLIOGRAFÍA"
         elif any(word in label for word in ("prueba", "evidencia", "comprobación", "catálogo cargado")):
             active = "PRUEBAS Y EVIDENCIAS"

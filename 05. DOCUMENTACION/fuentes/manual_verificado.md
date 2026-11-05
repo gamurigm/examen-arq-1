@@ -1,90 +1,616 @@
 # Manual técnico: comercializadora de celulares y BanQuito
 
-Autores: Gabriel Omar Murillo Medina; Julio Enrique Viche Castillo. Grupo 09 · NRC 36884. Tutor: Ing. Eduardo Mauricio Campaña Ortega. Arquitectura .NET REST.
+## Introducción y objetivos
+El sistema permite administrar un catálogo de celulares, emitir facturas y solicitar financiamiento a BanQuito mediante servicios HTTP. Ofrece cuatro aplicaciones cliente: consola, escritorio WPF, web ASP.NET Core MVC y móvil .NET MAUI para Android. Este manual explica la preparación del entorno, la organización del código, la persistencia, los contratos de comunicación y los procedimientos necesarios para ejecutar y mantener la solución.
 
-Este es el contenido canónico del manual. El DOCX y el PPTX se generan de estos mismos capítulos, pruebas y figuras.
+El objetivo general es proporcionar una guía técnica reproducible para instalar, configurar y comprender la comercializadora y el servicio bancario. Los objetivos específicos son describir las responsabilidades de cada componente, documentar las estructuras de datos y reglas de negocio, detallar la ejecución de los cuatro clientes y establecer criterios para comprobar su funcionamiento.
 
-## Problema y alcance
-Catálogo sin inventario y facturación de un celular por compra.
-Pago en efectivo o crédito directo autorizado por BanQuito.
-No se implementa la programación del Core bancario completo.
-## Arquitectura
-Consola, WPF, web MVC y Android MAUI consumen la API comercializadora.
-Comercializadora y BanQuito se comunican por REST/JSON.
-Dos bases independientes en SQL Server Docker; las aplicaciones corren en host.
+El documento está dirigido a desarrolladores, responsables de instalación y estudiantes que necesiten continuar el proyecto. Los comandos se ejecutan desde la raíz de `examen-arq-1`, en PowerShell, salvo que se indique otra ubicación. Grupo 09 · NRC 36884. Autores: Gabriel Omar Murillo Medina y Julio Enrique Viche Castillo. Tutor: Ing. Eduardo Mauricio Campaña Ortega.
 
-BanQuito escucha en 19101, la tienda en 19102 y MVC en 19103 durante la ejecución local. Las API exponen comprobación de salud; las aplicaciones cliente no conectan directamente a SQL Server. Las cadenas se pasan mediante configuración local, por ejemplo `ConnectionStrings__BaseDatos` y `Servicios__BanQuitoUrl`.
-## Contrato REST implementado
-| API | Métodos y recursos | Uso verificado |
-| BanQuito | GET `/api/credito/elegibilidad?cedula=...`; GET `/api/credito/clientes/{codigo}/monto-maximo`; POST `/api/creditos`; GET `/api/creditos/{id}/amortizacion` | Evaluar, autorizar y consultar el plan bancario |
-| Comercializadora | GET/POST `/api/celulares`; PUT/DELETE `/api/celulares/{id}`; POST `/api/facturas`; GET `/api/facturas?cedula=...`; GET `/api/facturas/{id}/amortizacion` | Administrar catálogo, registrar venta y consultar factura/amortización |
-| Imágenes | GET; PUT multipart/form-data; DELETE `/api/celulares/{id}/imagen` | Consultar, cargar o retirar la imagen opcional |
+## Alcance y reglas del sistema
+La comercializadora registra nombre, precio, estado e imagen opcional de cada celular. Cada factura corresponde a un comprador y un celular. La desactivación retira el producto del catálogo de venta y conserva sus referencias históricas. El sistema no administra cantidades, bodegas ni movimientos de inventario.
 
-La factura envía `IdOperacion`, comprador, celular, `FormaPago`, número de cuotas y `PrecioEsperado`. La referencia idempotente resuelve reintentos sin duplicar facturas o créditos. Las rutas completas comprobadas están en los controladores REST de ambas API.
-## Preparación del entorno y configuración local
-El backend está dirigido a .NET 10 (`net10.0`). La configuración local usa Docker Desktop en modo de contenedores Linux para SQL Server 2022 Developer. Comercializadora.Api y BanQuito.Api, junto con los cuatro clientes, se ejecutan en Windows host. WPF requiere Windows; MAUI requiere el SDK Android y un emulador o dispositivo. El repositorio no incluye una solución `.sln`: cada proyecto se abre desde su archivo `.csproj`.
+Existen dos modalidades de pago. En efectivo, el servidor aplica un descuento del 42 % sobre el precio de lista. En crédito directo, BanQuito evalúa al cliente y financia el precio de lista en un plazo de 3 a 18 meses, con una tasa anual del 16,5 %. La tabla de amortización corresponde al crédito y se consulta desde la factura.
 
-Desde PowerShell, situado en la raíz del repositorio, copiar `.env.example` a `.env` si aún no existe y asignar una contraseña local a `MSSQL_SA_PASSWORD`. No compartir ni incluir `.env` en capturas. El archivo está excluido de Git. Ejecutar `./PrepararEntorno.ps1 -IniciarApis` para levantar SQL Server, aplicar los cinco scripts de base de datos e iniciar las dos API con la cadena local cargada desde el entorno. Para iniciar solo SQL Server y las bases, ejecutar `./PrepararEntorno.ps1` sin el modificador.
+BanQuito mantiene clientes, cuentas, movimientos, créditos y cuotas en su propia base de datos. La implementación cubre la evaluación y el otorgamiento requeridos por el ejercicio; no incorpora un sistema bancario completo, pagos posteriores de cuotas, transferencias ni autenticación de usuarios. Los nombres `APROBADA`, `PENDIENTE` y `RECHAZADA` que aparecen en los contratos representan estados de una factura.
 
-En Android Emulator, la aplicación llega a la API del host mediante `http://10.0.2.2:19102/`; `127.0.0.1` dentro del emulador apunta al propio emulador. Los otros clientes usan las direcciones locales del host indicadas en la configuración de servicios.
-## Configuración de SQL Server
-El servicio `sqlserver` de `compose.yaml` utiliza `mcr.microsoft.com/mssql/server:2022-latest` con edición Developer. Docker publica el puerto interno `1433` únicamente en `127.0.0.1:19433`, conserva los datos en el volumen `celulares_sql` y espera el resultado correcto del `sqlcmd` de SQL Server antes de continuar. No es una instancia compartida por los clientes: las aplicaciones acceden a sus API y solo las API se conectan a las bases.
+## Fundamentos de arquitectura y persistencia
+REST describe restricciones para organizar interacciones entre componentes distribuidos a través de recursos e interfaces uniformes (Fielding, 2000; Fielding y Taylor, 2002). En este proyecto, los recursos comerciales se identifican mediante rutas HTTP, los intercambios de datos utilizan JSON y los clientes delegan la lógica de negocio a las API. La referencia teórica orienta el diseño; el comportamiento concreto se define en los controladores y servicios del repositorio.
 
-| Parámetro | Valor del proyecto | Uso |
-|---|---|---|
-| Contenedor | `sqlserver` | Servicio SQL Server de Docker Compose |
-| Imagen | `mcr.microsoft.com/mssql/server:2022-latest` | Motor SQL Server 2022 |
-| Edición | Developer | Entorno de desarrollo académico |
-| Dirección del host | `127.0.0.1,19433` | Conexión desde Windows host |
-| Puerto dentro del contenedor | `1433` | Puerto predeterminado del motor |
-| Volumen | `celulares_sql:/var/opt/mssql` | Persistencia de las dos bases |
-| Credencial | Variable `MSSQL_SA_PASSWORD` en `.env` | Se define localmente; no se documenta ni captura su valor |
+La separación entre presentación, lógica de aplicación y acceso a datos facilita identificar responsabilidades y modificar una capa sin trasladar reglas a las interfaces (Fowler, 2002). Los controladores HTTP reciben solicitudes; los servicios coordinan consultas, transacciones y llamadas remotas; las clases de dominio calculan descuentos, elegibilidad y amortización.
 
-El puerto `19433` está enlazado solo a loopback, por lo que no se publica en la red local. Si ya está ocupado, detener el servicio que lo usa antes de iniciar el proyecto; cualquier cambio del puerto también requiere actualizar las cadenas de conexión de las API. No eliminar el volumen para resolver errores: primero revisar el estado y los registros del contenedor.
-## Configuración de los proyectos en Visual Studio
-Abrir cada API desde Archivo > Abrir > Proyecto o solución y seleccionar su proyecto web: `04. SERVIDOR/Comercializadora.Api/Comercializadora.Api.csproj` o `04. SERVIDOR/BanQuito.Api/BanQuito.Api.csproj`. El marco objetivo de ambos proyectos es `net10.0`. Las dependencias de dominio y contratos se cargan mediante referencias relativas declaradas en el `.csproj`.
+El modelo relacional organiza los datos en relaciones y permite expresar restricciones de integridad (Codd, 1970). En la implementación, las claves primarias, foráneas, restricciones e índices de SQL Server protegen las relaciones entre entidades. Las transacciones delimitan cambios que deben conservar coherencia dentro de cada base; el aislamiento y la concurrencia son aspectos centrales de los sistemas de bases de datos (Silberschatz et al., 2019).
 
-Los valores no sensibles visibles en `appsettings.json` identifican puertos, bases y la dirección REST entre API. La contraseña no está escrita ahí: `PrepararEntorno.ps1 -IniciarApis` la obtiene de `.env` y la pasa a cada proceso como `ConnectionStrings__BaseDatos`. Por eso el modo de inicio documentado es el script de preparación; abrir el `.csproj` en Visual Studio permite revisar, editar y compilar el proyecto, pero una ejecución directa sin las variables locales no obtiene la contraseña de SQL Server.
+## Estructura del proyecto
+La distribución de carpetas separa análisis, modelos de datos, código y documentación. Abrir la carpeta completa permite conservar las referencias relativas de los proyectos. El repositorio no incluye un archivo de solución `.sln`; Visual Studio puede abrir cada `.csproj` y cargar sus referencias.
 
-| Archivo revisado en el proyecto | Configuración que contiene |
+| Carpeta | Contenido y finalidad |
 |---|---|
-| `compose.yaml` | Imagen, edición, puerto, volumen y comprobación de salud de SQL Server |
-| `.env.example` / `.env` | Nombre de la variable para la contraseña local; el valor real solo vive en `.env` |
-| `04. SERVIDOR/Comercializadora.Api/appsettings.json` | API de tienda en `19102`, base `ComercializadoraCelulares` y URL de BanQuito en `19101` |
-| `04. SERVIDOR/BanQuito.Api/appsettings.json` | API bancaria en `19101` y base `BanQuitoCore` |
-| `04. SERVIDOR/*/*.csproj` | Marco .NET y referencias entre proyectos |
-| `PrepararEntorno.ps1` | Carga local de la conexión y orden de arranque de API |
+| `01. UML` | ERS, especificaciones de casos de uso y modelos UML de PowerDesigner. |
+| `02. MER` | Modelos de datos y exportaciones del esquema relacional. |
+| `03. BDD` | Creación de bases, tablas, migración de imágenes y datos iniciales. |
+| `04. SERVIDOR` | API de tienda, API bancaria, dominios, contratos, inicializadores y pruebas. |
+| `04. COMPARTIDO` | Cliente HTTP y controlador común de las cuatro interfaces. |
+| `04. CLICON` | Aplicación de consola. |
+| `04. CLIESC` | Aplicación WPF para Windows. |
+| `04. CLIWEB` | Aplicación ASP.NET Core MVC. |
+| `04. CLIMOV` | Aplicación .NET MAUI para Android. |
+| `05. DOCUMENTACION` | Manual, presentación, fuentes y registros de pruebas. |
+| `scripts` | Herramientas de comprobación y generación documental. |
 
-La cadena local usa `Server=127.0.0.1,19433`, `Encrypt=True` y `TrustServerCertificate=True`. Comercializadora.Api selecciona `ComercializadoraCelulares`; BanQuito.Api selecciona `BanQuitoCore`. La opción de confianza del certificado corresponde al entorno local del contenedor. No cambiar el nombre de las bases sin ajustar los scripts y la configuración de ambos servicios.
-## Secuencia de scripts de las bases de datos
-`PrepararEntorno.ps1` aplica los scripts en este orden para que las tablas existan antes de cargar los datos:
+## Arquitectura y comunicación
+Los cuatro clientes consumen exclusivamente Comercializadora.Api. Esta API resuelve catálogo y facturación en `ComercializadoraCelulares`; para las operaciones de crédito llama por HTTP a BanQuito.Api. El banco consulta y modifica `BanQuitoCore`. Las API son procesos independientes y no comparten ensamblados de dominio ni acceden directamente a la base de la otra aplicación.
 
-| Orden | Archivo | Base y resultado |
+En el entorno local, Docker ejecuta únicamente SQL Server. Las dos API y los clientes se ejecutan en Windows. Ambas bases residen en el mismo motor, pero conservan esquemas y responsabilidades independientes. La referencia de crédito guardada en una factura es un identificador remoto; no es una clave foránea entre bases.
+
+| Componente | Dirección local | Consumidor |
 |---|---|---|
-| 1 | `03. BDD/01_CrearBases.sql` | Crea `ComercializadoraCelulares` y las tablas `CELULAR` y `FACTURA`, con claves, relaciones y restricciones de pago. |
-| 2 | `03. BDD/03_MigrarImagenes.sql` | Añade `IMAGEN` e `IMAGEN_TIPO` a `CELULAR` si faltan; sirve para actualizar una base previa. |
-| 3 | `03. BDD/02_DatosPrueba.sql` | Inserta de forma condicional tres celulares iniciales con precios de USD 450, 750 y 250. |
-| 4 | `03. BDD/BanQuito/BanQuito_01_CrearBase.sql` | Crea `BanQuitoCore`, sus cinco tablas, relaciones e índices; incluye el índice único filtrado para un crédito activo por cliente. |
-| 5 | `03. BDD/BanQuito/BanQuito_02_DatosPrueba.sql` | Carga condicionalmente cinco clientes, cinco cuentas y cincuenta movimientos en una transacción. |
+| BanQuito.Api | `http://127.0.0.1:19101/` | API comercializadora. |
+| Comercializadora.Api | `http://127.0.0.1:19102/` | Consola, WPF, web MVC y móvil. |
+| Web MVC | `http://127.0.0.1:19103/` | Navegador. |
+| SQL Server | `127.0.0.1,19433` | Las API en el host. |
+| Tienda desde Android Emulator | `http://10.0.2.2:19102/` | Aplicación MAUI en el emulador. |
 
-Los scripts son idempotentes para los objetos y datos que validan con `IF NOT EXISTS` o `COL_LENGTH`: pueden volver a ejecutarse para completar una inicialización interrumpida. La migración de imágenes no reemplaza datos. Para revisar el SQL se puede abrir cada archivo `.sql` en el editor de Visual Studio; para inicializar el entorno se recomienda ejecutar `./PrepararEntorno.ps1`, que respeta el orden establecido y detiene el proceso ante el primer error.
+La exportación siguiente representa la separación entre clientes, servicios y persistencia. Para interpretar su despliegue, considerar que el contenedor aloja el motor y los demás procesos se ejecutan en el host.
 
-Para ejecutar manualmente un archivo desde PowerShell, asignar a `$script` una de las rutas de la tabla y enviar su contenido al `sqlcmd` del contenedor. Esta es la misma conexión local que usa la preparación automatizada y no requiere escribir la contraseña en el historial:
+![PowerDesigner: arquitectura cliente-servidor](../../01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Arquitectura cliente-servidor.png)
+
+## Instalación y configuración de herramientas
+### SDK .NET y entorno de desarrollo
+Instalar el SDK .NET compatible con `global.json`, que solicita la versión `10.0.401` con avance a parches de la misma banda. Comprobar que `dotnet` está disponible en la terminal. Un runtime por sí solo no permite compilar los proyectos.
 
 ```powershell
-$script = '03. BDD/01_CrearBases.sql'
-Get-Content -Raw -LiteralPath $script |
-    docker compose exec -T sqlserver bash -c '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -b'
+dotnet --info
+dotnet --list-sdks
 ```
 
-En la ejecución automatizada se aplica este patrón a cada ruta en el orden anterior. `-b` hace que `sqlcmd` devuelva error si la instrucción SQL falla; el script PowerShell detiene la inicialización en ese caso.
+Para trabajar desde Visual Studio, disponer de las cargas de ASP.NET y desarrollo web, escritorio .NET y .NET MAUI. Abrir Archivo > Abrir > Proyecto o solución y seleccionar el `.csproj` correspondiente. La compilación por terminal permite trabajar sin depender de las pantallas del IDE.
 
-La estructura relacional queda resumida así: `FACTURA` referencia al celular vendido y guarda una copia de sus datos y el resultado de pago; `CUENTA` referencia a `CLIENTE`; `MOVIMIENTO` referencia a `CUENTA`; `CREDITO` referencia a `CLIENTE`; y `AMORTIZACION` referencia a `CREDITO`. La clave `ID_OPERACION` de la factura y `REFERENCIA_VENTA` del crédito evitan duplicados por reintentos. La base de tienda no implementa existencias.
+### Docker Desktop y SQL Server
+Instalar Docker Desktop, iniciar su motor y seleccionar contenedores Linux. El archivo `compose.yaml` utiliza SQL Server 2022 Developer. No se necesita instalar una instancia SQL Server nativa para el procedimiento de este manual. SQL Server Management Studio es una herramienta opcional para consultar el motor; no sustituye al contenedor.
 
-## Archivos de configuración visibles en Visual Studio
-Los listados siguientes se copian de los archivos versionados del proyecto. El `.env` real no se muestra: contiene la contraseña local y no debe agregarse al manual ni a una captura. `appsettings.json` conserva las direcciones y nombres de bases; `PrepararEntorno.ps1` suministra la contraseña al proceso en tiempo de ejecución.
+```powershell
+docker version
+docker compose version
+```
 
-### Archivo `compose.yaml`
+### Android y herramientas auxiliares
+Para compilar y ejecutar el móvil, instalar la carga MAUI y las herramientas Android, incluidas las herramientas de plataforma y un emulador. El proyecto declara `net10.0-android`, Microsoft.Maui.Controls `10.0.110` y versión mínima de Android API 23. Revisar las cargas instaladas con `dotnet workload list` y, si falta la correspondiente, instalarla con `dotnet workload install maui`.
+
+Las herramientas documentales se instalan con `python -m pip install -r scripts/requirements-documentacion.txt` dentro de un entorno virtual. Los recorridos de navegador requieren además Playwright y su navegador instalado. Estas dependencias son auxiliares y no son requisitos de ejecución de las API.
+
+## Configuración local del repositorio
+### Rutas de compilación y dependencias
+`Directory.Build.props` configura C# 14, nulabilidad y rutas de salida. En este repositorio, las salidas predeterminadas se dirigen a `D:\tools\CelularGR09` y los paquetes a `D:\NuGet\packages`. Si el equipo no dispone de esa unidad, pasar rutas locales a MSBuild. El siguiente ejemplo prepara argumentos reutilizables en la sesión de PowerShell:
+
+```powershell
+$buildArgs = @(
+  "-p:CelularBuildRoot=$env:LOCALAPPDATA\CelularesGR09\build",
+  "-p:CelularPackagesRoot=$env:LOCALAPPDATA\CelularesGR09\packages"
+)
+```
+
+Usar esos mismos argumentos en las compilaciones, pruebas y ejecuciones del equipo. `NuGet.Config` contiene la ruta de caché original; `CelularPackagesRoot` se transmite como `RestorePackagesPath` desde `Directory.Build.props`. Las referencias a proyectos se resuelven dentro del repositorio, por lo que debe conservarse su estructura.
+
+### Archivo de entorno
+Crear `.env` a partir de `.env.example` solo si todavía no existe. Abrirlo en un editor y asignar localmente `MSSQL_SA_PASSWORD`. Mantener una contraseña válida para SQL Server. `.env` no forma parte de los entregables ni debe mostrarse en capturas.
+
+```powershell
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
+```
+
+### Orden de arranque
+Iniciar primero SQL Server y sus bases; después BanQuito.Api, Comercializadora.Api y finalmente el cliente seleccionado. Ejecutar `./PrepararEntorno.ps1 -IniciarApis` automatiza el contenedor, los cinco scripts SQL y el arranque de las API cuando `dotnet` y las rutas predeterminadas están disponibles. Para controlar los procesos en terminales separadas o usar rutas de compilación distintas, seguir el procedimiento manual de los capítulos siguientes.
+
+## Instalación y configuración de SQL Server
+El servicio `sqlserver` publica el puerto interno `1433` en `127.0.0.1:19433`. El volumen `celulares_sql` conserva las bases entre reinicios. La edición Developer está destinada al entorno académico de desarrollo. El archivo de composición incorpora una comprobación de salud mediante `sqlcmd`.
+
+| Parámetro | Configuración |
+|---|---|
+| Imagen del motor | `mcr.microsoft.com/mssql/server:2022-latest` |
+| Servicio de Compose | `sqlserver` |
+| Puerto desde Windows | `127.0.0.1,19433` |
+| Puerto del motor en el contenedor | `1433` |
+| Volumen persistente | `celulares_sql:/var/opt/mssql` |
+| Contraseña | Variable local `MSSQL_SA_PASSWORD` |
+| Bases de aplicación | `ComercializadoraCelulares` y `BanQuitoCore` |
+
+### Preparar e inicializar
+Desde la raíz ejecutar el script sin modificadores para crear o completar las bases y cargar los datos semilla:
+
+```powershell
+./PrepararEntorno.ps1
+docker compose ps
+docker compose logs --tail 80 sqlserver
+```
+
+El script ejecuta `docker compose up -d --wait` y detiene el proceso si el contenedor no queda disponible o un script SQL produce un error. Si el puerto `19433` está ocupado, revisar su uso antes de iniciar. El cambio de puerto exige ajustar tanto `compose.yaml` como las cadenas de conexión de las dos API.
+
+### Consultar con SQL Server Management Studio
+En SSMS seleccionar Motor de base de datos e introducir `127.0.0.1,19433`. Para esta configuración local, usar autenticación SQL Server con usuario `sa` y la contraseña definida en `.env`. La conexión del proyecto cifra el transporte y confía en el certificado del contenedor mediante `TrustServerCertificate=True`. Revisar en el Explorador de objetos las dos bases y las tablas de `dbo`.
+
+Para detener el entorno conservando su información, utilizar `docker compose stop`. Para reanudarlo, utilizar `docker compose up -d --wait`. No eliminar el volumen persistente como procedimiento de reinicio.
+
+## Creación y carga de las bases de datos
+Los scripts contienen instrucciones condicionales para crear objetos que falten y evitar duplicar los datos semilla identificados por sus claves. Ejecutarlos en el orden siguiente. La migración de imágenes también forma parte de una instalación nueva y debe aplicarse sobre una base existente antes de usar fotografías.
+
+| Orden | Script | Responsabilidad |
+|---|---|---|
+| 1 | `03. BDD/01_CrearBases.sql` | Crear ComercializadoraCelulares, CELULAR y FACTURA. |
+| 2 | `03. BDD/03_MigrarImagenes.sql` | Incorporar columnas opcionales de imagen si faltan. |
+| 3 | `03. BDD/02_DatosPrueba.sql` | Insertar el catálogo inicial de tres celulares. |
+| 4 | `03. BDD/BanQuito/BanQuito_01_CrearBase.sql` | Crear BanQuitoCore, tablas, claves e índices bancarios. |
+| 5 | `03. BDD/BanQuito/BanQuito_02_DatosPrueba.sql` | Insertar cinco clientes, cinco cuentas y cincuenta movimientos. |
+
+La fecha de los movimientos semilla se calcula con respecto al día de ejecución. Como las inserciones no reemplazan movimientos existentes, ejecutar nuevamente la carga días después no actualiza sus fechas. Esto afecta los criterios de último mes y últimos tres meses; para repetir escenarios, utilizar una base de pruebas nueva.
+
+La consulta siguiente permite revisar las cantidades existentes desde SSMS. Los valores iniciales solo corresponden a una instalación limpia; una base utilizada puede contener más registros.
+
+```sql
+SELECT COUNT(*) AS Celulares
+FROM ComercializadoraCelulares.dbo.CELULAR;
+SELECT COUNT(*) AS Clientes FROM BanQuitoCore.dbo.CLIENTE;
+SELECT COUNT(*) AS Cuentas FROM BanQuitoCore.dbo.CUENTA;
+SELECT COUNT(*) AS Movimientos FROM BanQuitoCore.dbo.MOVIMIENTO;
+```
+
+Los cinco scripts completos se incluyen en el anexo. Su ejecución automatizada utiliza las herramientas SQL del contenedor; los inicializadores de administración del repositorio conservan configuraciones de instalaciones anteriores y no son necesarios para el flujo Docker descrito aquí.
+
+## Modelo de datos de la comercializadora
+`CELULAR` contiene los productos del catálogo. `FACTURA` referencia al celular y conserva una copia del nombre y precio utilizados en la operación. Esta copia permite consultar el contenido de la venta aunque el catálogo cambie después. Las restricciones SQL y las validaciones de dominio controlan los valores comerciales.
+
+| Tabla | Identificación y datos | Reglas principales |
+|---|---|---|
+| CELULAR | ID_CELULAR, NOMBRE, PRECIO, ACTIVO, IMAGEN y tipo MIME. | Identificador identity; precio positivo; foto opcional. |
+| FACTURA | ID_FACTURA, ID_OPERACION, FECHA, comprador, producto, pago, precio, descuento y total. | ID_OPERACION único; referencia al celular; valores monetarios persistidos. |
+| FACTURA: crédito | COD_CLIENTE_BANCO, COD_CREDITO, NUMERO_CUOTAS y ESTADO. | Referencias remotas; cuotas entre 3 y 18 para crédito; control del estado de la operación. |
+
+Los importes se almacenan como valores decimales; el servidor utiliza `decimal` y parámetros SQL con precisión y escala explícitas para los montos. La API valida fotografías JPEG, PNG o WebP de hasta 5 MiB y almacena los bytes y el tipo MIME en la misma base. No se utiliza un directorio público para guardar archivos subidos.
+
+![PowerDesigner: modelo físico comercializadora](../../02. MER/03. FISICO/GR09_Celulares_Physical_DotNet_SQLServer.png)
+
+## Modelo de datos de BanQuito
+BanQuito mantiene la relación de clientes con sus cuentas y movimientos. Un crédito pertenece a un cliente y contiene su tabla de amortización. Las relaciones bancarias se resuelven dentro de `BanQuitoCore`; la API comercial no consulta estas tablas.
+
+| Tabla | Claves y contenido |
+|---|---|
+| CLIENTE | COD_CLIENTE como clave; cédula única, nombre, género y nacimiento. |
+| CUENTA | NUM_CUENTA como clave; referencia a CLIENTE y saldo. |
+| MOVIMIENTO | COD_MOVIMIENTO como clave; referencia a CUENTA, tipo DEP/RET, valor y fecha. |
+| CREDITO | COD_CREDITO como clave; referencia a CLIENTE, referencia de venta, monto, plazo, tasa, fecha y estado. |
+| AMORTIZACION | Clave compuesta COD_CREDITO y NUMERO_CUOTA; fecha, cuota, interés, capital y saldo. |
+
+El índice único filtrado de crédito por cliente con estado `ACTIVO` impide registrar dos créditos activos simultáneos. La referencia de venta también es única para identificar reintentos. El índice de movimientos por cuenta y fecha apoya las consultas de períodos. Una fila de amortización con número cero representa el saldo inicial y no una cuota cobrada.
+
+## Aplicación servidor: organización y configuración
+### Proyectos y responsabilidades
+`Comercializadora.Api` publica los controladores de celulares, crédito y facturas. `ServicioCatalogo` realiza las operaciones del catálogo; `ServicioFacturas` coordina la venta; `ServicioBanQuito` encapsula las llamadas bancarias. `Comercializadora.Dominio` contiene las reglas de facturación e imágenes y `Celulares.Contratos` define solicitudes y respuestas comerciales.
+
+`BanQuito.Api` publica la evaluación y el otorgamiento. `ServicioCredito` coordina la persistencia y `BanQuito.Dominio/ReglasCredito.cs` implementa la elegibilidad, el máximo y la amortización. Sus contratos pertenecen a `BanQuito.Contratos`. La comunicación entre API utiliza HTTP, sin referencias de proyecto hacia el dominio contrario.
+
+### Registro de servicios y acceso a datos
+En `Program.cs` se registran controladores y servicios mediante inyección de dependencias. Los servicios comerciales y bancarios se crean con alcance de solicitud. El cliente HTTP hacia BanQuito obtiene la URL de `Servicios:BanQuitoUrl` y establece un tiempo máximo de 10 segundos. Las interfaces usan un cliente HTTP compartido con tiempo máximo de 30 segundos.
+
+El acceso a SQL Server usa ADO.NET y `Microsoft.Data.SqlClient`, no Entity Framework Core. Los servicios abren conexiones asíncronas, ejecutan comandos parametrizados y liberan conexiones, lectores y transacciones con `await using`. La separación entre operaciones HTTP y reglas de dominio permite probar los cálculos sin ejecutar una interfaz.
+
+### Configuración de conexión
+`appsettings.json` declara direcciones y bases, pero no incluye la contraseña. El valor completo de `ConnectionStrings:BaseDatos` debe llegar por configuración local, por ejemplo con la variable `ConnectionStrings__BaseDatos`. `Servicios__BanQuitoUrl` permite sobrescribir la dirección bancaria. El doble guion bajo representa los niveles de configuración en variables de entorno.
+
+Los proyectos web tienen marco `net10.0` y declaran `Microsoft.Data.SqlClient` `7.1.1`. Los archivos de configuración y las referencias reales de las API se reproducen en el anexo.
+
+![PowerDesigner: clases del servicio y cliente](../../01. UML/03. DIAGRAMAS UML/04_CLASES/GR09_Clases_Clases del servicio y cliente.png)
+
+## Compilación y ejecución de las API
+### Compilar
+En una terminal PowerShell situada en la raíz, definir `$buildArgs` como se explicó en la configuración local. `dotnet build` restaura los paquetes necesarios y compila las referencias de cada proyecto.
+
+```powershell
+dotnet build "04. SERVIDOR/BanQuito.Api/BanQuito.Api.csproj" @buildArgs
+dotnet build "04. SERVIDOR/Comercializadora.Api/Comercializadora.Api.csproj" @buildArgs
+```
+
+### Iniciar BanQuito en una terminal
+Leer únicamente la variable requerida del archivo local. La contraseña se incorpora a la configuración del proceso, sin escribirla en el comando como un valor literal. Mantener la terminal abierta mientras se utiliza la aplicación.
+
+```powershell
+$linea = Get-Content .env |
+  Where-Object { $_ -match '^MSSQL_SA_PASSWORD=' } |
+  Select-Object -First 1
+if (!$linea) { throw 'Falta MSSQL_SA_PASSWORD en .env' }
+$claveSql = $linea.Substring('MSSQL_SA_PASSWORD='.Length)
+$env:ConnectionStrings__BaseDatos =
+  "Server=127.0.0.1,19433;Database=BanQuitoCore;User Id=sa;Password=$claveSql;Encrypt=True;TrustServerCertificate=True"
+dotnet run --project "04. SERVIDOR/BanQuito.Api/BanQuito.Api.csproj" @buildArgs
+```
+
+### Iniciar la comercializadora en otra terminal
+En la nueva terminal, volver a definir `$buildArgs` y cargar `$linea` y `$claveSql` con las instrucciones anteriores. Elegir la base de tienda antes de ejecutar su proyecto; cada proceso hereda la configuración de su propia terminal.
+
+```powershell
+$env:ConnectionStrings__BaseDatos =
+  "Server=127.0.0.1,19433;Database=ComercializadoraCelulares;User Id=sa;Password=$claveSql;Encrypt=True;TrustServerCertificate=True"
+$env:Servicios__BanQuitoUrl = 'http://127.0.0.1:19101/'
+dotnet run --project "04. SERVIDOR/Comercializadora.Api/Comercializadora.Api.csproj" @buildArgs
+```
+
+### Comprobar disponibilidad
+En una tercera terminal ejecutar las consultas de salud. Cada ruta comprueba la conexión con la base de su API. La salud de la tienda no comprueba por sí sola la integración bancaria.
+
+```powershell
+Invoke-RestMethod 'http://127.0.0.1:19101/api/salud'
+Invoke-RestMethod 'http://127.0.0.1:19102/api/salud'
+Invoke-RestMethod 'http://127.0.0.1:19102/api/celulares'
+```
+
+Para detener una API ejecutada en primer plano, usar Ctrl+C en su terminal. Al finalizar, cerrar la sesión o retirar las variables locales con `Remove-Item Env:ConnectionStrings__BaseDatos -ErrorAction SilentlyContinue`. Evitar iniciar varias instancias sobre el mismo puerto.
+
+## Contratos REST de la comercializadora
+Las solicitudes con cuerpo JSON usan `Content-Type: application/json`. Las fotos usan `multipart/form-data` con el campo `archivo`. El identificador `{id}` de las rutas siguientes corresponde al recurso indicado; una factura y un crédito poseen identificadores diferentes.
+
+| Método | Recurso | Función |
+|---|---|---|
+| GET | `/api/celulares` | Listar el catálogo activo. |
+| GET | `/api/celulares/{id}` | Consultar un celular. |
+| POST | `/api/celulares` | Crear un celular con nombre, precio y estado. |
+| PUT | `/api/celulares/{id}` | Actualizar sus datos. |
+| DELETE | `/api/celulares/{id}` | Desactivar el celular. |
+| GET / PUT / DELETE | `/api/celulares/{id}/imagen` | Descargar, cargar o retirar la foto. |
+| GET | `/api/credito/elegibilidad?cedula=...` | Consultar al banco a través de la tienda. |
+| POST | `/api/facturas` | Registrar la venta con su identificador de operación. |
+| GET | `/api/facturas?cedula=...` | Consultar hasta 50 facturas de la cédula. |
+| GET | `/api/facturas/{id}` | Recuperar una factura. |
+| GET | `/api/facturas/{id}/amortizacion` | Consultar las cuotas de su crédito. |
+
+`SolicitudFactura` incluye `IdOperacion`, `Cedula`, `NombreCliente`, `IdCelular`, `FormaPago`, `NumeroCuotas` y `PrecioEsperado`. Los valores de `FormaPago` son `EFECTIVO` y `CREDITO_DIRECTO`. Una venta en efectivo no admite cuotas; una venta a crédito requiere un número entre 3 y 18. El servidor valida el precio del catálogo frente al precio informado por el cliente para evitar confirmar una venta con un precio desactualizado.
+
+Las altas de catálogo y factura devuelven HTTP 201 con la ubicación del recurso. La desactivación y los cambios de imagen responden 204. Las consultas devuelven datos JSON, excepto la descarga de imagen, que devuelve sus bytes con el MIME correspondiente.
+
+## Contratos REST de BanQuito
+El servicio bancario expone la evaluación y las operaciones de crédito. Los cuatro clientes realizan su actividad comercial por la API de tienda; las rutas bancarias permiten documentar y comprobar la integración entre servidores.
+
+| Método | Recurso bancario | Datos y finalidad |
+|---|---|---|
+| GET | `/api/credito/elegibilidad?cedula=...` | Cédula; devuelve condición, código de cliente, nombre, motivo y máximo. |
+| GET | `/api/credito/clientes/{codigoCliente}/monto-maximo` | Código de cliente; devuelve monto máximo. |
+| POST | `/api/creditos` | Código, precio del teléfono, cuotas y referencia de venta. |
+| GET | `/api/creditos/{id}` | Recupera el crédito y sus cuotas. |
+| GET | `/api/creditos/{id}/amortizacion` | Recupera únicamente el plan de pagos. |
+| GET | `/api/salud` | Comprueba la conexión con BanQuitoCore. |
+
+`SolicitudCredito` recibe `CodigoCliente`, `PrecioTelefono`, `NumeroCuotas` y `ReferenciaVenta`. La referencia conserva la relación con la solicitud comercial y permite recuperar el mismo crédito ante un reintento. La respuesta contiene identificador, cliente, monto, cuotas, fecha, estado y tabla de amortización.
+
+## Reglas de elegibilidad y monto máximo
+### Evaluación del solicitante
+`ReglasCredito.Evaluar` comprueba que la persona exista como cliente bancario, que tenga al menos un depósito entre la fecha actual y un mes atrás y que no posea un crédito activo. Para clientes de género masculino exige 25 años cumplidos, calculados con la fecha de nacimiento. Las fechas futuras no participan en la evaluación ni en el cálculo del máximo.
+
+El resultado de la consulta informa la situación al momento de consultar. El otorgamiento vuelve a evaluar las condiciones, ya que otro proceso pudo registrar un crédito entre ambas solicitudes. La restricción de unicidad del crédito activo respalda esta regla en la base de datos.
+
+### Cálculo del monto
+El código selecciona los movimientos comprendidos entre la fecha actual y tres meses atrás. Calcula por separado el promedio de los valores de los depósitos y el promedio de los valores de los retiros; si no hay movimientos de un tipo, su promedio se toma como cero. Son promedios por movimiento, no un promedio de totales mensuales.
+
+```text
+D = promedio de valores de depósitos del período
+R = promedio de valores de retiros del período
+Monto máximo = redondear(max(0, (D - R) × 0,35 × 6), 2)
+```
+
+Por ejemplo, con D = 1 000,00 y R = 200,00, la diferencia es 800,00 y el máximo resulta 1 680,00. Si los retiros promedios superan a los depósitos, el máximo es cero.
+
+El enunciado presenta una discrepancia: el texto indica 35 % y su fórmula impresa utiliza 30 %. `ReglasCredito.MontoMaximo` implementa `0.35m`. El manual documenta ese valor como decisión del proyecto; un cambio de criterio requiere modificar la regla y sus pruebas, no solo la descripción.
+
+## Facturación, transacciones y reintentos
+### Venta en efectivo
+El servidor consulta un celular activo, comprueba `PrecioEsperado` si se envió y calcula el total como precio multiplicado por `0.58`. Para un precio de 450,00, el descuento es 189,00 y el total es 261,00. La factura conserva nombre, precio, descuento y total de esa operación. No se solicita un crédito al banco para este pago.
+
+### Venta a crédito
+`ServicioFacturas` registra inicialmente la factura con estado `PENDIENTE` dentro de una transacción local. Después solicita el crédito a BanQuito. Al recibir la respuesta, guarda la referencia bancaria y cambia la factura a `APROBADA`. Un rechazo de negocio del banco cambia el estado a `RECHAZADA`; un fallo de comunicación puede dejar la operación pendiente para resolverla con un reintento.
+
+Las transacciones de cada aplicación son locales. La solicitud HTTP al banco y la actualización de la factura no forman una única transacción distribuida. Por ello, perder la respuesta de red no permite concluir que el banco no creó el crédito.
+
+### Idempotencia y concurrencia
+El cliente genera un `IdOperacion` por venta y debe conservarlo durante sus reintentos. Una solicitud con el mismo identificador y los mismos datos recupera o completa la operación existente. Si el identificador ya pertenece a datos distintos, el servidor devuelve un conflicto. BanQuito aplica el mismo criterio mediante `ReferenciaVenta`.
+
+La creación comercial utiliza aislamiento Serializable y bloqueos al consultar la operación y el precio. El banco combina transacciones con restricciones de unicidad. Después de una interrupción, consultar las facturas y reintentar con el mismo identificador; crear otro identificador puede registrar otra venta.
+
+![PowerDesigner: secuencia de venta a crédito](../../01. UML/03. DIAGRAMAS UML/03_SECUENCIA/GR09_Secuencia_Venta a crédito.png)
+
+## Cálculo y consulta de amortización
+`ReglasCredito.Amortizar` calcula pagos mensuales mediante cuota de anualidad. El capital es el precio financiado y el plazo permitido es de 3 a 18 meses. La implementación interpreta la tasa anual del 16,5 % como nominal y la divide entre 12; la tasa mensual utilizada es `0.01375`, equivalente al 1,375 %.
+
+```text
+P = capital; n = meses; i = 0,165 / 12
+A = P × i × (1 + i)^n / ((1 + i)^n - 1)
+Interés del mes = saldo anterior × i
+Capital del mes = cuota - interés
+Saldo del mes = saldo anterior - capital del mes
+```
+
+Los importes se redondean a dos decimales con `MidpointRounding.AwayFromZero`. La última cuota absorbe la diferencia de centavos para cancelar el capital. La fila cero muestra el monto inicial y los vencimientos posteriores se calculan sumando meses a la fecha del crédito.
+
+Ejemplo calculado para capital de 450,00, plazo de tres meses y la tasa del proyecto. Las fechas dependen del día de otorgamiento; se muestran los períodos para explicar el cálculo.
+
+| Período | Cuota | Interés | Capital | Saldo |
+|---|---|---|---|---|
+| 0 | 0,00 | 0,00 | 0,00 | 450,00 |
+| 1 | 154,14 | 6,19 | 147,95 | 302,05 |
+| 2 | 154,14 | 4,15 | 149,99 | 152,06 |
+| 3 | 154,15 | 2,09 | 152,06 | 0,00 |
+
+La suma de capital debe ser 450,00 y el saldo final cero. El total de la factura a crédito conserva el precio de lista; los intereses se reflejan en las cuotas, cuya suma puede superar ese total. La API comercial obtiene la amortización del banco utilizando el crédito relacionado con la factura.
+
+## Modelado de casos de uso y actividad
+Los casos de uso representan la administración del catálogo, la emisión y consulta de facturas y la participación del banco en el financiamiento. El actor de la aplicación interactúa con una interfaz cliente; la evaluación bancaria se integra mediante el servicio remoto.
+
+![PowerDesigner: casos de uso de ventas](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_CasosUso_Sistema de ventas de celulares.png)
+
+## Flujo de actividad de venta a crédito
+El flujo inicia con la selección del celular y los datos del comprador. La consulta de elegibilidad y monto orienta la solicitud; el banco revalida al otorgar el crédito. El recorrido distingue la autorización de negocio, el rechazo y los pasos necesarios para obtener la factura y su tabla de amortización.
+
+Los modelos editables y las exportaciones PNG se conservan en las carpetas UML y MER. Las figuras incorporadas son exportaciones existentes de PowerDesigner; esta revisión documental no modifica sus modelos.
+
+![PowerDesigner: actividad de venta a crédito](../../01. UML/03. DIAGRAMAS UML/02_ACTIVIDAD/GR09_Actividad_Venta a crédito.png)
+
+## Capa compartida de los clientes
+`Celulares.Cliente/Servicios/ClienteComercializadora.cs` concentra las solicitudes HTTP, la serialización JSON, la descarga de imágenes y la lectura de errores. `Controladores/ControladorTienda.cs` ofrece las operaciones que utilizan las cuatro interfaces: catálogo, guardado, imágenes, desactivación, facturación, elegibilidad y consultas.
+
+`InterpretarPrecio` acepta punto o coma decimal y rechaza separadores mezclados, precios no positivos o valores con más de dos decimales. El cálculo preliminar en la interfaz facilita mostrar el total; el servidor vuelve a validar y calcular antes de persistir. Los errores HTTP se presentan con el mensaje de negocio recibido, cuando está disponible.
+
+| Cliente | Ubicación de su dirección de API |
+|---|---|
+| Consola | Variable de entorno `CELULARES_API_URL`; valor predeterminado local. |
+| WPF | Configuración de su código de inicio; admite `CELULARES_API_URL`. |
+| Web MVC | Clave `CelularesApiUrl` de `appsettings.json` o variable equivalente. |
+| Android | `MauiProgram.DireccionServidor`; predeterminado `10.0.2.2:19102`, reemplazable por propiedad de compilación `CelularesApiUrl`. |
+
+La separación evita repetir el contrato HTTP en cada pantalla. Las interfaces no reciben contraseñas SQL ni crean conexiones directas con las bases de datos.
+
+## Cliente de consola: compilación y operación
+### Estructura y ejecución
+`Program.cs` configura `HttpClient` y crea `ControladorConsola`; `VistaConsola` gestiona la lectura de datos y los colores de terminal. Compilar y ejecutar después de iniciar las API. Definir `$buildArgs` si se utilizan rutas locales distintas de las predeterminadas.
+
+```powershell
+$env:CELULARES_API_URL = 'http://127.0.0.1:19102/'
+dotnet build "04. CLICON/Celulares.Consola/Celulares.Consola.csproj" @buildArgs
+dotnet run --project "04. CLICON/Celulares.Consola/Celulares.Consola.csproj" @buildArgs
+```
+
+### Opciones del menú
+| Opción | Procedimiento |
+|---|---|
+| 1: Catálogo | Consultar identificador, nombre, precio y disponibilidad de foto. |
+| 2: Guardar celular | Dejar ID vacío para crear; ingresar un ID existente para editar; escribir nombre y precio. |
+| 3: Desactivar | Elegir un celular y confirmar la desactivación. |
+| 4: Nueva venta | Seleccionar celular, comprador y pago; indicar cuotas para crédito; revisar y confirmar. |
+| 5: Elegibilidad | Ingresar cédula y consultar condición, motivo y monto máximo. |
+| 6 y 7: Facturas | Buscar por cédula o abrir por número; consultar amortización cuando corresponda. |
+| 8 y 9: Pendiente | Reintentar la solicitud conservada o descartarla después de consultar su situación. |
+| 10 y 11: Fotos | Indicar ID y ruta JPEG, PNG o WebP para cargar; confirmar para retirar la foto. |
+| 12 y 0 | Cambiar tema de terminal o finalizar. |
+
+Si falla una venta, la sesión conserva la solicitud pendiente. La opción 8 reutiliza su identificador. Antes de descartarla con la opción 9, consultar las facturas: la interrupción pudo ocurrir después del registro en el servidor.
+
+## Cliente de escritorio WPF: compilación y operación
+### Estructura y ejecución
+La aplicación de escritorio requiere Windows. `MainWindow.xaml` declara la interfaz, su archivo asociado atiende los eventos y `ControladorEscritorio` conecta las acciones con la capa compartida. La presentación utiliza controles WPF y llamadas asíncronas al servicio comercial.
+
+```powershell
+$env:CELULARES_API_URL = 'http://127.0.0.1:19102/'
+dotnet build "04. CLIESC/Celulares.Escritorio/Celulares.Escritorio.csproj" @buildArgs
+dotnet run --project "04. CLIESC/Celulares.Escritorio/Celulares.Escritorio.csproj" @buildArgs
+```
+
+### Recorrido de uso
+Al abrir la ventana, consultar el catálogo y seleccionar el celular. Para crear o editar, completar nombre y precio y utilizar la acción de guardar. La selección identifica el registro que se modifica. La administración de fotos permite cargar, reemplazar o quitar la imagen del producto.
+
+En la operación de venta, ingresar los datos del comprador, seleccionar efectivo o crédito y revisar el total. Para crédito, consultar la condición bancaria e indicar el número de cuotas permitido. Confirmar una sola vez y esperar la respuesta. En consultas, buscar las facturas del comprador y seleccionar la operación cuyo detalle o amortización se necesita.
+
+Si aparece un mensaje de conexión, verificar primero la salud de la API de tienda. Si el problema solo afecta crédito, comprobar BanQuito. No modificar datos e iniciar otra venta para resolver un tiempo de espera; consultar el registro y conservar la solicitud pendiente.
+
+## Cliente web MVC: compilación y funcionamiento
+### Creación lógica y estructura
+`Program.cs` registra MVC, el cliente HTTP y `ControladorTienda`. `TiendaController` procesa catálogo, imágenes, venta, elegibilidad y consultas. `Views/Tienda/Index.cshtml` presenta el catálogo y formularios; `Factura.cshtml` muestra el detalle y las cuotas. `_Layout.cshtml`, `site.css` y `tema.js` definen estructura visual y cambio de tema.
+
+El controlador utiliza tokens antifalsificación en las acciones de formulario que modifican información. Los campos numéricos se procesan con `FormularioInvariante` para mantener el punto decimal que envía HTML. El navegador se comunica con MVC; la aplicación web ejecuta las llamadas a la API comercial.
+
+### Compilación y ejecución
+Verificar en `appsettings.json` que `CelularesApiUrl` apunte a la tienda. Iniciar la web en otra terminal y abrir `http://127.0.0.1:19103/`.
+
+```powershell
+dotnet build "04. CLIWEB/Celulares.Web/Celulares.Web.csproj" @buildArgs
+dotnet run --project "04. CLIWEB/Celulares.Web/Celulares.Web.csproj" @buildArgs
+```
+
+### Catálogo y mantenimiento
+Usar el formulario de catálogo para registrar un nombre y un precio positivo. Seleccionar la edición de un producto para modificar sus datos. La desactivación retira el celular de las opciones de venta. La carga de foto envía el archivo al servidor, que valida tamaño, MIME y firma; retirar una foto no elimina el celular.
+
+Las capturas muestran la distribución existente en los temas claro y oscuro. Se incluyen como referencia de interfaz y no como una certificación de pruebas.
+
+![Navegador: catálogo en tema claro](../evidencias/web_catalogo_claro.png)
+![Navegador: catálogo en tema oscuro](../evidencias/web_catalogo_oscuro.png)
+
+## Cliente web: facturación y consultas
+Para vender en efectivo, seleccionar un celular, ingresar cédula y nombre, elegir efectivo y revisar el descuento. Al confirmar, la web abre el detalle de factura. Verificar que el precio base, descuento y total correspondan al producto elegido.
+
+Para crédito, consultar la elegibilidad del comprador, revisar el monto máximo y establecer entre 3 y 18 cuotas. La confirmación solicita la operación al banco mediante la tienda. La vista de factura muestra la referencia de crédito y la amortización cuando el financiamiento está registrado.
+
+La búsqueda por cédula recupera las operaciones del comprador; abrir una factura permite revisar sus datos históricos. Si se interrumpe la solicitud de venta, conservar los datos y el identificador del formulario al reintentar. La consulta bancaria previa no sustituye la validación al otorgar.
+
+![Navegador: detalle de venta en efectivo](../evidencias/web_efectivo.png)
+![Navegador: detalle y amortización de crédito](../evidencias/web_credito_directo.png)
+
+## Cliente web: distribución adaptable
+La hoja de estilos reorganiza los paneles de catálogo y venta para pantallas estrechas. Los campos de precio y cuotas deben mantenerse legibles, y la tabla de amortización debe poder consultarse sin perder sus columnas. Los temas claro y oscuro cambian la presentación de la interfaz.
+
+La captura existente de 390 píxeles de ancho se presenta en seis tramos consecutivos para que puedan leerse los formularios y el detalle. Los tramos pertenecen al mismo recorrido vertical; no representan seis aplicaciones ni seis resultados de prueba.
+
+![Navegador: vista adaptable, tramo 1 de 6](../evidencias/web_responsive_panel_01.png)
+![Navegador: vista adaptable, tramo 2 de 6](../evidencias/web_responsive_panel_02.png)
+![Navegador: vista adaptable, tramo 3 de 6](../evidencias/web_responsive_panel_03.png)
+![Navegador: vista adaptable, tramo 4 de 6](../evidencias/web_responsive_panel_04.png)
+![Navegador: vista adaptable, tramo 5 de 6](../evidencias/web_responsive_panel_05.png)
+![Navegador: vista adaptable, tramo 6 de 6](../evidencias/web_responsive_panel_06.png)
+
+## Cliente móvil Android: configuración y compilación
+### Organización
+`MauiProgram.cs` establece el destino HTTP; `App.cs` inicia la aplicación; `MainPage.cs` organiza la interfaz y `ControladorMovil` utiliza la capa compartida. El proyecto declara el identificador `ec.edu.monster.celulares.gr09`. El manifiesto Android contiene la configuración de la aplicación.
+
+### Dirección del servidor
+El emulador accede al host mediante `http://10.0.2.2:19102/`. Su dirección `127.0.0.1` apunta al propio Android. `MauiProgram.DireccionServidor` usa esa URL de forma predeterminada y permite reemplazarla mediante el metadato de compilación `CelularesApiUrl`. En un dispositivo físico, establecer una dirección accesible del equipo y habilitar la escucha y el acceso local del servicio para ese entorno.
+
+### Compilar sin instalar
+Definir `$sdkAndroid` con la ruta real del Android SDK del equipo. El ejemplo usa su ubicación habitual en el perfil de Windows; verificar que existe. La compilación sin instalación no necesita un dispositivo conectado.
+
+```powershell
+$sdkAndroid = "$env:LOCALAPPDATA\Android\Sdk"
+dotnet build "04. CLIMOV/Celulares.Movil/Celulares.Movil.csproj" `
+  -f net10.0-android @buildArgs "-p:AndroidSdkDirectory=$sdkAndroid"
+```
+
+### Instalar y abrir
+Iniciar un emulador o conectar un dispositivo con depuración habilitada. Comprobar que ADB enumera un destino autorizado antes de ejecutar el objetivo `Run`. Un archivo APK instalado manualmente desde una compilación Debug puede depender de ensamblados de despliegue rápido; utilizar el objetivo de ejecución para ese recorrido.
+
+```powershell
+& "$sdkAndroid\platform-tools\adb.exe" devices
+dotnet build "04. CLIMOV/Celulares.Movil/Celulares.Movil.csproj" `
+  -t:Run -f net10.0-android @buildArgs "-p:AndroidSdkDirectory=$sdkAndroid"
+```
+
+## Cliente móvil: catálogo y mantenimiento
+Abrir la aplicación con la API de tienda disponible. En el catálogo se muestran nombre, precio y foto cuando existe. Seleccionar un producto permite trabajar con su identificador; para guardar, completar un nombre y precio válidos. La edición actualiza el catálogo, mientras que la desactivación conserva las facturas anteriores.
+
+Las imágenes son opcionales. Seleccionar un archivo JPEG, PNG o WebP dentro del límite de 5 MiB; el servicio comercial valida y almacena su contenido. Si una imagen no aparece, revisar primero que exista y que su ruta HTTP sea alcanzable desde Android.
+
+Las capturas existentes permiten identificar el catálogo inicial y la vista posterior a una edición.
+
+![Android: catálogo inicial](../evidencias/android_catalogo.png)
+![Android: producto editado](../evidencias/android_catalogo_editado.png)
+
+## Cliente móvil: venta en efectivo y crédito
+Seleccionar un celular y completar los datos del comprador. Para efectivo, revisar la reducción del 42 % y confirmar. El detalle debe conservar el precio, el descuento y el total del momento de compra. No se genera una tabla bancaria para efectivo.
+
+Para crédito, consultar la elegibilidad, comprobar que el precio no supere el máximo y elegir entre 3 y 18 cuotas. Confirmar la solicitud y esperar la respuesta del servicio. El descuento de efectivo no se aplica al capital financiado. Ante una interrupción, consultar las facturas antes de crear otra operación.
+
+Las pantallas siguientes ilustran ambas modalidades con los registros existentes de la aplicación.
+
+![Android: detalle de venta en efectivo](../evidencias/android_efectivo.png)
+![Android: detalle de compra a crédito](../evidencias/android_credito.png)
+
+## Cliente móvil: facturas y amortización
+Buscar las facturas por la cédula del comprador y abrir el detalle de la operación. Para una factura de crédito con referencia bancaria disponible, consultar su amortización. La vista debe mostrar número de cuota, fecha, cuota, interés, capital y saldo; la fila inicial conserva el monto financiado.
+
+La consulta usa el identificador de factura en la API comercial. El servidor obtiene internamente el identificador del crédito y consulta BanQuito, por lo que el usuario no necesita introducir la dirección bancaria ni conectarse a SQL Server.
+
+![Android: amortización a tres cuotas](../evidencias/android_amortizacion.png)
+![Android: consulta de amortización desde factura](../evidencias/android_consulta_amortizacion.png)
+
+## Cliente móvil: búsqueda de operaciones
+Ingresar la cédula con la que se registró la compra y consultar la lista de facturas. Seleccionar una operación para revisar celular, modalidad, total y estado. La consulta también ayuda a resolver una venta cuyo resultado no se recibió por una interrupción de red.
+
+La aplicación consulta como máximo las 50 operaciones más recientes que devuelve el servicio para esa cédula. Si se necesita información fuera de ese alcance, revisar los procedimientos de consulta del servidor; no interpretar una lista parcial como ausencia definitiva de registros.
+
+![Android: búsqueda y reapertura de factura](../evidencias/android_busqueda.png)
+
+## Pruebas de los servicios y criterios de comprobación
+Las pruebas deben vincular una entrada y una condición inicial con una respuesta verificable. La tabla define criterios para ejecutar una revisión funcional; no declara que los casos se hayan ejecutado durante esta edición del manual. Los registros históricos se conservan separados de los resultados esperados.
+
+| Caso | Entrada o condición | Resultado que se debe comprobar |
+|---|---|---|
+| Catálogo | Crear, editar y desactivar un celular de prueba. | Datos persistidos; producto desactivado fuera del catálogo de venta. |
+| Imágenes | Cargar y retirar una foto válida. | Carga 204; descarga con el contenido correcto; consulta sin foto 404. |
+| Archivo inválido | Firma, MIME o tamaño fuera de lo permitido. | Rechazo del archivo sin reemplazar una foto válida. |
+| Efectivo | Precio 450,00, sin cuotas. | Descuento 189,00 y total 261,00. |
+| Elegibilidad | Cliente inexistente, varón menor de 25 o sin depósito reciente. | Condición no elegible con motivo correspondiente. |
+| Máximo | Promedios de depósitos y retiros conocidos. | Aplicación de diferencia × 0,35 × 6 y límite inferior cero. |
+| Plazo | Solicitud con 2 o 19 cuotas. | Rechazo por estar fuera del intervalo permitido. |
+| Límite de crédito | Monto mayor al máximo y monto igual al máximo. | Rechazo del primero; admisión del segundo si cumple las demás reglas. |
+| Crédito activo | Intento de segundo crédito para el mismo cliente. | Rechazo sin registrar otro crédito activo. |
+| Reintento | Mismo identificador y mismos datos. | Una sola factura y un solo crédito relacionados. |
+| Conflicto | Mismo identificador con datos distintos. | Respuesta de conflicto sin modificar la operación original. |
+| Amortización | Capital 450,00 a 3 y a 18 meses. | Fila inicial y n cuotas; fechas mensuales; capital total; saldo final cero. |
+| Consultas | Búsqueda por cédula y apertura por ID. | Datos de factura y amortización coherentes con la operación guardada. |
+| Interfaces | Ejecutar los recorridos en los cuatro clientes. | Mismas reglas y datos del contrato comercial. |
+
+Los datos semilla bancarios incluyen diferentes condiciones: `0102030405` es el cliente masculino adulto del conjunto; `0203040506` representa al masculino de 24 años; `0405060708` posee movimientos más antiguos. La elegibilidad depende del día de la carga, de los movimientos y de los créditos ya registrados; revisar esas condiciones antes de usar cualquier cédula como caso de prueba.
+
+## Ejecución reproducible de pruebas
+### Pruebas unitarias
+Ejecutar los proyectos de prueba de ambos dominios. El comando devuelve el resultado de la ejecución del equipo; registrar su fecha y salida antes de informar cantidades o estados.
+
+```powershell
+dotnet test "04. SERVIDOR/Pruebas/Comercializadora.Pruebas.csproj" @buildArgs
+dotnet test "04. SERVIDOR/BanQuito.Pruebas/BanQuito.Pruebas.csproj" @buildArgs
+```
+
+### Integración e interfaces
+Los scripts de integración y los recorridos visuales generan sus propios registros. Antes de ejecutarlos, revisar las rutas de herramientas y su configuración local: varios arneses conservan rutas del equipo de desarrollo. Utilizar bases aisladas para las ventas de prueba; no reinicializar las bases principales.
+
+```powershell
+python scripts/VerificarApiQA.py
+python scripts/VerificarClientesQA.py
+python scripts/IniciarQAVisual.py
+python scripts/VerificarWebNavegador.py
+```
+
+`VerificarApiQA.py` cubre contratos y reglas integradas. `VerificarClientesQA.py` recorre consola y MVC. `IniciarQAVisual.py` prepara el entorno para pruebas de interfaz; los arneses WPF y `AndroidQA.py` utilizan controles y un emulador reales. La comprobación web usa Playwright y requiere su navegador instalado.
+
+Los archivos `EVIDENCIA_API_QA.json`, `EVIDENCIA_CLIENTES_QA.json`, `EVIDENCIA_WPF_QA.json`, `EVIDENCIA_ANDROID_QA.json` y `EVIDENCIA_WEB_NAVEGADOR.json` pertenecen a ejecuciones registradas en el proyecto. Para interpretar un resultado, consultar fecha, escenario, entradas y captura asociada. La presencia de una imagen o un registro anterior no demuestra por sí sola el funcionamiento de una ejecución nueva.
+
+## Manejo de errores y solución de problemas
+Las API convierten errores conocidos en respuestas HTTP y presentan un cuerpo de problema con campos como `status` y `title`. Los clientes leen el mensaje y lo muestran en su interfaz. Los detalles internos se consultan en la salida del servidor; no deben sustituirse por mensajes genéricos de éxito.
+
+| Síntoma o código | Causa a revisar | Acción técnica |
+|---|---|---|
+| SQL Server no disponible | Docker detenido, contenedor sin salud o puerto ocupado. | Revisar `docker compose ps` y registros; iniciar el motor y comprobar `19433`. |
+| Error de acceso a SQL | Contraseña ausente o distinta de la instancia persistida. | Revisar `.env` localmente y la variable de conexión del proceso; conservar el volumen. |
+| API falla desde el IDE | No heredó `ConnectionStrings__BaseDatos`. | Iniciar con el script o cargar la variable antes de ejecutar. |
+| Base u objeto ausente | Preparación incompleta o migración pendiente. | Aplicar los scripts en orden y revisar el error SQL. |
+| HTTP 400 | Campos, precio, cuotas o archivo inválidos. | Corregir la entrada según el contrato. |
+| HTTP 404 | Recurso inexistente o producto sin imagen. | Comprobar ID y disponibilidad de foto. |
+| HTTP 409 | Reintento con datos distintos, crédito activo o condición de negocio incompatible. | Leer `title` y consultar la operación existente. |
+| HTTP 503 | SQL Server o servicio remoto no disponible. | Comprobar salud de ambas API y conexiones; reintentar con el mismo identificador. |
+| HTTP 500 | Error interno no clasificado. | Consultar el registro del servidor y reproducir la entrada en un entorno aislado. |
+| Android no conecta | Uso de loopback del emulador o API detenida. | Verificar `10.0.2.2:19102` y salud de la tienda en el host. |
+| MAUI no instala | No hay dispositivo autorizado o faltan herramientas. | Revisar ADB, SDK y carga MAUI antes de usar `-t:Run`. |
+| Error de unidad D: | Rutas de compilación originales no existen en el equipo. | Pasar `CelularBuildRoot` y `CelularPackagesRoot` con rutas válidas. |
+
+La API utiliza HTTP local y no incorpora autenticación ni autorización de usuarios. Si se cambia el despliegue para permitir acceso desde otros equipos, deben definirse controles de acceso y transporte adecuados antes de tratar ese entorno como un servicio de producción.
+
+## Mantenimiento y limitaciones
+Mantener las credenciales fuera del código y actualizar su configuración por entorno. Antes de modificar esquema o reglas de negocio, conservar una copia de seguridad y ejecutar las pruebas en una base independiente. Una migración de imágenes agrega columnas opcionales; no requiere borrar el catálogo ni las facturas para actualizar una instalación existente.
+
+Los movimientos semilla envejecen con el calendario, por lo que las pruebas de elegibilidad necesitan fechas controladas. El banco recibe la fecha a través de `TimeProvider`; la lógica de dominio permite evaluar períodos concretos. Conservar las referencias idempotentes al investigar interrupciones de crédito.
+
+La discrepancia entre 35 % y 30 % debe resolverse con el criterio académico del enunciado y reflejarse en código, pruebas y documentación. La tasa de 16,5 % y el descuento de 42 % son parámetros del ejercicio. Los modelos PowerDesigner y sus exportaciones existentes se conservan como fuente de las figuras; la regeneración depende de disponer de una licencia utilizable.
+
+## Conclusiones
+La solución concentra las reglas comerciales en una API de tienda y delega la evaluación y el financiamiento a una API bancaria independiente. La separación permite utilizar cuatro interfaces sobre el mismo contrato y mantener el acceso a las bases dentro de los servicios responsables.
+
+La operación a crédito requiere coordinar persistencia local y comunicación HTTP. Los estados de factura, las referencias únicas y los reintentos con el mismo identificador permiten manejar interrupciones sin interpretar una pérdida de conexión como una venta nueva. El cálculo decimal y el ajuste de la cuota final mantienen la coherencia del capital amortizado.
+
+La instalación se realiza con SQL Server en Docker y aplicaciones .NET en el host. La reproducibilidad depende de conservar la estructura del repositorio, configurar las rutas y credenciales del equipo y distinguir los criterios esperados de los resultados obtenidos al ejecutar las pruebas.
+
+## Recomendaciones
+Utilizar el orden de arranque SQL Server, BanQuito, comercializadora y cliente. Registrar la fecha y condiciones de cada comprobación y utilizar datos aislados para las ventas de prueba. Al cambiar el destino Android o la dirección bancaria, actualizar la configuración correspondiente y repetir la consulta de salud y el recorrido afectado.
+
+Mantener el manual y su presentación a partir de la misma fuente documental. Actualizar contratos, ejemplos y pruebas cuando cambie una regla. Conservar las capturas reales junto con los registros de su escenario y evitar sustituirlas por imágenes que solo anuncien una pantalla o un resultado.
+
+## Referencias bibliográficas
+Codd, E. F. (1970). A relational model of data for large shared data banks. Communications of the ACM, 13(6), 377–387. https://doi.org/10.1145/362384.362685
+
+Fielding, R. T. (2000). Architectural styles and the design of network-based software architectures [Tesis doctoral, University of California, Irvine]. https://ics.uci.edu/~fielding/pubs/dissertation/top.htm
+
+Fielding, R. T., y Taylor, R. N. (2002). Principled design of the modern Web architecture. ACM Transactions on Internet Technology, 2(2), 115–150. https://doi.org/10.1145/514183.514185
+
+Fowler, M. (2002). Patterns of enterprise application architecture. Addison-Wesley. https://martinfowler.com/books/eaa.html
+
+Silberschatz, A., Korth, H. F., y Sudarshan, S. (2019). Database system concepts (7.ª ed.). McGraw-Hill Education. https://www.db-book.com/
+
+## Anexo A. Archivos de configuración
+Los siguientes listados reproducen los archivos del repositorio que definen el motor, las direcciones de las API y las referencias de sus proyectos. La contraseña se proporciona mediante configuración de entorno y no se incorpora a estos listados.
+
+### Docker Compose
+Ruta: `compose.yaml`.
 
 ```yaml
 services:
@@ -107,7 +633,8 @@ volumes:
   celulares_sql:
 ```
 
-### Comercializadora.Api/appsettings.json
+### Configuración de Comercializadora.Api
+Ruta: `04. SERVIDOR/Comercializadora.Api/appsettings.json`.
 
 ```json
 {
@@ -127,7 +654,8 @@ volumes:
 }
 ```
 
-### BanQuito.Api/appsettings.json
+### Configuración de BanQuito.Api
+Ruta: `04. SERVIDOR/BanQuito.Api/appsettings.json`.
 
 ```json
 {
@@ -144,7 +672,8 @@ volumes:
 }
 ```
 
-### Comercializadora.Api.csproj
+### Proyecto Comercializadora.Api
+Ruta: `04. SERVIDOR/Comercializadora.Api/Comercializadora.Api.csproj`.
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
@@ -160,7 +689,8 @@ volumes:
 </Project>
 ```
 
-### BanQuito.Api.csproj
+### Proyecto BanQuito.Api
+Ruta: `04. SERVIDOR/BanQuito.Api/BanQuito.Api.csproj`.
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
@@ -169,10 +699,11 @@ volumes:
 <ProjectReference Include="..\BanQuito.Dominio\BanQuito.Dominio.csproj" />
 <ProjectReference Include="..\BanQuito.Contratos\BanQuito.Contratos.csproj" /></ItemGroup>
 </Project>
-
 ```
 
-## Anexo: scripts SQL completos del proyecto
+## Anexo B. Scripts SQL del proyecto
+Los listados siguientes conservan la definición y los datos semilla del repositorio. Ejecutar con una herramienta que interprete los separadores `GO`, en el orden de preparación descrito en el manual.
+
 Los listados corresponden a los cinco archivos que ejecuta `PrepararEntorno.ps1`, en el mismo orden documentado. Se incluyen para consultar las definiciones reales de tablas, restricciones, migración y semillas. No se modifican bases al leer este anexo.
 
 ### 03. BDD/01_CrearBases.sql
@@ -341,345 +872,3 @@ UNION ALL SELECT 'CUENTAS',COUNT(*) FROM dbo.CUENTA
 UNION ALL SELECT 'MOVIMIENTOS',COUNT(*) FROM dbo.MOVIMIENTO;
 GO
 ```
-
-## Verificación y solución de problemas de SQL Server
-Al terminar la preparación, comprobar que el servicio está saludable con `docker compose ps`. Si no aparece como iniciado o saludable, consultar `docker compose logs --tail 80 sqlserver`. La comprobación interna del contenedor ejecuta `sqlcmd` y la preparación solo pasa a los scripts cuando Docker marca el servicio como listo.
-
-La cadena que las API usan en el host apunta a `127.0.0.1,19433`; dentro de Docker, las herramientas del propio contenedor conectan a `localhost`. En una ejecución limpia, los datos semilla dejan tres celulares en la base de tienda y cinco clientes, cinco cuentas y cincuenta movimientos en BanQuitoCore. Una ejecución posterior no debe duplicar las filas que el script ya reconoce.
-
-| Síntoma | Revisión respaldada por el proyecto |
-|---|---|
-| Docker no inicia el motor | Confirmar Docker Desktop con contenedores Linux activos y revisar `docker compose ps` y los registros del servicio. |
-| Puerto local ocupado | Liberar `127.0.0.1:19433` o coordinar el cambio en `compose.yaml` y en las dos cadenas `ConnectionStrings:BaseDatos`. |
-| Error de autenticación | Verificar localmente que `.env` define `MSSQL_SA_PASSWORD`; no imprimirla ni copiarla a `appsettings.json`. |
-| Falta una base u objeto | Volver a ejecutar `./PrepararEntorno.ps1`; los scripts no requieren borrar volúmenes para completar objetos faltantes. |
-| API no conecta al iniciar desde el IDE | Iniciar con `./PrepararEntorno.ps1 -IniciarApis`, que inyecta la variable protegida de conexión en cada proceso. |
-| Android no alcanza la tienda | Usar `10.0.2.2:19102` desde el emulador y comprobar que Comercializadora.Api está activa en el host. |
-## Modelo de datos
-La persistencia se divide en dos bases SQL Server independientes; Comercializadora.Api solo usa la base de tienda y BanQuito.Api solo usa `BanQuitoCore`.
-
-| Base / tabla | Campos y reglas definidos en el script |
-|---|---|
-| `ComercializadoraCelulares.dbo.CELULAR` | `ID_CELULAR` PK identity; nombre; precio positivo; estado activo; imagen binaria y tipo MIME opcionales. |
-| `ComercializadoraCelulares.dbo.FACTURA` | `ID_FACTURA` PK; `ID_OPERACION` único; referencia al celular; datos del comprador y producto; forma de pago, precio, descuento, total, estado, crédito y cuotas. La forma de pago debe ser efectivo o crédito directo; las cuotas son de 3 a 18. |
-| `BanQuitoCore.dbo.CLIENTE` | `COD_CLIENTE` PK; cédula única; nombre, género y fecha de nacimiento. |
-| `BanQuitoCore.dbo.CUENTA` | `NUM_CUENTA` PK y FK a cliente; saldo. |
-| `BanQuitoCore.dbo.MOVIMIENTO` | `COD_MOVIMIENTO` PK y FK a cuenta; depósitos o retiros positivos con fecha. Índice por cuenta y fecha. |
-| `BanQuitoCore.dbo.CREDITO` | `COD_CREDITO` PK y FK a cliente; referencia de venta única; monto positivo; plazo de 3–18; tasa anual predeterminada `0.165`; estado. Índice único filtrado para impedir dos créditos activos por cliente. |
-| `BanQuitoCore.dbo.AMORTIZACION` | FK a crédito; cuota de 0 a 18; fecha, valor, interés, capital y saldo no negativo. Clave compuesta crédito/cuota. |
-
-Las fotos JPEG, PNG o WebP son opcionales, con límite de 5 MiB en la API; sus bytes y tipo MIME se almacenan en `CELULAR`. Las facturas conservan una copia de los datos comerciales y una referencia remota del crédito. No se descuentan existencias porque el enunciado no define inventario. En una inicialización limpia se cargan tres celulares y, en BanQuitoCore, cinco clientes, cinco cuentas y cincuenta movimientos.
-## Creación, semillas y migración de las bases
-El flujo automatizado aplica, en orden, `03. BDD/01_CrearBases.sql`, `03_MigrarImagenes.sql`, `02_DatosPrueba.sql` y los dos scripts de `03. BDD/BanQuito`. La migración agrega las columnas de imagen cuando la base ya existía. Los datos iniciales bancarios registran cinco clientes, cinco cuentas y cincuenta movimientos.
-
-Las pruebas se ejecutan en bases de prueba con nombres únicos. No se reinician ni eliminan las bases principales o los volúmenes persistentes para demostrar el sistema.
-## Elegibilidad bancaria
-Ser cliente, tener depósito en último mes y no tener crédito activo.
-Hombres con 25 años cumplidos.
-La consulta no garantiza aprobación posterior: el otorgamiento revalida.
-## Monto máximo
-Promedios de depósitos y retiros de los últimos tres meses.
-Máximo = max(0, diferencia × 35% × 6).
-Enunciado contradictorio: texto 35%, fórmula 30%; decisión explícita al 35%.
-## Otorgamiento y amortización
-Código de cliente, precio del teléfono y número de cuotas.
-Plazo 3–18 meses; interés anual 16,5%, pagos mensuales.
-Transacción bancaria y referencia idempotente; última cuota ajusta centavos.
-## Efectivo y crédito
-Efectivo: precio 450, descuento 189, total 261.
-Crédito: factura aprobada solo después de autorización bancaria.
-No duplicar operaciones al reintentar; resolver estados pendientes.
-## Cuatro clientes comprobados
-Consola: entradas del menú real y transcripción.
-Web: formularios MVC y Chrome con JavaScript; decimales corregidos.
-WPF: eventos de controles reales; Android: emulador y capturas ADB.
-## Evidencia de pruebas
-Se registraron 39 pruebas unitarias, 53 verificaciones de API, 14 comprobaciones de consola y MVC, 10 de WPF, 9 recorridos Android y 13 verificaciones posteriores del navegador. Los registros y las capturas se conservan en `05. DOCUMENTACION/evidencias/`; las pruebas funcionales usan bases de datos aisladas.
-## Compilación y pruebas reproducibles
-Desde la raíz del repositorio se ejecutan `dotnet test "04. SERVIDOR/Pruebas/Comercializadora.Pruebas.csproj"` y `dotnet test "04. SERVIDOR/BanQuito.Pruebas/BanQuito.Pruebas.csproj"`. La verificación API se ejecuta con `python scripts/VerificarApiQA.py`; las pruebas de consola y MVC con `python scripts/VerificarClientesQA.py`.
-
-Para los recorridos visuales se inicia `python scripts/IniciarQAVisual.py`; los arneses WPF y Android operan con sus controles y emulador reales. Chrome/Playwright utiliza `python scripts/VerificarWebNavegador.py`. Los registros JSON y las capturas indican el alcance observado; no equivalen a certificación de producción.
-## Diagramas PowerDesigner del sistema
-Los diagramas que documentan el sistema se elaboraron en PowerDesigner. Se conservan los modelos editables y se insertan sus exportaciones PNG originales en el manual y la presentación.
-La arquitectura representa los clientes, las API REST y las bases independientes. En la ejecución local, SQL Server corre en Docker y las aplicaciones en el host.
-La licencia de evaluación de PowerDesigner venció en este equipo; se reutilizan las exportaciones existentes y no se afirma que los modelos nativos se hayan regenerado durante esta revisión.
-## Diagrama: Casos de uso de ventas
-![PowerDesigner: casos de uso de ventas](../../01. UML/03. DIAGRAMAS UML/01_CASOS_DE_USO/GR09_CasosUso_Sistema de ventas de celulares.png)
-## Diagrama: Actividad de venta a crédito
-![PowerDesigner: actividad de venta a crédito](../../01. UML/03. DIAGRAMAS UML/02_ACTIVIDAD/GR09_Actividad_Venta a crédito.png)
-## Diagrama: Secuencia de venta a crédito
-![PowerDesigner: secuencia de venta a crédito](../../01. UML/03. DIAGRAMAS UML/03_SECUENCIA/GR09_Secuencia_Venta a crédito.png)
-## Diagrama: Clases del servicio y cliente
-![PowerDesigner: clases del servicio y cliente](../../01. UML/03. DIAGRAMAS UML/04_CLASES/GR09_Clases_Clases del servicio y cliente.png)
-## Diagrama: Arquitectura cliente-servidor
-![PowerDesigner: arquitectura cliente-servidor](../../01. UML/03. DIAGRAMAS UML/05_ARQUITECTURA/GR09_Arquitectura_Arquitectura cliente-servidor.png)
-## Diagrama: Modelo físico comercializadora
-![PowerDesigner: modelo físico comercializadora](../../02. MER/03. FISICO/GR09_Celulares_Physical_DotNet_SQLServer.png)
-## Prueba: Catálogo, consulta, alta y edición
-Resultado observado: APROBADO.
-
-
-### Prueba: Catálogo: alta y edición
-
-Resultado observado: APROBADO.
-
-
-La interfaz móvil registra además las vistas reales del catálogo inicial y de un producto editado.
-
-![Android: catálogo inicial](../evidencias/android_catalogo.png)
-
-![Android: producto editado](../evidencias/android_catalogo_editado.png)
-## Prueba: Catálogo: desactivación
-Resultado observado: APROBADO.
-
-## Prueba: Elegibilidad 0000000000
-Resultado observado: APROBADO.
-
-## Prueba: Elegibilidad 0203040506
-Resultado observado: APROBADO.
-
-## Prueba: Elegibilidad 0405060708
-Resultado observado: APROBADO.
-
-## Prueba: Elegibilidad 0304050607
-Resultado observado: APROBADO.
-
-## Prueba: Máximo 35% de diferencia por seis
-Resultado observado: APROBADO.
-
-## Prueba: Rechazo plazo 2
-Resultado observado: APROBADO.
-
-## Prueba: Rechazo plazo 19
-Resultado observado: APROBADO.
-
-## Prueba: Rechazo monto superior al máximo
-Resultado observado: APROBADO.
-
-## Prueba: Otorgamiento rechaza menor masculino
-Resultado observado: APROBADO.
-
-## Prueba: Factura rechaza plazo 2
-Resultado observado: APROBADO.
-
-## Prueba: Factura rechaza plazo 19
-Resultado observado: APROBADO.
-
-## Prueba: Efectivo: descuento 189 y total 261
-Resultado observado: APROBADO.
-
-
-![Android: detalle de venta en efectivo](../evidencias/android_efectivo.png)
-## Prueba: Reintento efectivo sin duplicado
-Resultado observado: APROBADO.
-
-## Prueba: Crédito 450 aprobado sin descuento
-Resultado observado: APROBADO.
-
-
-![Android: compra autorizada a crédito](../evidencias/android_credito.png)
-## Prueba: Amortización a 3 meses: filas, capital y saldo
-Resultado observado: APROBADO.
-
-
-### Prueba: Amortización 3: capital completo
-
-Resultado observado: APROBADO.
-
-
-La consulta móvil muestra la amortización real del escenario de tres cuotas.
-
-![Android: amortización a tres cuotas](../evidencias/android_amortizacion.png)
-## Prueba: Amortización 3: interés 16,5% anual
-Resultado observado: APROBADO.
-
-## Prueba: Fechas y saldos de las tres cuotas
-Resultado observado: APROBADO.
-
-
-### Prueba: Cuota 3/2: fecha mensual y balance
-
-Resultado observado: APROBADO.
-
-
-### Prueba: Cuota 3/3: fecha mensual y balance
-
-Resultado observado: APROBADO.
-
-## Prueba: Amortización 3: cuota fija salvo ajuste final
-Resultado observado: APROBADO.
-
-## Prueba: Tabla bancaria coincide con pasarela
-Resultado observado: APROBADO.
-
-
-![Android: consulta de amortización de la factura](../evidencias/android_consulta_amortizacion.png)
-## Prueba: Reintento crédito sin duplicado
-Resultado observado: APROBADO.
-
-## Prueba: Reintento con datos diferentes rechazado
-Resultado observado: APROBADO.
-
-## Prueba: Cliente con crédito activo no elegible
-Resultado observado: APROBADO.
-
-## Prueba: Segundo crédito activo rechazado
-Resultado observado: APROBADO.
-
-## Prueba: Monto igual al máximo aprobado
-Resultado observado: APROBADO.
-
-## Prueba: Amortización a 18 meses: filas, capital y saldo
-Resultado observado: APROBADO.
-
-
-### Prueba: Amortización 18: capital completo
-
-Resultado observado: APROBADO.
-
-## Prueba: Amortización 18: interés 16,5% anual
-Resultado observado: APROBADO.
-
-## Prueba: Fechas y saldos de cuotas 1 a 3 de 18
-Resultado observado: APROBADO.
-
-
-### Prueba: Cuota 18/2: fecha mensual y balance
-
-Resultado observado: APROBADO.
-
-
-### Prueba: Cuota 18/3: fecha mensual y balance
-
-Resultado observado: APROBADO.
-
-## Prueba: Fechas y saldos de cuotas 4 y 5 de 18
-Resultado observado: APROBADO.
-
-
-### Prueba: Cuota 18/5: fecha mensual y balance
-
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/6: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/7: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/8: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/9: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/10: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/11: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/12: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/13: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/14: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/15: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/16: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/17: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Cuota 18/18: fecha mensual y balance
-Resultado observado: APROBADO.
-
-## Prueba: Amortización 18: cuota fija salvo ajuste final
-Resultado observado: APROBADO.
-
-## Prueba: Consulta factura y búsqueda por cédula
-Resultado observado: APROBADO.
-
-
-![Android: búsqueda y reapertura de factura](../evidencias/android_busqueda.png)
-## Consola termina correctamente
-
-Resultado: APROBADO
-## Consola catálogo alta y edición
-
-Resultado: APROBADO
-## Consola efectivo y crédito aprobados
-
-Resultado: APROBADO
-## Consola consulta amortización
-
-Resultado: APROBADO
-## Consola sin errores de operación
-
-Resultado: APROBADO
-## Web catálogo renderizado
-
-Resultado: APROBADO
-
-![Navegador: catálogo en tema claro](../evidencias/web_catalogo_claro.png)
-## Web alta y edición catálogo
-
-Resultado: APROBADO
-
-![Navegador: tema oscuro y controles de catálogo](../evidencias/web_catalogo_oscuro.png)
-## Web desactivación
-
-Resultado: APROBADO
-## Web factura EFECTIVO
-
-Resultado: APROBADO
-
-![Navegador: factura aprobada en efectivo](../evidencias/web_efectivo.png)
-## Web total EFECTIVO
-
-Resultado: APROBADO
-## Web factura CREDITO_DIRECTO
-
-Resultado: APROBADO
-
-![Navegador: factura y amortización de crédito](../evidencias/web_credito_directo.png)
-## Diseño web adaptable y validación visual
-Chrome verificó el cambio de tema, los formularios y la ausencia de desbordamiento horizontal a 390 píxeles. El registro de navegador informa cero excepciones JavaScript.
-
-![Navegador: vista adaptable a 390 píxeles, tramo 1 de 6](../evidencias/web_responsive_panel_01.png)
-![Navegador: vista adaptable a 390 píxeles, tramo 2 de 6](../evidencias/web_responsive_panel_02.png)
-![Navegador: vista adaptable a 390 píxeles, tramo 3 de 6](../evidencias/web_responsive_panel_03.png)
-![Navegador: vista adaptable a 390 píxeles, tramo 4 de 6](../evidencias/web_responsive_panel_04.png)
-![Navegador: vista adaptable a 390 píxeles, tramo 5 de 6](../evidencias/web_responsive_panel_05.png)
-![Navegador: vista adaptable a 390 píxeles, tramo 6 de 6](../evidencias/web_responsive_panel_06.png)
-## Web total CREDITO_DIRECTO
-
-Resultado: APROBADO
-## Web amortización renderizada
-
-Resultado: APROBADO
-## Web búsqueda por cédula
-
-Resultado: APROBADO
-## Catálogo cargado
-
-El catálogo inicial se comprobó en WPF.
-## Conclusiones
-El sistema centraliza el catálogo y la facturación en una API REST de tienda; BanQuito valida y persiste los créditos en una API y una base independientes. Los cuatro clientes consumen el mismo contrato comercial. Las pruebas registradas verifican los escenarios funcionales indicados en este manual.
-
-La evidencia no representa una certificación productiva. Se conserva la discrepancia de 35%/30% del enunciado y se explica el ajuste de redondeo al cierre de la amortización.
-## Recomendaciones
-Mantener secretos en configuración local fuera del repositorio y ejecutar pruebas con bases de prueba nuevas. Antes de una entrega, compilar los proyectos, repetir los recorridos de cuatro clientes y revisar los registros de evidencia correspondientes.
-
-Acordar con el docente si prevalece el texto de 35% o la fórmula impresa de 30%; documentar la decisión y regenerar las pruebas de monto máximo si cambia.
-## Bibliografía y fuentes de verificación
-1. `ExamenComplexivoPractivo_CELULARES.docx`, enunciado y rúbrica entregados para el proyecto.
-2. Código, proyectos, scripts SQL y pruebas del repositorio GR09.
-3. Registros `EVIDENCIA_*.json` y capturas originales de `05. DOCUMENTACION/evidencias/`.
-4. Plantillas oficiales del proyecto en `examples/`.
