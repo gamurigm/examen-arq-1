@@ -2,6 +2,7 @@
 import argparse
 import copy
 import hashlib
+import io
 import json
 import pathlib
 import re
@@ -17,7 +18,7 @@ from docx.opc.constants import RELATIONSHIP_TYPE as WordRelationship
 from docx.shared import Inches, Pt, RGBColor as WordRGBColor
 from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.enum.text import MSO_AUTO_SIZE, MSO_ANCHOR
+from pptx.enum.text import MSO_AUTO_SIZE, MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.xmlchemy import OxmlElement as PptOxmlElement
 from pptx.oxml.ns import qn as ppt_qn
 from pptx.util import Inches as PInches, Pt as PPt
@@ -35,6 +36,7 @@ DATE = "05/11/2026"
 parser = argparse.ArgumentParser()
 parser.add_argument("--artifacts", nargs="+", choices=["ers", "ecud", "manual", "presentacion"])
 parser.add_argument("--draft-directory", type=pathlib.Path, help="Directorio alternativo para revisar sin sobrescribir un borrador abierto en Office")
+parser.add_argument("--compacto", action="store_true", help="Generar únicamente la presentación resumida desde la selección verificada")
 ARGS = parser.parse_args()
 
 
@@ -560,14 +562,22 @@ def replace_frame_text_compact(shape, text):
         paragraph.line_spacing = 1.0
 
 
-def fit_picture(slide, path, bounds):
+def fit_picture(slide, path, bounds, crop=None):
     left, top, width, height = bounds
     with Image.open(path) as bitmap:
+        source = str(path)
+        if crop is not None:
+            x1, y1, x2, y2 = crop
+            bitmap = bitmap.crop((int(x1 * bitmap.width), int(y1 * bitmap.height),
+                                  int(x2 * bitmap.width), int(y2 * bitmap.height)))
+            source = io.BytesIO()
+            bitmap.save(source, format="PNG")
+            source.seek(0)
         scale = min(width / bitmap.width, height / bitmap.height)
         fitted_width = int(bitmap.width * scale)
         fitted_height = int(bitmap.height * scale)
     return slide.shapes.add_picture(
-        str(path),
+        source,
         int(left + (width - fitted_width) / 2),
         int(top + (height - fitted_height) / 2),
         width=fitted_width,
@@ -597,13 +607,13 @@ def replace_slide_images(slide, image_blocks):
     for index, block in enumerate(image_blocks):
         fit_picture(slide, block["path"], (
             bounds[0] + index * (column_width + gap), bounds[1], column_width, bounds[3]
-        ))
+        ), block.get("crop"))
 
 
 def slide_body(sections):
     result = []
     for section in sections:
-        parts = [section["title"]]
+        parts = [] if section.get("_compact") else [section["title"]]
         for block in section["blocks"]:
             if block["kind"] == "image":
                 continue
@@ -618,7 +628,7 @@ def slide_body(sections):
     return "\n".join(result)
 
 
-def format_slide_code_blocks(shape, sections):
+def format_slide_code_blocks(shape, sections, compact=False):
     """Use compact monospaced, unbulleted text for SQL/config code on slides."""
     parts = []
     intervals = []
@@ -632,7 +642,8 @@ def format_slide_code_blocks(shape, sections):
         parts.append(text)
         offset += len(text)
     for section in sections:
-        append(section["title"])
+        if not section.get("_compact"):
+            append(section["title"])
         for block in section["blocks"]:
             if block["kind"] == "image":
                 continue
@@ -670,7 +681,7 @@ def format_slide_code_blocks(shape, sections):
         p_pr.set("indent", "0")
         for run in paragraph.runs:
             run.font.name = "Consolas"
-            run.font.size = PPt(11)
+            run.font.size = PPt(13 if compact else 11)
             run.font.color.rgb = RGBColor(48, 54, 61)
 
 
@@ -786,7 +797,82 @@ def chunk_section_blocks(section, source_index, max_lines=10):
 
 def image_ratio(block):
     with Image.open(block["path"]) as bitmap:
-        return bitmap.width / bitmap.height
+        crop = block.get("crop", [0, 0, 1, 1])
+        return bitmap.width * (crop[2] - crop[0]) / (bitmap.height * (crop[3] - crop[1]))
+
+
+def compact_presentation_groups(sections, source):
+    """Select verified canonical blocks without changing the Word generator."""
+    selection_path = ROOT / "scripts/presentacion_compacta.json"
+    selection = json.loads(selection_path.read_text(encoding="utf-8"))
+    if sha(source) != selection["canonicalSha256"]:
+        raise ValueError("La fuente canónica cambió; revisar la selección compacta antes de regenerar.")
+    groups = []
+    for item in selection["slides"]:
+        section = sections[item["section"]]
+        blocks = []
+        for selector in item["blocks"]:
+            selector = {"index": selector} if isinstance(selector, int) else selector
+            block = dict(section["blocks"][selector["index"]])
+            if "rows" in selector:
+                first, last = selector["rows"]
+                if block["kind"] != "table" or not 1 <= first < last <= len(block["rows"]):
+                    raise ValueError(f"Selección de filas inválida: {item['title']}")
+                block["rows"] = block["rows"][:1] + block["rows"][first:last]
+            if "lines" in selector:
+                first, last = selector["lines"]
+                lines = block.get("text", "").splitlines()
+                if block["kind"] != "code" or not 0 <= first < last <= len(lines):
+                    raise ValueError(f"Selección de código inválida: {item['title']}")
+                block["text"] = "\n".join(lines[first:last])
+            if "crop" in selector:
+                x1, y1, x2, y2 = selector["crop"]
+                if block["kind"] != "image" or not (0 <= x1 < x2 <= 1 and 0 <= y1 < y2 <= 1):
+                    raise ValueError(f"Recorte de imagen inválido: {item['title']}")
+                block["crop"] = selector["crop"]
+            blocks.append(block)
+        if not blocks:
+            raise ValueError(f"Diapositiva sin contenido: {item['title']}")
+        section_number = item["section"]
+        if section_number in (0, 1, 2, 3):
+            nav = "OBJETIVO Y ALCANCE"
+        elif section_number in (4, 5, 6, 7, 11, 12):
+            nav = "ARQUITECTURA"
+        elif section_number in (8, 9, 10):
+            nav = "MODELO DE DATOS"
+        elif section_number in (14, 16):
+            nav = "CONTRATO REST"
+        elif section_number in (13, 15, 17, 18, 19, 20, 21):
+            nav = "VENTAS Y CRÉDITO"
+        elif section_number in (38, 39, 40, 41):
+            nav = "PRUEBAS Y EVIDENCIAS"
+        elif section_number == 43:
+            nav = "CONCLUSIONES"
+        elif section_number in (42, 44):
+            nav = "RECOMENDACIONES"
+        elif section_number == 45:
+            nav = "BIBLIOGRAFÍA"
+        else:
+            nav = "CLIENTES"
+        groups.append([{ "title": item["title"], "blocks": blocks, "_compact": True,
+                        "_gallery_title": item["title"], "_nav": nav }])
+    if len(groups) + 2 > 100:
+        raise ValueError("La presentación compacta supera las 100 diapositivas.")
+    required_images = {
+        "PowerDesigner: arquitectura cliente-servidor", "PowerDesigner: modelo físico comercializadora",
+        "PowerDesigner: clases del servicio y cliente", "PowerDesigner: secuencia de venta a crédito",
+        "PowerDesigner: casos de uso de ventas", "PowerDesigner: actividad de venta a crédito",
+        "Consulta real desde consola", "Consulta real desde WPF", "Navegador: catálogo en tema claro",
+        "Navegador: detalle de venta en efectivo", "Navegador: detalle y amortización de crédito",
+        "Android: catálogo inicial", "Android: detalle de venta en efectivo",
+        "Android: detalle de compra a crédito", "Android: amortización a tres cuotas",
+        "Android: búsqueda y reapertura de factura",
+    }
+    selected_images = {block["caption"] for group in groups for section in group
+                       for block in section["blocks"] if block["kind"] == "image"}
+    if missing := required_images - selected_images:
+        raise ValueError("Faltan figuras requeridas de la presentación: " + ", ".join(sorted(missing)))
+    return groups, selection_path, selection
 
 
 def group_presentation_sections(sections):
@@ -1060,9 +1146,10 @@ def update_sidebar(slide, nav_text, active_item):
                     run.font.bold = True
 
 
-def generate_presentation(template, source, target, sections):
+def generate_presentation(template, source, target, sections, groups=None, compact=False):
     prs = Presentation(template)
-    groups = group_presentation_sections(sections)
+    if groups is None:
+        groups = group_presentation_sections(sections)
     if len(groups) + 2 > len(prs.slides):
         extend_presentation_with_template_slides(prs, len(groups) + 2)
     move_image_only_template_to_matching_chapter(prs, groups)
@@ -1086,7 +1173,7 @@ def generate_presentation(template, source, target, sections):
                 for run in paragraph.runs:
                     run.font.size = PPt(12)
     cover_pictures = [shape for shape in cover.shapes if shape.shape_type == 13]
-    if cover_pictures:
+    if cover_pictures and not compact:
         old = cover_pictures[0]
         bounds = (old.left, old.top, old.width, old.height)
         old._element.getparent().remove(old._element)
@@ -1131,7 +1218,7 @@ def generate_presentation(template, source, target, sections):
             slide_title = presentation_image_title(group[0]).upper()
             replace_frame_text(title, slide_title)
             replace_slide_images(slide, image_blocks)
-            update_sidebar(slide, nav, "ARQUITECTURA")
+            update_sidebar(slide, nav, group[0].get("_nav", "ARQUITECTURA"))
             set_slide_number(slide, slide_index + 1)
             continue
         label = " ".join(section["title"] for section in group).casefold()
@@ -1142,16 +1229,44 @@ def generate_presentation(template, source, target, sections):
             and len(image_blocks) >= 1
             and not non_image_blocks
         )
-        if len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith(("bibliografía", "referencias bibliográficas"))):
+        if compact:
+            replace_frame_text(title, group[0]["title"].upper())
+        elif len(group) == 1 and (group[0]["title"].casefold() in ("conclusiones", "recomendaciones") or group[0]["title"].casefold().startswith(("bibliografía", "referencias bibliográficas"))):
             replace_frame_text(title, group[0]["title"].upper())
         elif image_only:
             slide_title = presentation_image_title(group[0]).upper()
             replace_frame_text(title, slide_title)
         else:
             replace_frame_text(title, "DESARROLLO")
-        replace_frame_text(content, "" if image_only else slide_body(group))
+        amortization_table = None
+        body_group = group
+        if compact and group[0]["title"] == "Amortización: ejemplo de cuotas":
+            amortization_table = next(block for block in group[0]["blocks"] if block["kind"] == "table")
+            body_group = [{**group[0], "blocks": [block for block in group[0]["blocks"] if block["kind"] != "table"]}]
+        replace_frame_text(content, "" if image_only else slide_body(body_group))
         if not image_only:
-            format_slide_code_blocks(content, group)
+            format_slide_code_blocks(content, body_group, compact)
+        if amortization_table:
+            rows = amortization_table["rows"]
+            table = slide.shapes.add_table(len(rows), len(rows[0]), PInches(0.8), PInches(3.55),
+                                          PInches(8.7), PInches(2.55)).table
+            for row_index, row in enumerate(rows):
+                for column_index, value in enumerate(row):
+                    cell = table.cell(row_index, column_index)
+                    cell.text = value
+                    cell.margin_left = cell.margin_right = PInches(0.08)
+                    cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+                    cell.fill.solid()
+                    cell.fill.fore_color.rgb = RGBColor(24, 46, 91) if row_index == 0 else RGBColor(245, 248, 251)
+                    for paragraph in cell.text_frame.paragraphs:
+                        paragraph.alignment = PP_ALIGN.CENTER
+                        for run in paragraph.runs:
+                            run.font.name = "Cambria"
+                            run.font.size = PPt(16)
+                            run.font.bold = row_index == 0
+                            run.font.color.rgb = RGBColor(255, 255, 255) if row_index == 0 else RGBColor(48, 54, 61)
+        if compact and group[0]["title"] in ("Venta a crédito y estados", "Reintentos y operación única"):
+            content.top = PInches(2.12)
         old_pictures = [shape for shape in slide.shapes if shape.shape_type == 13]
         for shape in old_pictures:
             shape._element.getparent().remove(shape._element)
@@ -1178,14 +1293,11 @@ def generate_presentation(template, source, target, sections):
                 and all(image_ratio(block) < 0.65 for block in images)
             )
             if portrait_gallery:
-                image_widths = []
-                for block in images:
-                    with Image.open(block["path"]) as bitmap:
-                        image_widths.append(int(min(width, height * bitmap.width / bitmap.height)))
+                image_widths = [int(min(width, height * image_ratio(block))) for block in images]
                 total_width = sum(image_widths) + gap * (len(images) - 1)
                 cursor = left + (width - total_width) // 2
                 for block, image_width in zip(images, image_widths):
-                    fit_picture(slide, block["path"], (cursor, top, image_width, height))
+                    fit_picture(slide, block["path"], (cursor, top, image_width, height), block.get("crop"))
                     cursor += image_width + gap
             else:
                 columns = min(2, len(images))
@@ -1193,7 +1305,7 @@ def generate_presentation(template, source, target, sections):
                 for image_index, block in enumerate(images):
                     fit_picture(slide, block["path"], (
                         left + image_index * (column_width + gap), top, column_width, height
-                    ))
+                    ), block.get("crop"))
         if label.startswith("conclus"):
             active = "CONCLUSIONES"
         elif label.startswith("recomend"):
@@ -1214,7 +1326,7 @@ def generate_presentation(template, source, target, sections):
             active = "ARQUITECTURA"
         else:
             active = "OBJETIVO Y ALCANCE"
-        update_sidebar(slide, nav, active)
+        update_sidebar(slide, nav, group[0].get("_nav", active))
         set_slide_number(slide, slide_index + 1)
         for shape in slide.shapes:
             if shape.has_text_frame and "EUREKA" in shape.text.upper():
@@ -1227,7 +1339,8 @@ def generate_presentation(template, source, target, sections):
 
     prs.core_properties.author = AUTHOR_LINE
     prs.core_properties.title = PROJECT["name"] + " — Manual técnico"
-    prs.core_properties.subject = "Misma fuente canónica del manual DOCX"
+    prs.core_properties.subject = ("Presentación resumida basada en la fuente canónica" if compact
+                                   else "Misma fuente canónica del manual DOCX")
     prs.core_properties.keywords = "GR09, NRC 36884, REST, .NET, celulares, BanQuito"
     prs.save(target)
 
@@ -1259,11 +1372,15 @@ def generate_legacy_word(template, source, target):
 
 def main():
     artifacts = DOCS["artifacts"]
+    if ARGS.compacto and ARGS.artifacts != ["presentacion"]:
+        raise ValueError("--compacto requiere --artifacts presentacion para no modificar otros documentos.")
     if artifacts["manual"]["source"] != artifacts["presentacion"]["source"]:
         raise ValueError("Manual DOCX y PPTX deben compartir exactamente la misma fuente canónica.")
     canonical_path = ROOT / artifacts["manual"]["source"]
     title, sections = parse_source(canonical_path)
     content_hash = canonical_content_hash(sections)
+    compact_groups, selection_path, selection = (compact_presentation_groups(sections, canonical_path)
+                                                   if ARGS.compacto else (None, None, None))
     draft_dir = ARGS.draft_directory or pathlib.Path(DOCS["draft_directory"])
     draft_dir.mkdir(parents=True, exist_ok=True)
     records = []
@@ -1278,7 +1395,7 @@ def main():
         if key == "manual":
             generate_manual_word(template, source, target, sections)
         elif key == "presentacion":
-            generate_presentation(template, source, target, sections)
+            generate_presentation(template, source, target, sections, compact_groups, ARGS.compacto)
         elif key in ("ers", "ecud"):
             generate_legacy_word(template, source, target)
         else:
@@ -1290,8 +1407,10 @@ def main():
             "source": item["source"],
             "sourceSha256": sha(source),
             "canonicalManualSource": artifacts["manual"]["source"] if key in ("manual", "presentacion") else None,
-            "canonicalContentSha256": content_hash if key in ("manual", "presentacion") else None,
-            "chapters": len(sections) if key in ("manual", "presentacion") else None,
+            "canonicalContentSha256": content_hash if key in ("manual", "presentacion") and not (ARGS.compacto and key == "presentacion") else None,
+            "canonicalSourceContentSha256": content_hash if ARGS.compacto and key == "presentacion" else None,
+            "chapters": (len({slide["section"] for slide in selection["slides"]}) if ARGS.compacto and key == "presentacion"
+                         else len(sections) if key in ("manual", "presentacion") else None),
             "draft": str(target),
             "draftSha256": sha(target),
             "output": item["output"],
@@ -1302,7 +1421,10 @@ def main():
         "canonicalManualSource": artifacts["manual"]["source"],
         "canonicalContentSha256": content_hash,
         "chapterCount": len(sections),
-        "expectedPresentationSlides": len(group_presentation_sections(sections)) + 2,
+        "expectedPresentationSlides": len(compact_groups if ARGS.compacto else group_presentation_sections(sections)) + 2,
+        "presentationMode": "resumida" if ARGS.compacto else "completa",
+        "selection": selection if ARGS.compacto else None,
+        "selectionSha256": sha(selection_path) if ARGS.compacto else None,
         "artifacts": records,
     }
     (draft_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
